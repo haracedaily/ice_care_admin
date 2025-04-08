@@ -12,7 +12,9 @@ function App() {
     <>
       <Header/>
       <Side/>
+        <main>
         <Body/>
+        </main>
         <Footer/>
     </>
   )

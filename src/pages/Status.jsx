@@ -3,9 +3,9 @@ import React from 'react';
 function Status(props) {
     return (
         <>
-            <main>
+            <div>
                 <h1>현황조회</h1>
-            </main>
+            </div>
         </>
     );
 }
