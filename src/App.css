@@ -1,0 +1,128 @@
+#root {
+    position: relative;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+}
+
+header {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 10%;
+    display: flex;
+    align-items: center;
+    justify-content: flex-start;
+    background-color: #eeeeee;
+
+    nav {
+        display: flex;
+        flex-direction: row;
+        justify-content: space-between;
+        align-items: center;
+        height: 100%;
+        width: 95%;
+    }
+}
+
+aside {
+    position: absolute;
+    top: 10%;
+    left: 0;
+    width: calc(10vw - 1px);
+    height: 85vh;
+    border-right: 1px solid #eeeeee;
+    background-color: white;
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-start;
+    align-items: flex-start;
+
+    h4 {
+        font-size: 0.8rem;
+        margin-block-end: 0;
+        margin-block-start: 0;
+        text-align: right;
+    }
+
+    &>div:first-child {
+        display: flex;
+        flex-direction: column;
+        width: 100%;
+        border-bottom: 1px solid #eeeeee;
+        justify-content: center;
+        align-items: center;
+    }
+
+    &>div:nth-child(2) {
+        display: grid;
+        grid-template-columns:1fr 2fr;
+        padding: 0.2rem;
+        border-bottom: 1px solid #eeeeee;
+
+        #menu_search_bar {
+            grid-column: span 2;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 0.2rem;
+
+            input {
+                width: 70%;
+            }
+
+            button {
+                padding: 0;
+            }
+        }
+    }
+
+    nav {
+        display: flex;
+        flex-direction: column;
+        gap: 0.5rem;
+        justify-content: flex-start;
+        width: 100%;
+
+        &>div {
+            position: relative;
+            display: flex;
+            flex-direction: column;
+            align-items: flex-start;
+            padding: 0.5rem;
+            &>div{
+                display:flex;
+                flex-direction: row;
+                justify-content: space-between;
+                align-items: center;
+                width:100%;
+                cursor: pointer;
+            }
+        }
+
+        h1, h2, h3, h4, h5, h6, p {
+            margin-block-start: 0;
+            margin-block-end: 0;
+
+        }
+    }
+
+}
+
+main {
+    position: absolute;
+    top: 10%;
+    left: 10%;
+    width: 90%;
+    height: 85%;
+    background-color: white;
+    padding: 1rem;
+}
+.none{
+    display: none;
+}
+.rotate{
+    rotate: 180deg;
+}
