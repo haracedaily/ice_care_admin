@@ -29,25 +29,32 @@ header {
 
 aside {
     position: absolute;
-    top: 10%;
+    top: 0;
     left: 0;
-    width: calc(10vw - 1px);
-    height: 85vh;
+    width: calc(12vw - 1px);
+    height: 100vh;
     border-right: 1px solid #eeeeee;
-    background-color: white;
+    background-color: #353535;
     display: flex;
     flex-direction: column;
     justify-content: flex-start;
     align-items: flex-start;
-
+    color:white;
     h4 {
         font-size: 0.8rem;
         margin-block-end: 0;
         margin-block-start: 0;
         text-align: right;
     }
-
     &>div:first-child {
+        display:flex;
+        justify-content: center;
+        align-items: center;
+        width: 100%;
+        height: 10vh;
+        border-bottom: 1px solid #eeeeee;
+    }
+    &>div:nth-child(2) {
         display: flex;
         flex-direction: column;
         width: 100%;
@@ -56,12 +63,16 @@ aside {
         align-items: center;
     }
 
-    &>div:nth-child(2) {
+    &>div:nth-child(3) {
         display: grid;
         grid-template-columns:1fr 2fr;
-        padding: 0.2rem;
         border-bottom: 1px solid #eeeeee;
-
+        width: 100%;
+        padding: 0.5rem 0;
+        &>*{
+            padding-block-end: 0.2rem;
+            padding-block-start: 0.2rem;
+        }
         #menu_search_bar {
             grid-column: span 2;
             display: flex;
@@ -85,7 +96,7 @@ aside {
         gap: 0.5rem;
         justify-content: flex-start;
         width: 100%;
-
+        padding: 1rem 0;
         &>div {
             position: relative;
             display: flex;
@@ -99,13 +110,30 @@ aside {
                 align-items: center;
                 width:100%;
                 cursor: pointer;
+                &>img{
+                    margin-right:2rem;
+                }
             }
         }
-
-        h1, h2, h3, h4, h5, h6, p {
+        ul{
+            list-style: none;
             margin-block-start: 0;
             margin-block-end: 0;
-
+            padding: 0;
+            width: 100%;
+            li{
+                text-align: center;
+                background-color:#4B4B4B;
+                cursor: pointer;
+                &:hover{
+                    background-color:#2A2A2A;
+                }
+            }
+        }
+        &>h1, h2, h3, h4, h5, h6, p {
+            margin-block-start: 0;
+            margin-block-end: 0;
+            margin-left:2rem;
         }
     }
 
@@ -113,11 +141,12 @@ aside {
 
 main {
     position: absolute;
-    top: 10%;
-    left: 10%;
-    width: 90%;
-    height: 85%;
+    top: 0;
+    left: 12%;
+    width: 88%;
+    height: 100vh;
     background-color: white;
+    overflow-y:scroll;
     &>div{
 
         padding: 2rem;

@@ -1,4 +1,5 @@
 import React, {useState} from 'react';
+import {NavLink} from "react-router-dom";
 
 function Side(props) {
     const [isReserved, setIsReserved] = useState(true);
@@ -9,6 +10,11 @@ function Side(props) {
     return (
         <>
             <aside>
+                <div>
+                    <NavLink to="/">
+                        <img src="/src/images/side_logo.png" alt="Logo"/>
+                    </NavLink>
+                </div>
                 <div>
                     <h1>관리자 센터</h1>
                 </div>
