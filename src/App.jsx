@@ -5,6 +5,7 @@ import Side from "./layout/Side.jsx";
 import Body from "./layout/Body.jsx";
 import Footer from "./layout/Footer.jsx";
 import {BrowserRouter} from "react-router-dom";
+import AccountCircleIcon from '@mui/icons-material/AccountCircle';
 
 function App() {
 
@@ -14,7 +15,7 @@ function App() {
         <main>
             <nav>
                 <section>
-                <img src="" alt=""/>
+                <AccountCircleIcon style={{fontSize:'50px'}} />
                 </section>
             </nav>
             <div>

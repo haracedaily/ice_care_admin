@@ -12,7 +12,7 @@ function Side(props) {
             <aside>
                 <div>
                     <NavLink to="/">
-                        <img src="/src/images/side_logo.png" alt="Logo"/>
+                        <img src="/src/images/side_logo.png" width={150} alt="Logo"/>
                     </NavLink>
                 </div>
                 <div>
