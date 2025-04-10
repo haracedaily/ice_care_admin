@@ -9,7 +9,7 @@ function Side(props) {
     const [isFavorite, setIsFavorite] = useState(true);
     return (
         <>
-            <aside>
+            <aside className={'login'}>
                 <div>
                     <NavLink to="/">
                         <img src="/src/images/side_logo.png" width={150} alt="Logo"/>
@@ -23,13 +23,10 @@ function Side(props) {
                     <span id={"id"}></span>
                     <h4>AUTH : </h4>
                     <span id={"pw"}></span>
-
-                    <span id={"menu_search_bar"}>
-                        <input type="text"/>
-                        <button>검색</button>
-                    </span>
                 </div>
                 <nav>
+                    <h4>Dashboard</h4>
+                    <h4>General</h4>
                     <div>
                         <div onClick={() => setIsFavorite(!isFavorite)}>
                             <h3>즐겨찾기</h3>

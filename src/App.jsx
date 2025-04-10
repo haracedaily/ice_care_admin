@@ -12,7 +12,7 @@ function App() {
   return (
     <>
       <Side/>
-        <main>
+        <main className="login">
             <nav>
                 <section>
                 <AccountCircleIcon style={{fontSize:'50px'}} />
