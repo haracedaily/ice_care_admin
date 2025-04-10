@@ -11,7 +11,7 @@
 
 
 
-aside {
+aside.login {
     position: fixed;
     top: 0;
     left: 0;
@@ -30,11 +30,44 @@ aside {
         margin-block-start: 0;
         text-align: right;
     }
+    &>div:nth-child(3) {
+        display:grid;
+        grid-template-columns:1.5fr 3fr;
+        width:100%;
+        padding:10px;
+        border-radius:5px;
+        background-color:#171A1C;
+        cursor:pointer;
+        &:hover{
+            filter: brightness(1.2);
+        }
+    }
+    nav{
+        overflow-y:auto;
+        height:100%;
+        max-height:60vh;
+        width:100%;
+        display:flex;
+        flex-direction:column;
+        scrollbar-width: none;
+        &>div>div{
+            display:grid;
+            grid-template-columns:3fr 1fr;
+            place-items:center;
+
+        }
+        &>h4{
+            padding-top:10px;
+            color:#5A5C5F;
+            text-align:left;
+        }
+       
+    }
 
 
 }
 
-main {
+main.login {
     position: relative;
     display:flex;
     flex-direction: column;
@@ -82,4 +115,22 @@ main {
 }
 .rotate{
     rotate: 180deg;
+}
+
+@media (min-width:1200px){
+    aside.login{
+        display:flex;
+    }
+}
+@media (max-width: 1199px){
+    aside.login{
+        display:none;
+    }
+    #root{
+        padding-left:24px;
+        width:100vw;
+    }
+    main.login {
+        width:calc(100% - 48px);
+    }
 }
