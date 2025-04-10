@@ -26,6 +26,11 @@ function Side(props) {
                 </div>
                 <nav>
                     <h4>Dashboard</h4>
+                    <div>
+                        <div className={isStatus?"":"select"} onClick={() => {setIsStatus(!isStatus)}}>
+                            <h3>대시보드</h3>
+                        </div>
+                    </div>
                     <h4>General</h4>
                     <div>
                         <div onClick={() => setIsFavorite(!isFavorite)}>
@@ -58,16 +63,7 @@ function Side(props) {
                             <li>게시글 조회</li>
                         </ul>
                     </div>
-                    <div>
-                        <div onClick={() => {setIsStatus(!isStatus)}}>
-                            <h3>현황조회</h3>
-                            <img className={isStatus?"":"rotate"} src="/src/images/polygon.png"  alt="" width={10} height={10}/>
-                        </div>
-                        <ul className={`${isStatus ? 'none' : ''}`}>
-                            <li>기간별현황조회</li>
-                            <li>기간별매출조회</li>
-                        </ul>
-                    </div>
+
                     <div>
                         <div onClick={() => {setIsEdit(!isEdit)}}>
                             <h3>환경설정</h3>
