@@ -10,12 +10,17 @@ function App() {
 
   return (
     <>
-      <Header/>
       <Side/>
         <main>
+            <nav>
+                <section>
+                <img src="" alt=""/>
+                </section>
+            </nav>
+            <div>
         <Body/>
+            </div>
         </main>
-        <Footer/>
     </>
   )
 }
