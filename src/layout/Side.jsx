@@ -1,5 +1,7 @@
 import React, {useState} from 'react';
-import {NavLink} from "react-router-dom";
+import {NavLink, useNavigate} from "react-router-dom";
+import sideMenu from '../js/sideMenu.js';
+import { AutoComplete } from 'antd';
 
 function Side(props) {
     const [isReserved, setIsReserved] = useState(true);
@@ -7,6 +9,19 @@ function Side(props) {
     const [isStatus, setIsStatus] = useState(true);
     const [isEdit, setIsEdit] = useState(true);
     const [isFavorite, setIsFavorite] = useState(true);
+    const sideNav = useNavigate();
+
+    const autocompleteSelect = (value,option)=>{
+        const side_nav = {
+            "isReserved":()=>setIsReserved(!isReserved),
+            "isNotice":()=>setIsNotice(!isNotice),
+            "isStatus":()=>setIsStatus(!isStatus),
+            "isEdit":()=>setIsEdit(!isEdit),
+            "isFavorite":()=>setIsFavorite(!isFavorite),
+        }
+        side_nav[option.state]();
+        sideNav(option.link);
+    }
     return (
         <>
             <aside className={'login'}>
@@ -32,8 +47,34 @@ function Side(props) {
                         </div>
                     </div>
                     <h4>General</h4>
+                    <AutoComplete
+                        style={{ width: 150 }}
+                        options={sideMenu}
+                        onSelect={autocompleteSelect}
+                        placeholder="메뉴검색"
+                        filterOption={(inputValue, option) =>
+                            option.value.toUpperCase().indexOf(inputValue.toUpperCase()) !== -1
+                        }
+                    />
+                    {/*<Autocomplete
+                        disablePortal
+                        options={sideMenu}
+                        sx={(theme) => ({
+                            display: 'inline-block',
+                            '& label':{
+                              color:'white',
+                            },
+                            '& input': {
+                                width: 300,
+                                color: 'white',
+                                fontSize:'8pt',
+                            },
+
+                        })}
+                        renderInput={(params) => <TextField {...params}  label="메뉴찾기" />}
+                    />*/}
                     <div>
-                        <div onClick={() => setIsFavorite(!isFavorite)}>
+                        <div className={isFavorite?"":"select"} onClick={() => setIsFavorite(!isFavorite)}>
                             <h3>즐겨찾기</h3>
                             <img className={isFavorite?"":"rotate"} src="/src/images/polygon.png" alt="" width={10} height={10}/>
                         </div>
@@ -42,7 +83,7 @@ function Side(props) {
                         </ul>
                     </div>
                     <div>
-                        <div onClick={() => {setIsReserved(!isReserved)}}>
+                        <div className={isReserved?"":"select"} onClick={() => {setIsReserved(!isReserved)}}>
                             <h3>예약관리</h3>
                             <img className={isReserved?"":"rotate"} src="/src/images/polygon.png" alt="" width={10} height={10}/>
                         </div>
@@ -53,7 +94,7 @@ function Side(props) {
                         </ul>
                     </div>
                     <div>
-                        <div onClick={() => {setIsNotice(!isNotice)}}>
+                        <div className={isNotice?"":"select"} onClick={() => {setIsNotice(!isNotice)}}>
                             <h3>게시판</h3>
                             <img className={isNotice?"":"rotate"} src="/src/images/polygon.png" alt="" width={10} height={10}/>
                         </div>
@@ -65,7 +106,7 @@ function Side(props) {
                     </div>
 
                     <div>
-                        <div onClick={() => {setIsEdit(!isEdit)}}>
+                        <div className={isEdit?"":"select"} onClick={() => {setIsEdit(!isEdit)}}>
                             <h3>환경설정</h3>
                             <img  className={isEdit?"":"rotate"} src="/src/images/polygon.png" alt="" width={10} height={10}/>
                         </div>
