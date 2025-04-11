@@ -10,9 +10,16 @@ function Side(props) {
     const [isEdit, setIsEdit] = useState(true);
     const [isFavorite, setIsFavorite] = useState(true);
     const sideNav = useNavigate();
+
     const autocompleteSelect = (value,option)=>{
-        console.log(value);
-        console.log(option);
+        const side_nav = {
+            "isReserved":()=>setIsReserved(!isReserved),
+            "isNotice":()=>setIsNotice(!isNotice),
+            "isStatus":()=>setIsStatus(!isStatus),
+            "isEdit":()=>setIsEdit(!isEdit),
+            "isFavorite":()=>setIsFavorite(!isFavorite),
+        }
+        side_nav[option.state]();
         sideNav(option.link);
     }
     return (
