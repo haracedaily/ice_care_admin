@@ -9,6 +9,7 @@ function Side(props) {
     const [isStatus, setIsStatus] = useState(true);
     const [isEdit, setIsEdit] = useState(true);
     const [isFavorite, setIsFavorite] = useState(true);
+    // const [currentSide, setCurrentSide] = useState('dashboard');
     const sideNav = useNavigate();
 
     const autocompleteSelect = (value,option)=>{
@@ -56,23 +57,6 @@ function Side(props) {
                             option.value.toUpperCase().indexOf(inputValue.toUpperCase()) !== -1
                         }
                     />
-                    {/*<Autocomplete
-                        disablePortal
-                        options={sideMenu}
-                        sx={(theme) => ({
-                            display: 'inline-block',
-                            '& label':{
-                              color:'white',
-                            },
-                            '& input': {
-                                width: 300,
-                                color: 'white',
-                                fontSize:'8pt',
-                            },
-
-                        })}
-                        renderInput={(params) => <TextField {...params}  label="메뉴찾기" />}
-                    />*/}
                     <div>
                         <div className={isFavorite?"":"select"} onClick={() => setIsFavorite(!isFavorite)}>
                             <h3>즐겨찾기</h3>
@@ -85,7 +69,7 @@ function Side(props) {
                     <div>
                         <div className={isReserved?"":"select"} onClick={() => {setIsReserved(!isReserved)}}>
                             <h3>예약관리</h3>
-                            <img className={isReserved?"":"rotate"} src="/src/images/polygon.png" alt="" width={10} height={10}/>
+                            <img className={`${isReserved?"":"rotate"}`} src="/src/images/polygon.png" alt="" width={10} height={10}/>
                         </div>
                         <ul className={`${isReserved ? 'none' : ''}`}>
                             <li>예약 등록</li>
