@@ -1,5 +1,8 @@
 import React, {useState} from 'react';
 import {NavLink} from "react-router-dom";
+import TextField from '@mui/material/TextField';
+import Autocomplete from '@mui/material/Autocomplete';
+import sideMenu from '../js/sideMenu.js';
 
 function Side(props) {
     const [isReserved, setIsReserved] = useState(true);
@@ -32,6 +35,23 @@ function Side(props) {
                         </div>
                     </div>
                     <h4>General</h4>
+                    <Autocomplete
+                        disablePortal
+                        options={sideMenu}
+                        sx={(theme) => ({
+                            display: 'inline-block',
+                            '& label':{
+                              color:'white',
+                            },
+                            '& input': {
+                                width: 300,
+                                color: 'white',
+                                fontSize:'8pt',
+                            },
+
+                        })}
+                        renderInput={(params) => <TextField {...params}  label="메뉴찾기" />}
+                    />
                     <div>
                         <div onClick={() => setIsFavorite(!isFavorite)}>
                             <h3>즐겨찾기</h3>
