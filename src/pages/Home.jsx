@@ -118,8 +118,6 @@ function Home(props) {
             <div style={{width:'50%',height:'50%'}}>
                 <Example />
             </div>
-
-
         </>
     );
 }
