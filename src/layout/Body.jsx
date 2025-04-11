@@ -14,6 +14,7 @@ function Body(props) {
                     <Route path="/status" element={<Status/>} />
                     <Route path="/sales" element={<Sales/>} />
                     <Route path="/reservation" element={<Reservation/>} />
+                    <Route path="/contact" element={<Contact_us/>} />
                 </Routes>
         </>
     );
