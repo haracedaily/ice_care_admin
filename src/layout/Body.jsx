@@ -3,6 +3,7 @@ import {BrowserRouter, Route, Routes} from "react-router-dom";
 import Home from "../pages/Home.jsx";
 import Status from "../pages/Status.jsx";
 import Sales from "../pages/Sales.jsx";
+import Reservation from "../pages/Reservation.jsx";
 
 
 function Body(props) {
@@ -12,6 +13,7 @@ function Body(props) {
                     <Route path="/" element={<Home/>} />
                     <Route path="/status" element={<Status/>} />
                     <Route path="/sales" element={<Sales/>} />
+                    <Route path="/reservation" element={<Reservation/>} />
                 </Routes>
         </>
     );
