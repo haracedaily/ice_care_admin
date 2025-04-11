@@ -22,12 +22,7 @@ function Side(props) {
                 <div>
                     <h1>관리자 센터</h1>
                 </div>
-                <div>
-                    <h4>ID : </h4>
-                    <span id={"id"}></span>
-                    <h4>AUTH : </h4>
-                    <span id={"pw"}></span>
-                </div>
+
                 <nav>
                     <h4>Dashboard</h4>
                     <div>
@@ -88,6 +83,12 @@ function Side(props) {
                         </ul>
                     </div>
                 </nav>
+                <div>
+                    <h4>ID : </h4>
+                    <span id={"id"}></span>
+                    <h4>AUTH : </h4>
+                    <span id={"pw"}></span>
+                </div>
             </aside>
         </>
     );
