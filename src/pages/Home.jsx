@@ -1,9 +1,13 @@
 import React, {PureComponent, useEffect, useState} from 'react';
 import {ComposedChart,Line,Area,Bar,XAxis,YAxis,CartesianGrid,Tooltip,Legend,Scatter,ResponsiveContainer,} from 'recharts';
-import { Breadcrumb } from 'antd';
+import { Breadcrumb,DatePicker,Button, Flex, Select  } from 'antd';
+import dayjs from 'dayjs';
+import customParseFormat from 'dayjs/plugin/customParseFormat';
+import {useNavigate} from "react-router-dom";
+import styles from '../css/home.module.css'
+import { SearchOutlined } from '@ant-design/icons';
 
-
-
+dayjs.extend(customParseFormat);
 
 function Home(props) {
     let [data,setData] = useState([
@@ -53,7 +57,18 @@ function Home(props) {
     useEffect(() => {
 
     }, []);
+    let [daily, setDaily]=useState(1);
+let homeNavi=useNavigate();
 
+let changeWeek = (e)=>{
+    setDaily(e);
+}
+    const weekFormat = 'MM/DD';
+    const monthFormat = 'YYYY/MM';
+    const customWeekStartEndFormat = value =>
+        `${dayjs(value).startOf('week').format(weekFormat)} ~ ${dayjs(value)
+            .endOf('week')
+            .format(weekFormat)}`;
 
     class Example extends PureComponent {
         render() {
@@ -90,7 +105,7 @@ function Home(props) {
                             yAxisId="right"
                             orientation="right"
                         />
-                        <Tooltip />
+                        <Tooltip/>
                         <Legend />
                         <Area type="monotone" dataKey="완료" fill="#8884d8" stroke="#8884d8" yAxisId={"right"} />
                         <Bar dataKey="신규예약" barSize={20} fill="#413ea0" yAxisId={"right"} />
@@ -114,18 +129,67 @@ function Home(props) {
                             },
                             {
                                 title: '대시보드',
-                                href: '/',
+                                href:'',
+                                onClick:(e)=>{e.preventDefault();homeNavi("/");},
                             },
 
                         ]}
                     />
                 </div>
             </div>
-            <div>
+            <div id={styles.homeBody}>
+            <div className={styles.homeSearch}>
+                <Select
+                    defaultValue={daily}
+                    style={{ minWidth: 80, maxWidth: 100 }}
+                    onChange={(e)=>changeWeek(e)}
+                    options={[
+                        { value: 1, label: '일간' },
+                        { value: 2, label: '주간' },
+                    ]}
+                />
 
+                {
+                    daily==1?(<DatePicker defaultValue={dayjs()} format={customWeekStartEndFormat} picker="week" />):(<DatePicker defaultValue={dayjs('2015/01', monthFormat)} format={monthFormat} picker="month" />)
+                }
+
+
+                        <Button className={styles.Btn} icon={<SearchOutlined />}></Button>
             </div>
-            <div style={{width:'100%',height:'50%'}}>
+            <div className={styles.dashBoard}>
                 <Example />
+            </div>
+                <div className={styles.dashBoard}>
+                    {data.length>0?(<table>
+                        <colgroup>
+                            <col style={{width:'20%'}}/>
+                            <col style={{width:'20%'}}/>
+                            <col style={{width:'20%'}}/>
+                            <col style={{width:'20%'}}/>
+                            <col style={{width:'20%'}}/>
+                        </colgroup>
+                        <tbody>
+                        <tr>
+                            <th>일자</th>
+                            <th>신규예약</th>
+                            <th>예약취소</th>
+                            <th>완료</th>
+                            <th>누적예약</th>
+                        </tr>
+                        {data.map(item=>
+                            (<tr>
+                                <td>
+                                {item.name}
+                                </td>
+                                <td>{item.신규예약}</td>
+                                <td>{item.예약취소}</td>
+                                <td>{item.완료}</td>
+                                <td>{item.누적예약}</td>
+                            </tr>)
+                        )}
+                        </tbody>
+                    </table>):""}
+                </div>
             </div>
         </>
     );
