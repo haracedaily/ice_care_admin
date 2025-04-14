@@ -114,12 +114,15 @@ function Home(props) {
                             },
                             {
                                 title: '대시보드',
-                                href: '',
+                                href: '/',
                             },
 
                         ]}
                     />
                 </div>
+            </div>
+            <div>
+
             </div>
             <div style={{width:'100%',height:'50%'}}>
                 <Example />
