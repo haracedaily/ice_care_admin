@@ -61,7 +61,7 @@ function Side(props) {
                         </ul>
                     </div>
                     <div>
-                        <div className={`${currentSide==="contact"? "select" : ""}`} onClick={() => {setCurrentSide("contact")}}>
+                        <div className={`${currentSide==="contact"? "select" : ""}`} onClick={() => {setCurrentSide("contact");sideNav("/contact")}}>
                             <h3>게시판</h3>
                             <img className={`${currentSide==="contact"? "rotate" : ""}`} src="/src/images/polygon.png" alt="" width={10} height={10}/>
                         </div>
