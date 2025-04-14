@@ -138,6 +138,11 @@ main.login {
     aside.login{
         display:flex;
     }
+
+    .recharts-cartesian-axis-tick-value{
+        font-size:0.8rem;
+        transform:rotate(0deg);
+    }
 }
 @media (max-width: 1199px){
     aside.login{
@@ -149,5 +154,10 @@ main.login {
     }
     main.login {
         width:calc(100% - 48px);
+    }
+
+    .recharts-cartesian-axis-tick-value{
+        font-size:0.5rem;
+
     }
 }
