@@ -30,7 +30,7 @@ aside.login {
         margin-block-start: 0;
         text-align: right;
     }
-    &>div:nth-child(3) {
+    &>div:nth-child(4) {
         display:grid;
         grid-template-columns:1.5fr 3fr;
         width:100%;
@@ -88,18 +88,18 @@ main.login {
     flex-direction: column;
     justify-content: flex-start;
     width: calc(80vw - 1px);
+    min-height: calc(100vh - 24px);
     background-color:black;
     &>nav{
         box-shadow: rgba(0, 0, 0, 0.06) 0 12px 40px -12px;
         border-bottom: 1px solid #DDE7EE;
-        /*border-radius: 16px 16px 0 0;*/
-        /*min-height:50px;*/
         position: sticky;
         padding-top:24px;
         top:0;
         background-color:black;
         z-index:999;
         width: 100%;
+        max-height:10vh;
         section{
             border-radius: 20px 20px 0 0;
             min-height:50px;
@@ -116,13 +116,14 @@ main.login {
     }
     &>div{
         display:flex;
-        min-height: 96vh;
+        min-height: calc(90vh - 30px);
         height: auto;
         background-color: white;
         width: calc(100% - 20px);
         flex-direction: column;
         border-radius: 0 0 20px 20px;
         padding:10px;
+
     }
 }
 .none{
@@ -138,6 +139,11 @@ main.login {
     aside.login{
         display:flex;
     }
+
+    .recharts-cartesian-axis-tick-value{
+        font-size:0.8rem;
+        transform:rotate(0deg);
+    }
 }
 @media (max-width: 1199px){
     aside.login{
@@ -149,5 +155,15 @@ main.login {
     }
     main.login {
         width:calc(100% - 48px);
+    }
+
+    .recharts-cartesian-axis-tick-value{
+        font-size:0.5rem;
+
+    }
+}
+@media (max-width: 620px) {
+    .recharts-text,.recharts-label,.recharts-legend-item-text{
+        font-size:2vw;
     }
 }
