@@ -1,11 +1,22 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
+import { Layout, Button, Modal, Tabs, Card, Flex } from 'antd';
+import ReservationTable from '../components/ReservationTable';
+import ReservationForm from '../components/ReservationForm';
+import MiniDashboard from '../components/ResDashboard.jsx';
+import SearchFilters from '../components/ResSearchFilters.jsx';
+import { supabase } from '../services/supabase';
+import dayjs from 'dayjs';
+import 'dayjs/locale/ko';
 import { Breadcrumb } from 'antd';
-import { DatePicker, Space } from 'antd';
+
+
+
+
+
 
 
 
 function Reservation() {
-    const { RangePicker } = DatePicker;
     return (
         <div>
             <div>
@@ -17,14 +28,14 @@ function Reservation() {
                         },
                         {
                             title: '예약관리',
+                            // onClick:(e)=>{e.preventDefault();reservationNavi("/reservation");},
                             href: '',
                         },
-                        
+
                     ]}
                 />
             </div>
             <div>
-                <RangePicker />
             </div>
         </div>
     );
