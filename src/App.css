@@ -162,3 +162,8 @@ main.login {
 
     }
 }
+@media (max-width: 620px) {
+    .recharts-text,.recharts-label,.recharts-legend-item-text{
+        font-size:2vw;
+    }
+}
