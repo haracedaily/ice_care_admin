@@ -1,16 +1,29 @@
 import React, {PureComponent, useEffect, useState} from 'react';
-import {ComposedChart,Line,Area,Bar,XAxis,YAxis,CartesianGrid,Tooltip,Legend,Scatter,ResponsiveContainer,} from 'recharts';
-import { Breadcrumb,DatePicker,Button, Flex, Select  } from 'antd';
+import {
+    ComposedChart,
+    Line,
+    Area,
+    Bar,
+    XAxis,
+    YAxis,
+    CartesianGrid,
+    Tooltip,
+    Legend,
+    Scatter,
+    ResponsiveContainer,
+} from 'recharts';
+import {Breadcrumb, DatePicker, Button, Flex, Select, Card, Col, Row} from 'antd';
 import dayjs from 'dayjs';
 import customParseFormat from 'dayjs/plugin/customParseFormat';
 import {useNavigate} from "react-router-dom";
 import styles from '../css/home.module.css'
-import { SearchOutlined } from '@ant-design/icons';
+import {SearchOutlined} from '@ant-design/icons';
+import locale from "antd/es/date-picker/locale/ko_KR";
 
 dayjs.extend(customParseFormat);
 
 function Home(props) {
-    let [data,setData] = useState([
+    let [data, setData] = useState([
         {
             name: '2025-04-10',
             '완료': 590,
@@ -57,12 +70,12 @@ function Home(props) {
     useEffect(() => {
 
     }, []);
-    let [daily, setDaily]=useState(1);
-let homeNavi=useNavigate();
+    let [daily, setDaily] = useState(1);
+    let homeNavi = useNavigate();
 
-let changeWeek = (e)=>{
-    setDaily(e);
-}
+    let changeWeek = (e) => {
+        setDaily(e);
+    }
     const weekFormat = 'MM/DD';
     const monthFormat = 'YYYY/MM';
     const customWeekStartEndFormat = value =>
@@ -73,7 +86,7 @@ let changeWeek = (e)=>{
     class Example extends PureComponent {
         render() {
             return (
-                <ResponsiveContainer width="100%" height="100%">
+                <ResponsiveContainer width="100%" height="80%">
                     <ComposedChart
                         data={data}
                         margin={{
@@ -83,8 +96,8 @@ let changeWeek = (e)=>{
                             left: 20,
                         }}
                     >
-                        <CartesianGrid stroke="#f5f5f5" />
-                        <XAxis dataKey="name" fontSize={8} angle={-25} textAnchor="end" />
+                        <CartesianGrid stroke="#f5f5f5"/>
+                        <XAxis dataKey="name" fontSize={8} angle={-25} textAnchor="end"/>
                         <YAxis
                             label={{
                                 value: '누적예약 건',
@@ -98,7 +111,7 @@ let changeWeek = (e)=>{
                         <YAxis
                             label={{
                                 value: '예약 건',
-                                angle:90,
+                                angle: 90,
                                 position: 'right',
                                 offset: -10
                             }}
@@ -106,11 +119,11 @@ let changeWeek = (e)=>{
                             orientation="right"
                         />
                         <Tooltip/>
-                        <Legend />
-                        <Area type="monotone" dataKey="완료" fill="#8884d8" stroke="#8884d8" yAxisId={"right"} />
-                        <Bar dataKey="신규예약" barSize={20} fill="#413ea0" yAxisId={"right"} />
-                        <Line type="monotone" dataKey="누적예약" stroke="#ff7300" yAxisId={"left"} />
-                        <Scatter dataKey="예약취소" fill="red" yAxisId={"right"} />
+                        <Legend/>
+                        <Area type="monotone" dataKey="완료" fill="#8884d8" stroke="#8884d8" yAxisId={"right"}/>
+                        <Bar dataKey="신규예약" barSize={20} fill="#413ea0" yAxisId={"right"}/>
+                        <Line type="monotone" dataKey="누적예약" stroke="#ff7300" yAxisId={"left"}/>
+                        <Scatter dataKey="예약취소" fill="red" yAxisId={"right"}/>
                     </ComposedChart>
                 </ResponsiveContainer>
             );
@@ -129,44 +142,141 @@ let changeWeek = (e)=>{
                             },
                             {
                                 title: '대시보드',
-                                href:'',
-                                onClick:(e)=>{e.preventDefault();homeNavi("/");},
+                                href: '',
+                                onClick: (e) => {
+                                    e.preventDefault();
+                                    homeNavi("/");
+                                },
                             },
 
                         ]}
                     />
                 </div>
             </div>
-            <div id={styles.homeBody}>
-            <div className={styles.homeSearch}>
-                <Select
-                    defaultValue={daily}
-                    style={{ minWidth: 80, maxWidth: 100 }}
-                    onChange={(e)=>changeWeek(e)}
-                    options={[
-                        { value: 1, label: '일간' },
-                        { value: 2, label: '주간' },
-                    ]}
-                />
 
-                {
-                    daily==1?(<DatePicker defaultValue={dayjs()} format={customWeekStartEndFormat} picker="week" />):(<DatePicker defaultValue={dayjs('2015/01', monthFormat)} format={monthFormat} picker="month" />)
-                }
+            <div>
+                <div className={styles.homeSearch}>
+                    <Select
+                        defaultValue={daily}
+                        style={{minWidth: 80, maxWidth: 100}}
+                        onChange={(e) => changeWeek(e)}
+                        options={[
+                            {value: 1, label: '일간'},
+                            {value: 2, label: '주간'},
+                        ]}
+                    />
+
+                    {
+                        daily == 1 ? (
+                            <DatePicker locale={locale} defaultValue={dayjs()} format={customWeekStartEndFormat}
+                                        picker="week"/>) : (
+                            <DatePicker locale={locale} defaultValue={dayjs('2015/01', monthFormat)}
+                                        format={monthFormat}
+                                        picker="month"/>)
+                    }
 
 
-                        <Button className={styles.Btn} icon={<SearchOutlined />}></Button>
-            </div>
-            <div className={styles.dashBoard}>
-                <Example />
-            </div>
+                    <Button className={styles.Btn} icon={<SearchOutlined/>}></Button>
+                </div>
+                <Row gutter={[16, 8]}>
+                    <Col xl={8} md={8} xs={24}>
+                        <Card style={{backgroundColor: '#ccc'}}>
+                            <Row justify="center" align="top">
+                                <Col md={16} xs={24}>
+                                    <Row>
+                                        <Col md={24} xs={24}>
+                                            <h2>신규예약</h2>
+                                        </Col>
+                                        <Col md={24} xs={24}>
+                                            <p>테스트</p>
+                                        </Col>
+                                    </Row>
+                                </Col>
+                                <Col className={'gutter-row'} md={8} xs={24}>
+                                    <Row>
+                                        <Col md={24} xs={24}>
+                                            <h3>누계</h3>
+                                        </Col>
+                                        <Col md={24} xs={24}>
+                                            <p>테스트</p>
+                                        </Col>
+                                    </Row>
+                                </Col>
+
+                            </Row>
+                        </Card>
+                         <Example/>
+                    </Col>
+                    <Col xl={8} md={8} xs={24}>
+                        <Card style={{backgroundColor: '#ccc'}}>
+                            <Row justify="center" align="top">
+
+                                <Col md={16} xs={24}>
+                                    <Row>
+                                        <Col md={24} xs={24}>
+                                            <h2>예약취소</h2>
+                                        </Col>
+                                        <Col md={24} xs={24}>
+                                            <p>테스트</p>
+                                        </Col>
+                                    </Row>
+                                </Col>
+                                <Col className={'gutter-row'} md={8} xs={24}>
+                                    <Row>
+                                        <Col md={24} xs={24}>
+                                            <h3>누계</h3>
+                                        </Col>
+                                        <Col md={24} xs={24}>
+                                            <p>테스트</p>
+                                        </Col>
+                                    </Row>
+                                </Col>
+
+                            </Row>
+                        </Card>
+                        <Example/>
+                    </Col>
+                    <Col xl={8} md={8} xs={24}>
+                        <Card style={{backgroundColor: '#ccc'}}>
+                            <Row justify="center" align="top">
+
+                                <Col md={16} xs={16}>
+                                    <Row>
+                                        <Col md={24} xs={24}>
+                                            <h2>완료</h2>
+                                        </Col>
+                                        <Col md={24} xs={24}>
+                                            <p>테스트</p>
+                                        </Col>
+                                    </Row>
+                                </Col>
+                                <Col className={'gutter-row'} md={8} xs={8}>
+                                    <Row>
+                                        <Col md={24} xs={24}>
+                                            <h3>누계</h3>
+                                        </Col>
+                                        <Col md={24} xs={24}>
+                                            <p>테스트</p>
+                                        </Col>
+                                    </Row>
+                                </Col>
+
+                            </Row>
+                        </Card>
+                        <Example/>
+                    </Col>
+                </Row>
+                {/*<div className={styles.dashBoard}>
+                    <Example/>
+                </div>*/}
                 <div className={styles.dashBoard}>
-                    {data.length>0?(<table>
+                    {data.length > 0 ? (<table>
                         <colgroup>
-                            <col style={{width:'20%'}}/>
-                            <col style={{width:'20%'}}/>
-                            <col style={{width:'20%'}}/>
-                            <col style={{width:'20%'}}/>
-                            <col style={{width:'20%'}}/>
+                            <col style={{width: '20%'}}/>
+                            <col style={{width: '20%'}}/>
+                            <col style={{width: '20%'}}/>
+                            <col style={{width: '20%'}}/>
+                            <col style={{width: '20%'}}/>
                         </colgroup>
                         <tbody>
                         <tr>
@@ -176,10 +286,10 @@ let changeWeek = (e)=>{
                             <th>완료</th>
                             <th>누적예약</th>
                         </tr>
-                        {data.map(item=>
-                            (<tr>
+                        {data.map(item =>
+                            (<tr key={item.name}>
                                 <td>
-                                {item.name}
+                                    {item.name}
                                 </td>
                                 <td>{item.신규예약}</td>
                                 <td>{item.예약취소}</td>
@@ -188,11 +298,12 @@ let changeWeek = (e)=>{
                             </tr>)
                         )}
                         </tbody>
-                    </table>):""}
+                    </table>) : ""}
                 </div>
             </div>
         </>
-    );
+    )
+        ;
 }
 
 export default Home;
