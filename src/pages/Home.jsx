@@ -86,7 +86,7 @@ function Home(props) {
     class Example extends PureComponent {
         render() {
             return (
-                <ResponsiveContainer width="100%" height="100%">
+                <ResponsiveContainer width="100%" height="80%">
                     <ComposedChart
                         data={data}
                         margin={{
@@ -205,6 +205,7 @@ function Home(props) {
 
                             </Row>
                         </Card>
+                         <Example/>
                     </Col>
                     <Col xl={8} md={8} xs={24}>
                         <Card style={{backgroundColor: '#ccc'}}>
@@ -233,6 +234,7 @@ function Home(props) {
 
                             </Row>
                         </Card>
+                        <Example/>
                     </Col>
                     <Col xl={8} md={8} xs={24}>
                         <Card style={{backgroundColor: '#ccc'}}>
@@ -261,11 +263,12 @@ function Home(props) {
 
                             </Row>
                         </Card>
+                        <Example/>
                     </Col>
                 </Row>
-                <div className={styles.dashBoard}>
+                {/*<div className={styles.dashBoard}>
                     <Example/>
-                </div>
+                </div>*/}
                 <div className={styles.dashBoard}>
                     {data.length > 0 ? (<table>
                         <colgroup>
