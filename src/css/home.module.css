@@ -43,6 +43,12 @@
         }
     }
 }
+
+.palete{
+    padding:0.6vw;
+    border-radius:0.5vw;
+    background-color:white;
+}
 @media (max-width: 1199px) and (min-width:745px){
     .homeSearch{
         display:grid;
