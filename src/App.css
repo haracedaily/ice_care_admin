@@ -143,6 +143,7 @@ main.login {
     .recharts-cartesian-axis-tick-value{
         font-size:0.8rem;
         transform:rotate(0deg);
+
     }
 }
 @media (max-width: 1199px){
