@@ -2,22 +2,25 @@ import React, {useState} from 'react';
 import {NavLink, useNavigate} from "react-router-dom";
 import sideMenu from '../js/sideMenu.js';
 import { AutoComplete } from 'antd';
+import {CloseCircleOutlined} from "@ant-design/icons";
 
-function Side(props) {
+function Side({toggleAside,setToggleAside}) {
     const [currentSide, setCurrentSide] = useState('dashboard');
     const sideNav = useNavigate();
-
     const autocompleteSelect = (value,option)=>{
         setCurrentSide(option.state);
         sideNav(option.link);
     }
     return (
         <>
-            <aside className={'login'}>
+            <aside className={`login ${toggleAside ? "toggle" : ""}`}>
                 <div>
                     <NavLink to="/">
                         <img src="/src/images/side_logo.png" width={150} alt="Logo"/>
                     </NavLink>
+                    <div className={`${toggleAside?"toggle":""}`}>
+                    <CloseCircleOutlined  onClick={()=>{setToggleAside(!toggleAside)}} />
+                    </div>
                 </div>
                 <div>
                     <h1>관리자 센터</h1>
