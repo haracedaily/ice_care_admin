@@ -26,7 +26,6 @@ function Reservation() {
                             // onClick:(e)=>{e.preventDefault();reservationNavi("/reservation");},
                             href: '',
                         },
-
                     ]}
                 />
             </div>
