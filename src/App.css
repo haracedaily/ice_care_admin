@@ -135,6 +135,9 @@ main.login {
 .select{
     background-color:#4940FA;
 }
+.recharts-tooltip-item{
+    color:black !important;
+}
 @media (min-width:1200px){
     aside.login{
         display:flex;
