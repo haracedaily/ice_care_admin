@@ -12,7 +12,7 @@ const[toggleAside,setToggleAside]=useState(true);
         <main className="login">
             <nav>
                 <section>
-                <MenuUnfoldOutlined onClick={()=>{setToggleAside(!toggleAside)}}/>
+                <MenuUnfoldOutlined style={{ fontSize: '32px' }} onClick={()=>{setToggleAside(!toggleAside)}}/>
                 <AccountCircleIcon style={{fontSize:'50px'}} />
                 </section>
             </nav>
