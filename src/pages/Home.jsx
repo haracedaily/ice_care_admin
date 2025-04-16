@@ -26,42 +26,42 @@ dayjs.extend(customParseFormat);
 function Home(props) {
     let [data, setData] = useState([
         {
-            name: '04/10',
+            '일자': '04/10',
             '완료': 590,
             '신규예약': 800,
             '누적예약': 800,
             '예약취소': 490,
         },
         {
-            name: '04/11',
+            '일자': '04/11',
             '완료': 868,
             '신규예약': 967,
             '누적예약': 1767,
             '예약취소': 590,
         },
         {
-            name: '04/12',
+            '일자': '04/12',
             '완료': 1397,
             '신규예약': 1098,
             '누적예약': 2865,
             '예약취소': 350,
         },
         {
-            name: '04/13',
+            '일자': '04/13',
             '완료': 1480,
             '신규예약': 1200,
             '누적예약': 4065,
             '예약취소': 480,
         },
         {
-            name: '04/14',
+            '일자': '04/14',
             '완료': 1520,
             '신규예약': 1108,
             '누적예약': 5165,
             '예약취소': 460,
         },
         {
-            name: '04/15',
+            '일자': '04/15',
             '완료': 1400,
             '신규예약': 680,
             '누적예약': 6845,
@@ -87,18 +87,18 @@ function Home(props) {
     class NewReservChart extends PureComponent {
         render() {
             return (
-                <ResponsiveContainer width="100%" height={300}>
+                <ResponsiveContainer width="90%" height={500}>
                     <BarChart
                         data={data}
                         margin={{
                             top: 20,
-                            right: 20,
+                            right: 10,
                             bottom: 20,
-                            left: 20,
+                            left: 10,
                         }}
                     >
                         <CartesianGrid stroke="#f5f5f5"/>
-                        <XAxis dataKey="name" fontSize={8} angle={-45} textAnchor="end"/>
+                        <XAxis dataKey="일자" fontSize={8} angle={-45} textAnchor="end"/>
                         <YAxis
                             label={{
                                 position: 'right',
@@ -109,67 +109,7 @@ function Home(props) {
                         />
                         <Tooltip color="#FFFFFF"/>
                         <Bar dataKey="신규예약" fill="#93B2FF" yAxisId={"right"}/>
-                        {/*<Bar dataKey="예약취소" fill="#FFA69F" yAxisId={"right"}/>*/}
-                        {/*<Bar dataKey="완료" fill="#D6FF9F" yAxisId={"right"}/>*/}
-                    </BarChart>
-                </ResponsiveContainer>
-            );
-        }
-    }
-    class CancleReservChart extends PureComponent {
-        render() {
-            return (
-                <ResponsiveContainer width="100%" height={300}>
-                    <BarChart
-                        data={data}
-                        margin={{
-                            top: 20,
-                            right: 20,
-                            bottom: 20,
-                            left: 20,
-                        }}
-                    >
-                        <CartesianGrid stroke="#f5f5f5"/>
-                        <XAxis dataKey="name" fontSize={8} angle={-45} textAnchor="end"/>
-                        <YAxis
-                            label={{
-                                position: 'right',
-                                offset: -10
-                            }}
-                            yAxisId="right"
-                            orientation="right"
-                        />
-                        <Tooltip/>
                         <Bar dataKey="예약취소" fill="#FFA69F" yAxisId={"right"}/>
-                    </BarChart>
-                </ResponsiveContainer>
-            );
-        }
-    }
-    class CompleteReservChart extends PureComponent {
-        render() {
-            return (
-                <ResponsiveContainer width="100%" height={300}>
-                    <BarChart
-                        data={data}
-                        margin={{
-                            top: 20,
-                            right: 20,
-                            bottom: 20,
-                            left: 20,
-                        }}
-                    >
-                        <CartesianGrid stroke="#f5f5f5"/>
-                        <XAxis dataKey="name" fontSize={8} angle={-45} textAnchor="end"/>
-                        <YAxis
-                            label={{
-                                position: 'right',
-                                offset: -10
-                            }}
-                            yAxisId="right"
-                            orientation="right"
-                        />
-                        <Tooltip/>
                         <Bar dataKey="완료" fill="#D6FF9F" yAxisId={"right"}/>
                     </BarChart>
                 </ResponsiveContainer>
@@ -252,9 +192,8 @@ function Home(props) {
 
                             </Row>
                         </Card>
-                         <NewReservChart />
                     </Col>
-                    <Col xl={8} md={8} xs={24}>
+                    <Col xl={8} md={8} xs={0}>
                         <Card style={{backgroundColor: '#FEF1F0'}}>
                             <Row justify="center" align="top">
 
@@ -281,9 +220,8 @@ function Home(props) {
 
                             </Row>
                         </Card>
-                        <CancleReservChart />
                     </Col>
-                    <Col xl={8} md={8} xs={24}>
+                    <Col xl={8} md={8} xs={0}>
                         <Card style={{backgroundColor: '#F7FFEC'}}>
                             <Row justify="center" align="top">
 
@@ -310,43 +248,51 @@ function Home(props) {
 
                             </Row>
                         </Card>
-                        <CompleteReservChart />
                     </Col>
                 </Row>
                 {/*<div className={styles.dashBoard}>
                     <Example/>
                 </div>*/}
-                <div className={styles.dashBoard}>
-                    {data.length > 0 ? (<table>
-                        <colgroup>
-                            <col style={{width: '20%'}}/>
-                            <col style={{width: '20%'}}/>
-                            <col style={{width: '20%'}}/>
-                            <col style={{width: '20%'}}/>
-                            <col style={{width: '20%'}}/>
-                        </colgroup>
-                        <tbody>
-                        <tr>
-                            <th>일자</th>
-                            <th>신규예약</th>
-                            <th>예약취소</th>
-                            <th>완료</th>
-                            <th>누적예약</th>
-                        </tr>
-                        {data.map(item =>
-                            (<tr key={item.name}>
-                                <td>
-                                    {item.name}
-                                </td>
-                                <td>{item.신규예약}</td>
-                                <td>{item.예약취소}</td>
-                                <td>{item.완료}</td>
-                                <td>{item.누적예약}</td>
-                            </tr>)
-                        )}
-                        </tbody>
-                    </table>) : ""}
-                </div>
+                <Row style={{marginTop: 8,height:"80%",placeItems:'center',padding:'10px'}} gutter={[16, 16]}>
+                    <Col md={12} xs={24}>
+                        <NewReservChart/>
+                        <div className={styles.dashBoard}>
+                            {data.length > 0 ? (<table>
+                                <colgroup>
+                                    <col style={{width: '20%'}}/>
+                                    <col style={{width: '20%'}}/>
+                                    <col style={{width: '20%'}}/>
+                                    <col style={{width: '20%'}}/>
+                                    <col style={{width: '20%'}}/>
+                                </colgroup>
+                                <tbody>
+                                <tr>
+                                    <th>일자</th>
+                                    <th>신규예약</th>
+                                    <th>예약취소</th>
+                                    <th>완료</th>
+                                    <th>누적예약</th>
+                                </tr>
+                                {data.map(item =>
+                                    (<tr key={item.일자}>
+                                        <td>
+                                            {item.일자}
+                                        </td>
+                                        <td>{item.신규예약}</td>
+                                        <td>{item.예약취소}</td>
+                                        <td>{item.완료}</td>
+                                        <td>{item.누적예약}</td>
+                                    </tr>)
+                                )}
+                                </tbody>
+                            </table>) : ""}
+                        </div>
+                    </Col>
+                    <Col md={12} xs={24}>
+
+
+                    </Col>
+                </Row>
             </div>
         </>
     )
