@@ -90,6 +90,13 @@ main.login {
     width: calc(80vw - 1px);
     min-height: calc(100vh - 24px);
     background-color:black;
+
+    h1,h2,h3,h4,h5,h6,p {
+        margin-block-end: 0;
+        margin-block-start: 0;
+        padding-block-start: 0;
+        padding-block-end: 0;
+    }
     &>nav{
         box-shadow: rgba(0, 0, 0, 0.06) 0 12px 40px -12px;
         border-bottom: 1px solid #DDE7EE;
