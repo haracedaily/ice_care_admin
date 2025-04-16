@@ -1,18 +1,41 @@
-import React from 'react';
+import React, {useEffect} from 'react';
 import {Breadcrumb, Button, Input, Select} from "antd";
 import {debounce} from "@mui/material";
+import {supabase} from "../js/supabaseClient.js";
 
 const BoardManage = () => {
     const [searchText, setSearchText] = React.useState('');
     const [appliedSearchText, setAppliedSearchText] = React.useState('');
     const [filterCategory, setFilterCagegory] = React.useState('all');
 
-
     const categories = [
         {id: 'all', name: '전체'},
         {id: 2, name: '공지사항'},
         {id: 3, name: 'FAQ'},
     ]
+
+    const fetchPosts = async () => {
+        let query = supabase
+            .from('board')
+            .select('*, categories(name)', {count: 'exact'})
+            .order('created_at', {ascending: false})
+
+        if (searchText) {
+            query = query.or(`title.ilike.%${searchText}%, writer.ilike.%${searchText}%`);
+        }
+
+        if (filterCategory !== 'all') {
+            query = query.eq('category_id', filterCategory);
+        }else {
+            query = query.in('category_id', [1, 2]);
+        }
+    };
+
+    useEffect(() => {
+        fetchPosts();
+    }, [filterCategory]);
+
+
 
     const debouncedSearchText = debounce(() => {
         setSearchText(value);
@@ -27,6 +50,7 @@ const BoardManage = () => {
     const handleReset = () => {
         setSearchText('');
         setAppliedSearchText('');
+        setFilterCagegory('all');
     }
 
     return (
@@ -52,7 +76,7 @@ const BoardManage = () => {
                 <Select placeholder="카테고리 선택"
                         defaultValue="all"
                         value={filterCategory}
-                        onChange{(value) => setFilterCagegory(value)}
+                        onChange={(value) => setFilterCagegory(value)}
                         style={{width: '150px'}}
                         allowClear={false}
                 >
