@@ -11,7 +11,7 @@ import {
     Legend,
     Scatter,
     BarChart,
-    ResponsiveContainer,
+    ResponsiveContainer, PieChart, Pie, Cell,Sector
 } from 'recharts';
 import {Breadcrumb, DatePicker, Button, Flex, Select, Card, Col, Row} from 'antd';
 import dayjs from 'dayjs';
@@ -104,18 +104,106 @@ function Home(props) {
                                 position: 'right',
                                 offset: -10
                             }}
-                            yAxisId="right"
-                            orientation="right"
+                            yAxisId="left"
+                            orientation="left"
                         />
                         <Tooltip color="#FFFFFF"/>
-                        <Bar dataKey="신규예약" fill="#93B2FF" yAxisId={"right"}/>
-                        <Bar dataKey="예약취소" fill="#FFA69F" yAxisId={"right"}/>
-                        <Bar dataKey="완료" fill="#D6FF9F" yAxisId={"right"}/>
+                        <Bar dataKey="신규예약" fill="#93B2FF" yAxisId={"left"}/>
+                        <Bar dataKey="예약취소" fill="#FFA69F" yAxisId={"left"}/>
+                        <Bar dataKey="완료" fill="#D6FF9F" yAxisId={"left"}/>
                     </BarChart>
                 </ResponsiveContainer>
             );
         }
     }
+
+    const COLORS = ['#00ff00', '#ffff00', '#ff6200', '#ff0000'];
+
+
+    const renderActiveShape = (props) => {
+        const RADIAN = Math.PI / 180;
+        const { cx, cy, midAngle, innerRadius, outerRadius, startAngle, endAngle, fill, payload, percent, value } = props;
+        const sin = Math.sin(-RADIAN * midAngle);
+        const cos = Math.cos(-RADIAN * midAngle);
+        const sx = cx + (outerRadius + 10) * cos;
+        const sy = cy + (outerRadius + 10) * sin;
+        const mx = cx + (outerRadius + 30) * cos;
+        const my = cy + (outerRadius + 30) * sin;
+        const ex = mx + (cos >= 0 ? 1 : -1) * 22;
+        const ey = my;
+        const textAnchor = cos >= 0 ? 'start' : 'end';
+        console.log(props)
+        return (
+            <g>
+                <text x={cx} y={cy} dy={8} textAnchor="middle" fill={fill}>
+                    {payload.name}
+                </text>
+                <Sector
+                    cx={cx}
+                    cy={cy}
+                    innerRadius={innerRadius}
+                    outerRadius={outerRadius}
+                    startAngle={startAngle}
+                    endAngle={endAngle}
+                    fill={fill}
+                />
+                <Sector
+                    cx={cx}
+                    cy={cy}
+                    startAngle={startAngle}
+                    endAngle={endAngle}
+                    innerRadius={outerRadius + 6}
+                    outerRadius={outerRadius + 10}
+                    fill={fill}
+                />
+                <path d={`M${sx},${sy}L${mx},${my}L${ex},${ey}`} stroke={fill} fill="none" />
+                <circle cx={ex} cy={ey} r={2} fill={fill} stroke="none" />
+                <text x={ex + (cos >= 0 ? 1 : -1) * 12} y={ey} textAnchor={textAnchor} fill="#333">{`완료 ${value}`}</text>
+                <text x={ex + (cos >= 0 ? 1 : -1) * 12} y={ey} dy={18} textAnchor={textAnchor} fill="#999">
+                    {`(Rate ${(percent * 100).toFixed(2)}%)`}
+                </text>
+            </g>
+        );
+    };
+
+    class TimeRound extends PureComponent {
+
+        state = {
+            activeIndex: 0,
+        };
+
+        onPieEnter = (_, index) => {
+            this.setState({
+                activeIndex: index,
+            });
+        };
+        render() {
+            return (
+                <ResponsiveContainer width="90%" height={300}>
+                <PieChart>
+                    <Pie
+                        activeIndex={this.state.activeIndex}
+                        activeShape={renderActiveShape}
+                        data={data}
+                        cx="50%"
+                        cy="50%"
+                        innerRadius="10%"
+                        outerRadius="40%"
+                        fill="#8884d8"
+                        dataKey="완료"
+                        onMouseEnter={this.onPieEnter}
+                    >
+                        {data.map((entry, index) => (
+                            <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
+                        ))}
+                    </Pie>
+
+                </PieChart>
+                </ResponsiveContainer>
+            );
+        }
+    }
+
 
     return (
         <>
@@ -289,8 +377,38 @@ function Home(props) {
                         </div>
                     </Col>
                     <Col md={12} xs={24}>
-
-
+<TimeRound/>
+                        <div className={styles.dashBoard}>
+                            {data.length > 0 ? (<table>
+                                <colgroup>
+                                    <col style={{width: '20%'}}/>
+                                    <col style={{width: '20%'}}/>
+                                    <col style={{width: '20%'}}/>
+                                    <col style={{width: '20%'}}/>
+                                    <col style={{width: '20%'}}/>
+                                </colgroup>
+                                <tbody>
+                                <tr>
+                                    <th>일자</th>
+                                    <th>신규예약</th>
+                                    <th>예약취소</th>
+                                    <th>완료</th>
+                                    <th>누적예약</th>
+                                </tr>
+                                {data.map(item =>
+                                    (<tr key={item.일자}>
+                                        <td>
+                                            {item.일자}
+                                        </td>
+                                        <td>{item.신규예약}</td>
+                                        <td>{item.예약취소}</td>
+                                        <td>{item.완료}</td>
+                                        <td>{item.누적예약}</td>
+                                    </tr>)
+                                )}
+                                </tbody>
+                            </table>) : ""}
+                        </div>
                     </Col>
                 </Row>
             </div>

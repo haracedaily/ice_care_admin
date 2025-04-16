@@ -19,7 +19,7 @@ function Side({toggleAside,setToggleAside}) {
                         <img src="/src/images/side_logo.png" width={150} alt="Logo"/>
                     </NavLink>
                     <div className={`${toggleAside?"toggle":""}`}>
-                    <CloseCircleOutlined  onClick={()=>{setToggleAside(!toggleAside)}} />
+                    <CloseCircleOutlined style={{ fontSize: '30px' }} onClick={()=>{setToggleAside(!toggleAside)}} />
                     </div>
                 </div>
                 <div>
