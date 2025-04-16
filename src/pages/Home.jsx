@@ -26,42 +26,42 @@ dayjs.extend(customParseFormat);
 function Home(props) {
     let [data, setData] = useState([
         {
-            name: '04/10',
+            '일자': '04/10',
             '완료': 590,
             '신규예약': 800,
             '누적예약': 800,
             '예약취소': 490,
         },
         {
-            name: '04/11',
+            '일자': '04/11',
             '완료': 868,
             '신규예약': 967,
             '누적예약': 1767,
             '예약취소': 590,
         },
         {
-            name: '04/12',
+            '일자': '04/12',
             '완료': 1397,
             '신규예약': 1098,
             '누적예약': 2865,
             '예약취소': 350,
         },
         {
-            name: '04/13',
+            '일자': '04/13',
             '완료': 1480,
             '신규예약': 1200,
             '누적예약': 4065,
             '예약취소': 480,
         },
         {
-            name: '04/14',
+            '일자': '04/14',
             '완료': 1520,
             '신규예약': 1108,
             '누적예약': 5165,
             '예약취소': 460,
         },
         {
-            name: '04/15',
+            '일자': '04/15',
             '완료': 1400,
             '신규예약': 680,
             '누적예약': 6845,
@@ -98,7 +98,7 @@ function Home(props) {
                         }}
                     >
                         <CartesianGrid stroke="#f5f5f5"/>
-                        <XAxis dataKey="name" fontSize={8} angle={-45} textAnchor="end"/>
+                        <XAxis dataKey="일자" fontSize={8} angle={-45} textAnchor="end"/>
                         <YAxis
                             label={{
                                 position: 'right',
@@ -253,12 +253,9 @@ function Home(props) {
                 {/*<div className={styles.dashBoard}>
                     <Example/>
                 </div>*/}
-                <Row style={{marginTop: 8,height:"80%",placeItems:'center'}}>
+                <Row style={{marginTop: 8,height:"80%",placeItems:'center',padding:'10px'}} gutter={[16, 16]}>
                     <Col md={12} xs={24}>
                         <NewReservChart/>
-                    </Col>
-                    <Col md={12} xs={24}>
-
                         <div className={styles.dashBoard}>
                             {data.length > 0 ? (<table>
                                 <colgroup>
@@ -277,9 +274,9 @@ function Home(props) {
                                     <th>누적예약</th>
                                 </tr>
                                 {data.map(item =>
-                                    (<tr key={item.name}>
+                                    (<tr key={item.일자}>
                                         <td>
-                                            {item.name}
+                                            {item.일자}
                                         </td>
                                         <td>{item.신규예약}</td>
                                         <td>{item.예약취소}</td>
@@ -290,6 +287,10 @@ function Home(props) {
                                 </tbody>
                             </table>) : ""}
                         </div>
+                    </Col>
+                    <Col md={12} xs={24}>
+
+
                     </Col>
                 </Row>
             </div>
