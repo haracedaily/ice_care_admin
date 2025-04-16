@@ -109,8 +109,8 @@ function Home(props) {
                         />
                         <Tooltip color="#FFFFFF"/>
                         <Bar dataKey="신규예약" fill="#93B2FF" yAxisId={"right"}/>
-                        {/*<Bar dataKey="예약취소" fill="#FFA69F" yAxisId={"right"}/>*/}
-                        {/*<Bar dataKey="완료" fill="#D6FF9F" yAxisId={"right"}/>*/}
+                        <Bar dataKey="예약취소" fill="#FFA69F" yAxisId={"right"}/>
+                        <Bar dataKey="완료" fill="#D6FF9F" yAxisId={"right"}/>
                     </BarChart>
                 </ResponsiveContainer>
             );
