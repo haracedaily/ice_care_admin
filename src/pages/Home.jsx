@@ -68,30 +68,33 @@ function Home(props) {
             '예약취소': 380,
         },
     ]);
+    let [daily, setDaily] = useState(1);
+    let [state, setState] = useState(1);
     useEffect(() => {
 
     }, []);
-    let [daily, setDaily] = useState(1);
-    let [state, setState] = useState(1);
     let homeNavi = useNavigate();
 
+    const weekFormat = 'MM-DD';
+    const monthFormat = 'YYYY-MM';
+    const dateFormat = 'YYYY-MM-DD';
+    const yearFormat = 'YYYY';
+    
+    /*기능 함수*/
     let changeWeek = (e) => {
         setDaily(e);
     }
+    
     let changeState = (e) => {
         setState(e);
     }
+    
     let chooseDate = (e) => {
         console.log(e);
-        console.log(dayjs(e).startOf('week').format(weekFormat));
-    console.log(dayjs(e)
-        .endOf('week')
-        .format(weekFormat));
-
+        console.log(dayjs(e).startOf('week').format(dateFormat));
+    console.log(dayjs(e).endOf('week').format(dateFormat));
     }
     /*달력, 날짜 커스텀*/
-    const weekFormat = 'MM/DD';
-    const monthFormat = 'YYYY/MM';
     const customWeekStartEndFormat = value =>
         `${dayjs(value).startOf('week').format(weekFormat)} ~ ${dayjs(value)
             .endOf('week')
@@ -224,7 +227,7 @@ function Home(props) {
                         onChange={(e) => changeWeek(e)}
                         options={[
                             {value: 1, label: '일간'},
-                            {value: 2, label: '주간'},
+                            {value: 2, label: '월간'},
                         ]}
                     />
 
@@ -232,9 +235,9 @@ function Home(props) {
                         daily == 1 ? (
                             <DatePicker locale={locale} defaultValue={dayjs()} format={customWeekStartEndFormat} onChange={(e)=>chooseDate(e)}
                                         picker="week"/>) : (
-                            <DatePicker locale={locale} defaultValue={dayjs('2015/01', monthFormat)}
-                                        format={monthFormat}
-                                        picker="month"/>)
+                            <DatePicker locale={locale} defaultValue={dayjs('2015/01', yearFormat)}
+                                        format={yearFormat}
+                                        picker="year"/>)
                     }
 
 
@@ -410,8 +413,7 @@ function Home(props) {
                 </Row>
             </div>
         </>
-    )
-        ;
+    );
 }
 
 export default Home;
