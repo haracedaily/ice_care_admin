@@ -14,3 +14,11 @@
     color: #1f1f1f;
     margin: 0;
 }
+
+.filter-section {
+    margin-bottom: 20px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    flex-wrap: wrap;
+}
