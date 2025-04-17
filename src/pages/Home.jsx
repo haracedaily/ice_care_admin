@@ -81,7 +81,14 @@ function Home(props) {
     let changeState = (e) => {
         setState(e);
     }
-    
+    let chooseDate = (e) => {
+        console.log(e);
+        console.log(dayjs(e).startOf('week').format(weekFormat));
+    console.log(dayjs(e)
+        .endOf('week')
+        .format(weekFormat));
+
+    }
     /*달력, 날짜 커스텀*/
     const weekFormat = 'MM/DD';
     const monthFormat = 'YYYY/MM';
@@ -161,6 +168,7 @@ function Home(props) {
                 <ResponsiveContainer width="90%" height={500}>
                 <PieChart>
                     <Pie
+                        animationDuration={500}
                         labelLine={false}
                         label={renderCustomizedLabel}
                         data={data}
@@ -222,7 +230,7 @@ function Home(props) {
 
                     {
                         daily == 1 ? (
-                            <DatePicker locale={locale} defaultValue={dayjs()} format={customWeekStartEndFormat}
+                            <DatePicker locale={locale} defaultValue={dayjs()} format={customWeekStartEndFormat} onChange={(e)=>chooseDate(e)}
                                         picker="week"/>) : (
                             <DatePicker locale={locale} defaultValue={dayjs('2015/01', monthFormat)}
                                         format={monthFormat}
