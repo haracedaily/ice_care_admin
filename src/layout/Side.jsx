@@ -9,6 +9,7 @@ function Side({toggleAside,setToggleAside}) {
     const sideNav = useNavigate();
     const autocompleteSelect = (value,option)=>{
         setCurrentSide(option.state);
+        setToggleAside(!toggleAside);
         sideNav(option.link);
     }
     return (
@@ -29,7 +30,7 @@ function Side({toggleAside,setToggleAside}) {
                 <nav>
                     <h4>Dashboard</h4>
                     <div>
-                        <div className={`${currentSide==="dashboard"?"select":""}`} onClick={() => {setCurrentSide("dashboard");sideNav("/")}}>
+                        <div className={`${currentSide==="dashboard"?"select":""}`} onClick={() => {setCurrentSide("dashboard");setToggleAside(!toggleAside);sideNav("/")}}>
                             <h3>대시보드</h3>
                         </div>
                     </div>
@@ -53,7 +54,7 @@ function Side({toggleAside,setToggleAside}) {
                         </ul>
                     </div>*/}
                     <div>
-                        <div className={`${currentSide==="reservation"? "select" : ""}`} onClick={() => {setCurrentSide("reservation");sideNav("/reservation")}}>
+                        <div className={`${currentSide==="reservation"? "select" : ""}`} onClick={() => {setCurrentSide("reservation");setToggleAside(!toggleAside);sideNav("/reservation")}}>
                             <h3>예약관리</h3>
                             <img className={`${currentSide==="reservation"?"rotate":""}`} src="/src/images/polygon.png" alt="" width={10} height={10}/>
                         </div>
@@ -64,7 +65,7 @@ function Side({toggleAside,setToggleAside}) {
                         </ul>
                     </div>
                     <div>
-                        <div className={`${currentSide==="contact"? "select" : ""}`} onClick={() => {setCurrentSide("contact");sideNav("/contact")}}>
+                        <div className={`${currentSide==="contact"? "select" : ""}`} onClick={() => {setCurrentSide("contact");setToggleAside(!toggleAside);sideNav("/contact")}}>
                             <h3>게시판</h3>
                             <img className={`${currentSide==="contact"? "rotate" : ""}`} src="/src/images/polygon.png" alt="" width={10} height={10}/>
                         </div>
