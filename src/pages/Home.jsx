@@ -81,6 +81,8 @@ function Home(props) {
     let changeState = (e) => {
         setState(e);
     }
+    
+    /*달력, 날짜 커스텀*/
     const weekFormat = 'MM/DD';
     const monthFormat = 'YYYY/MM';
     const customWeekStartEndFormat = value =>
@@ -88,6 +90,7 @@ function Home(props) {
             .endOf('week')
             .format(weekFormat)}`;
 
+    /*바 차트 커스텀*/
     class NewReservChart extends PureComponent {
         render() {
             return (
@@ -121,17 +124,21 @@ function Home(props) {
         }
     }
 
+    /*파이,원형 차트 커스텀*/
     const COLORS = ['#93ffef', '#e7ff9f', '#ff9fe9'];
 
 
     const renderCustomizedLabel = (props) => {
         let { cx, cy, midAngle, innerRadius, outerRadius, percent, index,value } = props;
         const RADIAN = Math.PI / 180;
-        const radius = innerRadius + (outerRadius - innerRadius) * 0.5;
+
+        const radius = innerRadius + (outerRadius - innerRadius) * 0.05;
         const x = cx + radius * Math.cos(-midAngle * RADIAN);
         const y = cy + radius * Math.sin(-midAngle * RADIAN);
+        const mx = x + (radius-75) * Math.cos(-midAngle * RADIAN);
+        const my = y + (radius-20) * Math.sin(-midAngle * RADIAN);
         return (
-            <text x={x} y={y} fill="black" textAnchor={x > cx ? 'start' : 'end'} dominantBaseline="central">
+            <text x={mx} y={my} fill="black" textAnchor={x > cx ? 'start' : 'end'} dominantBaseline="central">
                 {`${state==1?"신규예약":state==9?"예약취소":"완료"} : ${state==1?props.신규예약:state==9?props.예약취소:props.완료}건`}
             </text>
         );
