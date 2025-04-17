@@ -72,10 +72,14 @@ function Home(props) {
 
     }, []);
     let [daily, setDaily] = useState(1);
+    let [state, setState] = useState(1);
     let homeNavi = useNavigate();
 
     let changeWeek = (e) => {
         setDaily(e);
+    }
+    let changeState = (e) => {
+        setState(e);
     }
     const weekFormat = 'MM/DD';
     const monthFormat = 'YYYY/MM';
@@ -120,15 +124,15 @@ function Home(props) {
     const COLORS = ['#93ffef', '#e7ff9f', '#ff9fe9'];
 
 
-    const renderCustomizedLabel = ({ cx, cy, midAngle, innerRadius, outerRadius, percent, index,value }) => {
+    const renderCustomizedLabel = (props) => {
+        let { cx, cy, midAngle, innerRadius, outerRadius, percent, index,value } = props;
         const RADIAN = Math.PI / 180;
         const radius = innerRadius + (outerRadius - innerRadius) * 0.5;
         const x = cx + radius * Math.cos(-midAngle * RADIAN);
         const y = cy + radius * Math.sin(-midAngle * RADIAN);
-
         return (
             <text x={x} y={y} fill="black" textAnchor={x > cx ? 'start' : 'end'} dominantBaseline="central">
-                {`예약 : ${value}건`}
+                {`${state==1?"신규예약":state==9?"예약취소":"완료"} : ${state==1?props.신규예약:state==9?props.예약취소:props.완료}건`}
             </text>
         );
     };
@@ -158,7 +162,7 @@ function Home(props) {
                         innerRadius="30%"
                         outerRadius="90%"
                         fill="#8884d8"
-                        dataKey="완료"
+                        dataKey={state==1?"신규예약":state==9?"예약취소":"완료"}
                         onMouseEnter={this.onPieEnter}
                     >
                         {data.map((entry, index) => (
@@ -345,7 +349,17 @@ function Home(props) {
                         </div>
                     </Col>
                     <Col md={12} xs={24}>
-<TimeRound/>
+                        <Select
+                            defaultValue={state}
+                            style={{minWidth: 80, maxWidth: 100}}
+                            onChange={(e) => changeState(e)}
+                            options={[
+                                {value: 1, label: '신규예약'},
+                                {value: 9, label: '예약취소'},
+                                {value: 5, label: '완료'},
+                            ]}
+                        />
+                    <TimeRound/>
                         <div className={styles.dashBoard}>
                             {data.length > 0 ? (<table>
                                 <colgroup>
