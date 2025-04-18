@@ -25,62 +25,27 @@ import {getStatesByPeriod} from "../js/supabase.js";
 dayjs.extend(customParseFormat);
 
 function Home(props) {
-    let [data, setData] = useState([
-        {
-            '일자': '04/10',
-            '완료': 590,
-            '신규예약': 800,
-            '누적예약': 800,
-            '예약취소': 490,
-        },
-        {
-            '일자': '04/11',
-            '완료': 868,
-            '신규예약': 967,
-            '누적예약': 1767,
-            '예약취소': 590,
-        },
-        {
-            '일자': '04/12',
-            '완료': 1397,
-            '신규예약': 1098,
-            '누적예약': 2865,
-            '예약취소': 350,
-        },
-        {
-            '일자': '04/13',
-            '완료': 1480,
-            '신규예약': 1200,
-            '누적예약': 4065,
-            '예약취소': 480,
-        },
-        {
-            '일자': '04/14',
-            '완료': 1520,
-            '신규예약': 1108,
-            '누적예약': 5165,
-            '예약취소': 460,
-        },
-        {
-            '일자': '04/15',
-            '완료': 1400,
-            '신규예약': 680,
-            '누적예약': 6845,
-            '예약취소': 380,
-        },
-    ]);
+    let [data, setData] = useState([]);
+    let [timeData, setTimeData] = useState([]);
+    let [loading, setLoading] = useState(false);
     let [daily, setDaily] = useState(1);
     let [state, setState] = useState(1);
     useEffect(() => {
-
+         chooseDate(dayjs());
     }, []);
     let homeNavi = useNavigate();
 
+    /*변수 선언*/
     const weekFormat = 'MM-DD';
     const monthFormat = 'YYYY-MM';
     const dateFormat = 'YYYY-MM-DD';
     const yearFormat = 'YYYY';
-    
+    const timeRole = ["오전 10시 ~ 오후 1시","오후 2시 ~ 오후 5시","오후 4시 ~ 오후 7시","오후 6시 ~ 오후 9시"];
+    const stateRole = {
+        5: "처리완료",
+        9: "취소",
+        10: "누적예약"
+    };
     /*기능 함수*/
     let changeWeek = (e) => {
         setDaily(e);
@@ -91,16 +56,85 @@ function Home(props) {
     }
     
     let chooseDate = async (e) => {
+        if(e == null) return;
         let prop = dayjs(e).startOf('week').format('YYYY,MM,DD');
+        setLoading(true);
         prop = prop.split(',').map(el=>parseInt(el));
         await getStatesByPeriod(prop[0], prop[1], prop[2], daily).then((res) => {
+            let outerData = [];
+            let innerDate = "";
+            let outerTime = [];
+            let innerTime = "";
+            let innerBarSum = 0;
+            let innerPieSum = 0;
+            /*바차트 데이터 가공*/
+            for(let i=0; i<7; i++){
+                let innerData = {};
+                innerData["일자"] = dayjs(`${prop[0]}-${prop[1]}-${prop[2]+i}`).startOf("date").format("MM/DD");
+                innerData["신규예약"] = 0;
+                innerData["취소"] = 0;
+                innerData["완료"] = 0;
+                innerData["누적예약"] = 0;
+                outerData.push(innerData);
+            }
             res.data.stat_by_date.map(el => {
-                console.log(el);
+                let innerData = {};
+                innerBarSum+= el.cnt;
+                if(innerDate != el.date.slice(5).replace("-", "/")){
+                    innerDate = el.date.slice(5).replace("-", "/");
+                    let originInner = outerData.find(el=>el["일자"]==innerDate);
+                    if(stateRole[el.state]?.length>0){
+                        originInner[stateRole[el.state]] = el.cnt;
+                    }
+                    if(el.state==9)innerBarSum-= el.cnt;
+                    originInner["신규예약"] += el.cnt;
+                    originInner["누적예약"] = innerBarSum;
+                }else{
+                    let originInner = outerData.find(el=>el["일자"]==innerDate);
+                    if(stateRole[el.state]?.length>0){
+                        originInner[stateRole[el.state]] = el.cnt;
+                    }
+                    if(el.state==9)innerBarSum -= el.cnt;
+                    originInner["신규예약"] += el.cnt;
+                    originInner["누적예약"] = innerBarSum;
+                }
             });
-            res.data.stat_total_by_state.map(el=>{
-                console.log(el);
+            setData(outerData);
+            
+            /*파이차트 데이터*/
+            timeRole.forEach(el => {
+                let innerTimeData = {};
+                innerTimeData["시간"] = el;
+                innerTimeData["신규예약"] = 0;
+                innerTimeData["취소"] = 0;
+                innerTimeData["완료"] = 0;
+                innerTimeData["누적예약"] = 0;
+                outerTime.push(innerTimeData);
             })
-
+            res.data.stat_total_by_state.map(el=>{
+                let innerTimeData = {};
+                innerPieSum+=el.cnt;
+                if(innerTime != el.time){
+                    innerTime = el.time;
+                    let originInner = outerTime.find(el=>el["시간"]==innerTime);
+                    if(stateRole[el.state]?.length>0){
+                        originInner[stateRole[el.state]] = el.cnt;
+                    }
+                    if(el.state==9)innerPieSum -= el.cnt;
+                    originInner["신규예약"] += el.cnt;
+                    originInner["누적예약"] = innerPieSum;
+                    }else{
+                    let originInner = outerTime.find(el=>el["시간"]==innerTime);
+                    if(stateRole[el.state]?.length>0){
+                        originInner[stateRole[el.state]] = el.cnt;
+                    }
+                    if(el.state==9)innerPieSum -= el.cnt;
+                    originInner["신규예약"] += el.cnt;
+                    originInner["누적예약"] = innerPieSum;
+                }
+            })
+            setTimeData(outerTime);
+            setLoading(false);
         });
         // let res2 = await supabase.rpc("getStatesByPeriod",{year: prop[0],month:prop[1],start_date:prop[2],key:daily});
     }
@@ -140,7 +174,7 @@ function Home(props) {
                         />
                         <Tooltip color="#FFFFFF"/>
                         <Bar dataKey="신규예약" fill="#93B2FF" yAxisId={"left"}/>
-                        <Bar dataKey="예약취소" fill="#FFA69F" yAxisId={"left"}/>
+                        <Bar dataKey="취소" fill="#FFA69F" yAxisId={"left"}/>
                         <Bar dataKey="완료" fill="#D6FF9F" yAxisId={"left"}/>
                     </BarChart>
                 </ResponsiveContainer>
@@ -149,11 +183,12 @@ function Home(props) {
     }
 
     /*파이,원형 차트 커스텀*/
-    const COLORS = ['#93ffef', '#e7ff9f', '#ff9fe9'];
+    const COLORS = ['#eafdb2', '#d5ffa0', '#9bffa0','#acffc9'];
 
 
     const renderCustomizedLabel = (props) => {
         let { cx, cy, midAngle, innerRadius, outerRadius, percent, index,value } = props;
+        if(value==0) return;
         const RADIAN = Math.PI / 180;
 
         const radius = innerRadius + (outerRadius - innerRadius) * 0.05;
@@ -163,7 +198,7 @@ function Home(props) {
         const my = y + (radius-20) * Math.sin(-midAngle * RADIAN);
         return (
             <text x={mx} y={my} fill="black" textAnchor={x > cx ? 'start' : 'end'} dominantBaseline="central">
-                {`${state==1?"신규예약":state==9?"예약취소":"완료"} : ${state==1?props.신규예약:state==9?props.예약취소:props.완료}건`}
+                {`${state==1?"신규예약":state==9?"취소":"완료"} : ${state==1?props.신규예약:state==9?props.취소:props.완료}건`}
             </text>
         );
     };
@@ -188,13 +223,13 @@ function Home(props) {
                         animationDuration={500}
                         labelLine={false}
                         label={renderCustomizedLabel}
-                        data={data}
+                        data={timeData}
                         cx="50%"
                         cy="50%"
                         innerRadius="30%"
                         outerRadius="90%"
                         fill="#8884d8"
-                        dataKey={state==1?"신규예약":state==9?"예약취소":"완료"}
+                        dataKey={state==1?"신규예약":state==9?"취소":"완료"}
                         onMouseEnter={this.onPieEnter}
                     >
                         {data.map((entry, index) => (
@@ -255,7 +290,7 @@ function Home(props) {
                     }
 
 
-                    <Button className={styles.Btn} icon={<SearchOutlined/>}></Button>
+                    <Button loading={loading} className={styles.Btn} icon={<SearchOutlined/>}></Button>
                 </div>
                 <Row gutter={[16, 8]}>
                     <Col xl={8} md={8} xs={24}>
@@ -292,7 +327,7 @@ function Home(props) {
                                 <Col md={16} xs={24}>
                                     <Row>
                                         <Col md={24} xs={24}>
-                                            <h2>예약취소</h2>
+                                            <h2>취소</h2>
                                         </Col>
                                         <Col md={24} xs={24}>
                                             <p>테스트</p>
@@ -361,7 +396,7 @@ function Home(props) {
                                 <tr>
                                     <th>일자</th>
                                     <th>신규예약</th>
-                                    <th>예약취소</th>
+                                    <th>취소</th>
                                     <th>완료</th>
                                     <th>누적예약</th>
                                 </tr>
@@ -371,7 +406,7 @@ function Home(props) {
                                             {item.일자}
                                         </td>
                                         <td>{item.신규예약}</td>
-                                        <td>{item.예약취소}</td>
+                                        <td>{item.취소}</td>
                                         <td>{item.완료}</td>
                                         <td>{item.누적예약}</td>
                                     </tr>)
@@ -387,35 +422,35 @@ function Home(props) {
                             onChange={(e) => changeState(e)}
                             options={[
                                 {value: 1, label: '신규예약'},
-                                {value: 9, label: '예약취소'},
+                                {value: 9, label: '취소'},
                                 {value: 5, label: '완료'},
                             ]}
                         />
                     <TimeRound/>
                         <div className={styles.dashBoard}>
-                            {data.length > 0 ? (<table>
+                            {timeData.length > 0 ? (<table>
                                 <colgroup>
-                                    <col style={{width: '20%'}}/>
-                                    <col style={{width: '20%'}}/>
-                                    <col style={{width: '20%'}}/>
-                                    <col style={{width: '20%'}}/>
-                                    <col style={{width: '20%'}}/>
+                                    <col style={{width: '40%'}}/>
+                                    <col style={{width: '15%'}}/>
+                                    <col style={{width: '15%'}}/>
+                                    <col style={{width: '15%'}}/>
+                                    <col style={{width: '15%'}}/>
                                 </colgroup>
                                 <tbody>
                                 <tr>
-                                    <th>일자</th>
+                                    <th>시간</th>
                                     <th>신규예약</th>
-                                    <th>예약취소</th>
+                                    <th>취소</th>
                                     <th>완료</th>
                                     <th>누적예약</th>
                                 </tr>
-                                {data.map(item =>
-                                    (<tr key={item.일자}>
+                                {timeData.map(item =>
+                                    (<tr key={item.시간}>
                                         <td>
-                                            {item.일자}
+                                            {item.시간}
                                         </td>
                                         <td>{item.신규예약}</td>
-                                        <td>{item.예약취소}</td>
+                                        <td>{item.취소}</td>
                                         <td>{item.완료}</td>
                                         <td>{item.누적예약}</td>
                                     </tr>)
