@@ -20,6 +20,7 @@ import {useNavigate} from "react-router-dom";
 import styles from '../css/home.module.css'
 import {SearchOutlined} from '@ant-design/icons';
 import locale from "antd/es/date-picker/locale/ko_KR";
+import {getStatesByPeriod} from "../js/supabase.js";
 
 dayjs.extend(customParseFormat);
 
@@ -89,10 +90,23 @@ function Home(props) {
         setState(e);
     }
     
-    let chooseDate = (e) => {
-        console.log(e);
-        console.log(dayjs(e).startOf('week').format(dateFormat));
-    console.log(dayjs(e).endOf('week').format(dateFormat));
+    let chooseDate = async (e) => {
+        let prop = dayjs(e).startOf('week').format('YYYY,MM,DD');
+        prop = prop.split(',').map(el=>parseInt(el));
+        await getStatesByPeriod(prop[0], prop[1], prop[2], daily).then((res) => {
+            res.data.stat_by_date.map(el => {
+                console.log(el);
+            });
+            res.data.stat_total_by_state.map(el=>{
+                console.log(el);
+            })
+
+        });
+        // let res2 = await supabase.rpc("getStatesByPeriod",{year: prop[0],month:prop[1],start_date:prop[2],key:daily});
+    }
+    let chooseYear = (e) => {
+        console.log(dayjs(e).startOf('year').format(yearFormat));
+        console.log(daily);
     }
     /*달력, 날짜 커스텀*/
     const customWeekStartEndFormat = value =>
@@ -235,7 +249,7 @@ function Home(props) {
                         daily == 1 ? (
                             <DatePicker locale={locale} defaultValue={dayjs()} format={customWeekStartEndFormat} onChange={(e)=>chooseDate(e)}
                                         picker="week"/>) : (
-                            <DatePicker locale={locale} defaultValue={dayjs('2015/01', yearFormat)}
+                            <DatePicker locale={locale} defaultValue={dayjs('2015/01', yearFormat)} onChange={(e)=>chooseYear(e)}
                                         format={yearFormat}
                                         picker="year"/>)
                     }
