@@ -1,6 +1,7 @@
 import React, {useEffect, useState} from 'react';
-import {Breadcrumb, Button, Form, Input, message, Modal, Select} from "antd";
+import {Breadcrumb, Button, Form, Image, Input, message, Modal, Select} from "antd";
 import {PlusOutlined, SearchOutlined, RedoOutlined} from "@ant-design/icons";
+import {format} from 'date-fns';
 
 import '../css/BoardManage.css';
 import {supabase} from "../js/supabaseClient.js";
@@ -186,7 +187,7 @@ const BoardManage = () => {
             .update({is_notice: !post.is_notice}) // 공지 여부 토글
             .eq('id', post.id); // 게시글 ID로 필터링
 
-        if(error) {
+        if (error) {
             message.error('공지 설정에 실패했습니다.');
             return;
         }
@@ -194,13 +195,98 @@ const BoardManage = () => {
         fetchPosts();
     }
 
-    // const uploadProps = {
-    //     onRemove: (file) => {
-    //         setFileList([]);
-    //     },
-    //     beforeUpload
-    // }
+    const uploadProps = {
+        onRemove: (file) => {
+            setFileList([]);
+        },
+        beforeUpload: (file) => {
+            setFileList([file]);
+            return false;
+        },
+        fileList,
+        accept: 'image/*',
+        maxCount: 1,
+    }
 
+    const columns = [
+        {
+            title: '이미지',
+            dataIndex: 'image_url',
+            key: 'image_url',
+            width: 80,
+            render: (imageUrl) => imageUrl ? (
+                <Image src={imageUrl} alt="게시글 이미지" width={50} height={50} style={{objectFit: 'cover'}}/>) : ('-'),
+        },
+        {
+            title: '제목',
+            dataIndex: 'title',
+            key: 'title',
+            ellipsis: false, // 텍스트 줄바꿈
+            render: (text, record) => (
+                <span style={{whiteSpace: 'normal', wordBreak: 'break-word'}}>
+                    {record.is_notice && <Tag color="blue">공지</Tag>} {text} // 공지 태그
+                </span>
+            ),
+        },
+        {
+            title: '작성자',
+            dataIndex: 'author',
+            key: 'author',
+            ellipsis: false,
+            render: (text) => (
+                <span style={{whiteSpace: 'normal', wordBreak: 'break-word'}}>
+                    {text}
+                </span>
+            ),
+        },
+        {
+            title: '카테고리',
+            dataIndex: ['categories', 'name'],
+            key: 'cagegory',
+            width: 100,
+            ellipsis: false,
+            render: (text) => (
+                <span style={{whiteSpace: 'normal', wordBreak: 'break-word'}}>
+                    {text}
+                </span>
+            ),
+        },
+        {
+            title: '등록일',
+            dataIndex: 'created_at',
+            key: 'created_at',
+            width: 100,
+            ellipsis: false,
+            render: (date) => (
+                <span style={{whiteSpace: 'normal', wordBreak: 'break-word'}}>
+                    {format(new Date(date),'yyyy-MM-dd')}
+                </span>
+            ),
+        },
+        {
+            title: '조회수',
+            dataIndex: 'views',
+            key: 'views',
+            width: 50,
+            ellipsis: false,
+            render: (text) => (
+                <span style={{whiteSpace: 'normal', wordBreak: 'break-word'}}>
+                    {text}
+                </span>
+            ),
+        },
+        // {
+        //     title: '작업',
+        //     key: 'actions',
+        //     width: 200,
+        //     render: (_, record) => (
+        //         <Space size = "middle">
+        //             <Button
+        //         </Space>
+        //     )
+        // }
+
+    ]
 
     return (
         <div className="content">
