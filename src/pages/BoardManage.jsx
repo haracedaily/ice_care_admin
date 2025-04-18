@@ -1,5 +1,5 @@
 import React, {useEffect, useState} from 'react';
-import {Breadcrumb, Button, Form, Input, message, Select} from "antd";
+import {Breadcrumb, Button, Form, Input, message, Modal, Select} from "antd";
 import {PlusOutlined, SearchOutlined, RedoOutlined} from "@ant-design/icons";
 
 import '../css/BoardManage.css';
@@ -131,6 +131,76 @@ const BoardManage = () => {
         form.resetFields(); // 폼 초기화
         fetchPosts(); // 게시글 목록 새로고침
     }
+
+    const handleDelete = async (post) => {
+        Modal.confirm({
+            title: '게시글 삭제',
+            content: (
+                <div>
+                    <p>게시글을 삭제하려면 비밀번호를 입력해주세요.</p>
+                    <Input.Password // 비밀번호 입력 필드
+                        placeholder="비밀번호 입력"
+                        onChange={(e) => (post.passwordInput = e.target.value)} // 비밀번호 입력값 저장
+                    />
+                </div>
+            ),
+            async onOk() {
+                console.log('사용자가 입력한 패스워드: ', post.passwordInput);
+
+                const {data: postData, error: fetchError} = await supabase // 게시글 데이터 가져오기
+                    .from('board')
+                    .select('password')
+                    .eq('id', post.id) // 게시글 ID로 필터링
+                    .single(); // 단일 게시글 데이터 가져오기
+
+                if (fetchError) {
+                    message.error('비밀번호 조회에 실패했습니다. 다시 확인해주세요.');
+                    return;
+                }
+
+                console.log('저장된 패스워드:', postData.password);
+                if (post.image_url) {
+                    const fileName = post.image_url.split('/').pop();
+                    await supabase.storage.from('board-images').remove([`board-images/${fileName}`]); // 이미지 삭제
+                }
+
+                // const {error} = await supabase
+                //     .from('board')
+                //     .delete()
+                //     .eq('id', post.id)
+                //     .eq('password', post.passwordInput);
+
+                if (postData.password !== post.passwordInput) {
+                    message.error('비밀번호가 틀렸거나 삭제에 실패했습니다.');
+                    return;
+                }
+                message.success('게시글이 삭제되었습니다.');
+                fetchPosts();
+            },
+        });
+    };
+
+    const handlePin = async (post) => {
+        const {error} = await supabase
+            .from('board')
+            .update({is_notice: !post.is_notice}) // 공지 여부 토글
+            .eq('id', post.id); // 게시글 ID로 필터링
+
+        if(error) {
+            message.error('공지 설정에 실패했습니다.');
+            return;
+        }
+        message.success(post.is_notice ? '공지 해제되었습니다.' : '공지 설정되었습니다.');
+        fetchPosts();
+    }
+
+    // const uploadProps = {
+    //     onRemove: (file) => {
+    //         setFileList([]);
+    //     },
+    //     beforeUpload
+    // }
+
 
     return (
         <div className="content">
