@@ -13,7 +13,7 @@ import {
     BarChart,
     ResponsiveContainer, PieChart, Pie, Cell,Sector
 } from 'recharts';
-import {Breadcrumb, DatePicker, Button, Flex, Select, Card, Col, Row} from 'antd';
+import {Breadcrumb, DatePicker, Button, Flex, Select, Card, Col, Row, Table} from 'antd';
 import dayjs from 'dayjs';
 import customParseFormat from 'dayjs/plugin/customParseFormat';
 import {useNavigate} from "react-router-dom";
@@ -56,36 +56,71 @@ function Home(props) {
             title: '일자',
             dataIndex: '일자',
             key: '일자',
-            width: 100,
+            width: 80,
         },
         {
             title: '신규예약',
             dataIndex: '신규예약',
             key: '신규예약',
-            width: 100,
+            width: 90,
             sorter: (a, b) => a.신규예약 - b.신규예약,
         },
         {
             title: '취소',
             dataIndex: '취소',
             key: '취소',
-            width: 100,
+            width: 80,
             sorter: (a, b) => a.취소 - b.취소,
         },
         {
             title: '완료',
             dataIndex: '완료',
             key: '완료',
-            width: 100,
+            width: 80,
             sorter: (a,b) => a.완료 - b.완료,
         },
         {
             title: '누적예약',
             dataIndex: '누적예약',
             key: '누적예약',
-            width: 100,
+            width: 80,
         },
     ]
+    let timeColumns = [
+        {
+            title: '시간',
+            dataIndex: '시간',
+            key: '시간',
+            width: 120,
+        },
+        {
+            title: '신규예약',
+            dataIndex: '신규예약',
+            key: '신규예약',
+            width: 80,
+            sorter: (a, b) => a.신규예약 - b.신규예약,
+        },
+        {
+            title: '취소',
+            dataIndex: '취소',
+            key: '취소',
+            width: 70,
+            sorter: (a, b) => a.취소 - b.취소,
+        },
+        {
+            title: '완료',
+            dataIndex: '완료',
+            key: '완료',
+            width: 70,
+            sorter: (a,b) => a.완료 - b.완료,
+        },
+        {
+            title: '누적예약',
+            dataIndex: '누적예약',
+            key: '누적예약',
+            width: 70,
+        },
+        ]
     /*기능 함수*/
     let changeWeek = (e) => {
         setDaily(e);
@@ -110,6 +145,7 @@ function Home(props) {
             /*바차트 데이터 가공*/
             for(let i=0; i<7; i++){
                 let innerData = {};
+                innerData["key"] = i+1;
                 innerData["일자"] = dayjs(`${prop[0]}-${prop[1]}-${prop[2]+i}`).startOf("date").format("MM/DD");
                 innerData["신규예약"] = 0;
                 innerData["취소"] = 0;
@@ -117,12 +153,7 @@ function Home(props) {
                 innerData["누적예약"] = 0;
                 outerData.push(innerData);
             }
-            let totalBarData = {};
-            totalBarData["일자"] = "누계";
-            totalBarData["신규예약"] = 0;
-            totalBarData["취소"] = 0;
-            totalBarData["완료"] = 0;
-            totalBarData["누적예약"] = '-';
+
             res.data.stat_by_date.map((el,idx) => {
                 let innerData = {};
 
@@ -133,11 +164,9 @@ function Home(props) {
                     let originInnerIdx = outerData.findIndex(el=>el["일자"]==innerDate);
                     if(stateRole[el.state]?.length>0){
                         originInner[stateRole[el.state]] = el.cnt;
-                        totalBarData[stateRole[el.state]] += el.cnt;
                     }
                     if(el.state==9)innerBarSum-= el.cnt;
                     originInner["신규예약"] += el.cnt;
-                    totalBarData["신규예약"] += el.cnt;
                     originInner["누적예약"] = innerBarSum;
                     outerData.map((el,index)=>index>originInnerIdx?el["누적예약"]=innerBarSum:'');
                 }else{
@@ -145,22 +174,19 @@ function Home(props) {
                     let originInnerIdx = outerData.findIndex(el=>el["일자"]==innerDate);
                     if(stateRole[el.state]?.length>0){
                         originInner[stateRole[el.state]] = el.cnt;
-                        totalBarData[stateRole[el.state]] += el.cnt;
                     }
                     if(el.state==9)innerBarSum -= el.cnt;
                     originInner["신규예약"] += el.cnt;
-                    totalBarData["신규예약"] += el.cnt;
                     originInner["누적예약"] = innerBarSum;
                     outerData.map((el,index)=>index>originInnerIdx?el["누적예약"]=innerBarSum:'');
                 }
             });
-            totalBarData["누적예약"] = innerBarSum;
-            outerData.push(totalBarData);
             setData(outerData);
             
             /*파이차트 데이터*/
-            timeRole.forEach(el => {
+            timeRole.forEach((el,i) => {
                 let innerTimeData = {};
+                innerTimeData["key"] = i+1;
                 innerTimeData["시간"] = el;
                 innerTimeData["신규예약"] = 0;
                 innerTimeData["취소"] = 0;
@@ -168,11 +194,6 @@ function Home(props) {
                 innerTimeData["누적예약"] = 0;
                 outerTime.push(innerTimeData);
             })
-            let totalTimeData = {};
-            totalTimeData["시간"] = '누계';
-            totalTimeData["신규예약"] = 0;
-            totalTimeData["취소"] = 0;
-            totalTimeData["완료"] = 0;
 
             res.data.stat_total_by_state.map(el=>{
                 let innerTimeData = {};
@@ -183,11 +204,9 @@ function Home(props) {
                     let originInnerIdx = outerTime.findIndex(el=>el["시간"]==innerTime);
                     if(stateRole[el.state]?.length>0){
                         originInner[stateRole[el.state]] = el.cnt;
-                        totalTimeData[stateRole[el.state]] += el.cnt;
                     }
                     if(el.state==9)innerPieSum -= el.cnt;
                     originInner["신규예약"] += el.cnt;
-                    totalTimeData["신규예약"] += el.cnt;
                     originInner["누적예약"] = innerPieSum;
                     outerTime.map((el,index)=>index>originInnerIdx?el["누적예약"]=innerPieSum:'');
                     }else{
@@ -195,17 +214,13 @@ function Home(props) {
                     let originInnerIdx = outerTime.findIndex(el=>el["시간"]==innerTime);
                     if(stateRole[el.state]?.length>0){
                         originInner[stateRole[el.state]] = el.cnt;
-                        totalTimeData[stateRole[el.state]] += el.cnt;
                     }
                     if(el.state==9)innerPieSum -= el.cnt;
                     originInner["신규예약"] += el.cnt;
-                    totalTimeData["신규예약"] += el.cnt;
                     originInner["누적예약"] = innerPieSum;
                     outerTime.map((el,index)=>index>originInnerIdx?el["누적예약"]=innerPieSum:'');
                 }
             })
-            totalTimeData["누적예약"] = innerPieSum;
-            outerTime.push(totalTimeData);
             setTimeData(outerTime);
             setLoading(false);
         });
@@ -456,52 +471,35 @@ function Home(props) {
                 <Row style={{marginTop: 8,height:"80%",placeItems:'center',padding:'10px'}} gutter={[16, 16]}>
                     <Col md={12} xs={24}>
                         <NewReservChart/>
-                        {/*<Table
+                        <Table
                             columns={dateColumns}
                             dataSource={data}
                             pagination={false}
                             scroll={{ y: 195 }}
                             bordered
-                            summary={() => (
-                                <Table.Summary fixed>
+                            summary={(barDataList) => {
+                                let totalNew = 0;
+                                let totalCancel = 0;
+                                let totalComplete = 0;
+                                let totalTotal = 0;
+                                barDataList.forEach(({신규예약,취소,완료,누적예약}) => {
+                                        totalNew+= 신규예약;
+                                        totalCancel+= 취소;
+                                        totalComplete+= 완료;
+                                        totalTotal = 누적예약;
+                                })
+                                return (<Table.Summary fixed>
                                     <Table.Summary.Row>
-                                        <Table.Summary.Cell index={0}>Summary</Table.Summary.Cell>
-                                        <Table.Summary.Cell index={1}>This is a summary content</Table.Summary.Cell>
+                                        <Table.Summary.Cell index={0}>누계</Table.Summary.Cell>
+                                        <Table.Summary.Cell index={1}>{totalNew}</Table.Summary.Cell>
+                                        <Table.Summary.Cell index={2}>{totalCancel}</Table.Summary.Cell>
+                                        <Table.Summary.Cell index={3}>{totalComplete}</Table.Summary.Cell>
+                                        <Table.Summary.Cell index={4}>{totalTotal}</Table.Summary.Cell>
                                     </Table.Summary.Row>
-                                </Table.Summary>
-                            )}
-                        />*/}
-                        <div className={styles.dashBoard}>
-                            {data.length > 0 ? (<table>
-                                <colgroup>
-                                    <col style={{width: '20%'}}/>
-                                    <col style={{width: '20%'}}/>
-                                    <col style={{width: '20%'}}/>
-                                    <col style={{width: '20%'}}/>
-                                    <col style={{width: '20%'}}/>
-                                </colgroup>
-                                <tbody>
-                                <tr>
-                                    <th>일자</th>
-                                    <th>신규예약</th>
-                                    <th>취소</th>
-                                    <th>완료</th>
-                                    <th>누적예약</th>
-                                </tr>
-                                {data.map(item =>
-                                    (<tr key={item.일자}>
-                                        <td>
-                                            {item.일자}
-                                        </td>
-                                        <td>{item.신규예약}</td>
-                                        <td>{item.취소}</td>
-                                        <td>{item.완료}</td>
-                                        <td>{item.누적예약}</td>
-                                    </tr>)
-                                )}
-                                </tbody>
-                            </table>) : ""}
-                        </div>
+                                </Table.Summary>)
+                            }}
+                            size={"small"}
+                        />
                     </Col>
                     <Col md={12} xs={24}>
                         <Select
@@ -515,37 +513,34 @@ function Home(props) {
                             ]}
                         />
                     <TimeRound/>
-                        <div className={styles.dashBoard}>
-                            {timeData.length > 0 ? (<table>
-                                <colgroup>
-                                    <col style={{width: '40%'}}/>
-                                    <col style={{width: '15%'}}/>
-                                    <col style={{width: '15%'}}/>
-                                    <col style={{width: '15%'}}/>
-                                    <col style={{width: '15%'}}/>
-                                </colgroup>
-                                <tbody>
-                                <tr>
-                                    <th>시간</th>
-                                    <th>신규예약</th>
-                                    <th>취소</th>
-                                    <th>완료</th>
-                                    <th>누적예약</th>
-                                </tr>
-                                {timeData.map(item =>
-                                    (<tr key={item.시간}>
-                                        <td>
-                                            {item.시간}
-                                        </td>
-                                        <td>{item.신규예약}</td>
-                                        <td>{item.취소}</td>
-                                        <td>{item.완료}</td>
-                                        <td>{item.누적예약}</td>
-                                    </tr>)
-                                )}
-                                </tbody>
-                            </table>) : ""}
-                        </div>
+                        <Table
+                            columns={timeColumns}
+                            dataSource={timeData}
+                            pagination={false}
+                            bordered
+                            summary={(pieDataList) => {
+                                let totalNew = 0;
+                                let totalCancel = 0;
+                                let totalComplete = 0;
+                                let totalTotal = 0;
+                                pieDataList.forEach(({신규예약,취소,완료,누적예약}) => {
+                                    totalNew+= 신규예약;
+                                    totalCancel+= 취소;
+                                    totalComplete+= 완료;
+                                    totalTotal = 누적예약;
+                                })
+                                return (<Table.Summary fixed>
+                                    <Table.Summary.Row>
+                                        <Table.Summary.Cell index={0}>누계</Table.Summary.Cell>
+                                        <Table.Summary.Cell index={1}>{totalNew}</Table.Summary.Cell>
+                                        <Table.Summary.Cell index={2}>{totalCancel}</Table.Summary.Cell>
+                                        <Table.Summary.Cell index={3}>{totalComplete}</Table.Summary.Cell>
+                                        <Table.Summary.Cell index={4}>{totalTotal}</Table.Summary.Cell>
+                                    </Table.Summary.Row>
+                                </Table.Summary>)
+                            }}
+                            size={"small"}
+                        />
                     </Col>
                 </Row>
             </div>
