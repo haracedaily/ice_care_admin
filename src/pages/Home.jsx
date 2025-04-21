@@ -10,125 +10,329 @@ import {
     Tooltip,
     Legend,
     Scatter,
-    ResponsiveContainer,
+    BarChart,
+    ResponsiveContainer, PieChart, Pie, Cell,Sector
 } from 'recharts';
-import {Breadcrumb, DatePicker, Button, Flex, Select, Card, Col, Row} from 'antd';
+import {Breadcrumb, DatePicker, Button, Flex, Select, Card, Col, Row, Table} from 'antd';
 import dayjs from 'dayjs';
 import customParseFormat from 'dayjs/plugin/customParseFormat';
 import {useNavigate} from "react-router-dom";
 import styles from '../css/home.module.css'
 import {SearchOutlined} from '@ant-design/icons';
 import locale from "antd/es/date-picker/locale/ko_KR";
+import {getStatesByPeriod} from "../js/supabase.js";
 
 dayjs.extend(customParseFormat);
 
 function Home(props) {
-    let [data, setData] = useState([
-        {
-            name: '2025-04-10',
-            '완료': 590,
-            '신규예약': 800,
-            '누적예약': 800,
-            '예약취소': 490,
-        },
-        {
-            name: '2025-04-11',
-            '완료': 868,
-            '신규예약': 967,
-            '누적예약': 1767,
-            '예약취소': 590,
-        },
-        {
-            name: '2025-04-12',
-            '완료': 1397,
-            '신규예약': 1098,
-            '누적예약': 2865,
-            '예약취소': 350,
-        },
-        {
-            name: '2025-04-13',
-            '완료': 1480,
-            '신규예약': 1200,
-            '누적예약': 4065,
-            '예약취소': 480,
-        },
-        {
-            name: '2025-04-14',
-            '완료': 1520,
-            '신규예약': 1108,
-            '누적예약': 5165,
-            '예약취소': 460,
-        },
-        {
-            name: '2025-04-15',
-            '완료': 1400,
-            '신규예약': 680,
-            '누적예약': 6845,
-            '예약취소': 380,
-        },
-    ]);
-    useEffect(() => {
-
-    }, []);
+    let [data, setData] = useState([]);
+    let [timeData, setTimeData] = useState([]);
+    let [loading, setLoading] = useState(false);
     let [daily, setDaily] = useState(1);
+    let [state, setState] = useState(1);
+    useEffect(() => {
+        if(daily==1) {
+            chooseDate(dayjs());
+        }else{
+            chooseYear(dayjs());
+        }
+    }, []);
     let homeNavi = useNavigate();
 
+    /*변수 선언*/
+    const weekFormat = 'MM-DD';
+    const monthFormat = 'YYYY-MM';
+    const dateFormat = 'YYYY-MM-DD';
+    const yearFormat = 'YYYY';
+    const timeRole = ["오전 10시 ~ 오후 1시","오후 2시 ~ 오후 5시","오후 4시 ~ 오후 7시","오후 6시 ~ 오후 9시"];
+    const stateRole = {
+        5: "처리완료",
+        9: "취소",
+        10: "누적예약"
+    };
+    /*table 설정*/
+    let dateColumns = [
+        {
+            title: '일자',
+            dataIndex: '일자',
+            key: '일자',
+            width: 80,
+            fixed: 'left',
+        },
+        {
+            title: '신규예약',
+            dataIndex: '신규예약',
+            key: '신규예약',
+            width: 90,
+            sorter: (a, b) => a.신규예약 - b.신규예약,
+        },
+        {
+            title: '취소',
+            dataIndex: '취소',
+            key: '취소',
+            width: 80,
+            sorter: (a, b) => a.취소 - b.취소,
+        },
+        {
+            title: '완료',
+            dataIndex: '완료',
+            key: '완료',
+            width: 80,
+            sorter: (a,b) => a.완료 - b.완료,
+        },
+        {
+            title: '누적예약',
+            dataIndex: '누적예약',
+            key: '누적예약',
+            width: 80,
+        },
+    ]
+    let timeColumns = [
+        {
+            title: '시간',
+            dataIndex: '시간',
+            key: '시간',
+            width: 120,
+            fixed: 'left',
+        },
+        {
+            title: '신규예약',
+            dataIndex: '신규예약',
+            key: '신규예약',
+            width: 80,
+            sorter: (a, b) => a.신규예약 - b.신규예약,
+        },
+        {
+            title: '취소',
+            dataIndex: '취소',
+            key: '취소',
+            width: 70,
+            sorter: (a, b) => a.취소 - b.취소,
+        },
+        {
+            title: '완료',
+            dataIndex: '완료',
+            key: '완료',
+            width: 70,
+            sorter: (a,b) => a.완료 - b.완료,
+        },
+        {
+            title: '누적예약',
+            dataIndex: '누적예약',
+            key: '누적예약',
+            width: 70,
+        },
+        ]
+    /*기능 함수*/
     let changeWeek = (e) => {
         setDaily(e);
     }
-    const weekFormat = 'MM/DD';
-    const monthFormat = 'YYYY/MM';
+    
+    let changeState = (e) => {
+        setState(e);
+    }
+    
+    let chooseDate = async (e) => {
+        if(e == null) return;
+        let prop = dayjs(e).startOf('week').format('YYYY,MM,DD');
+        setLoading(true);
+        prop = prop.split(',').map(el=>parseInt(el));
+        await getStatesByPeriod(prop[0], prop[1], prop[2], daily).then((res) => {
+            let outerData = [];
+            let innerDate = "";
+            let outerTime = [];
+            let innerTime = "";
+            let innerBarSum = 0;
+            let innerPieSum = 0;
+            /*바차트 데이터 가공*/
+            for(let i=0; i<7; i++){
+                let innerData = {};
+                innerData["key"] = i+1;
+                innerData["일자"] = dayjs(`${prop[0]}-${prop[1]}-${prop[2]+i}`).startOf("date").format("MM/DD");
+                innerData["신규예약"] = 0;
+                innerData["취소"] = 0;
+                innerData["완료"] = 0;
+                innerData["누적예약"] = 0;
+                outerData.push(innerData);
+            }
+
+            res.data.stat_by_date.map((el,idx) => {
+                let innerData = {};
+
+                innerBarSum+= el.cnt;
+                if(innerDate != el.date.slice(5).replace("-", "/")){
+                    innerDate = el.date.slice(5).replace("-", "/");
+                    let originInner = outerData.find(el=>el["일자"]==innerDate);
+                    let originInnerIdx = outerData.findIndex(el=>el["일자"]==innerDate);
+                    if(stateRole[el.state]?.length>0){
+                        originInner[stateRole[el.state]] = el.cnt;
+                    }
+                    if(el.state==9)innerBarSum-= el.cnt;
+                    originInner["신규예약"] += el.cnt;
+                    originInner["누적예약"] = innerBarSum;
+                    outerData.map((el,index)=>index>originInnerIdx?el["누적예약"]=innerBarSum:'');
+                }else{
+                    let originInner = outerData.find(el=>el["일자"]==innerDate);
+                    let originInnerIdx = outerData.findIndex(el=>el["일자"]==innerDate);
+                    if(stateRole[el.state]?.length>0){
+                        originInner[stateRole[el.state]] = el.cnt;
+                    }
+                    if(el.state==9)innerBarSum -= el.cnt;
+                    originInner["신규예약"] += el.cnt;
+                    originInner["누적예약"] = innerBarSum;
+                    outerData.map((el,index)=>index>originInnerIdx?el["누적예약"]=innerBarSum:'');
+                }
+            });
+            setData(outerData);
+            
+            /*파이차트 데이터*/
+            timeRole.forEach((el,i) => {
+                let innerTimeData = {};
+                innerTimeData["key"] = i+1;
+                innerTimeData["시간"] = el;
+                innerTimeData["신규예약"] = 0;
+                innerTimeData["취소"] = 0;
+                innerTimeData["완료"] = 0;
+                innerTimeData["누적예약"] = 0;
+                outerTime.push(innerTimeData);
+            })
+
+            res.data.stat_total_by_state.map(el=>{
+                let innerTimeData = {};
+                innerPieSum+=el.cnt;
+                if(innerTime != el.time){
+                    innerTime = el.time;
+                    let originInner = outerTime.find(el=>el["시간"]==innerTime);
+                    let originInnerIdx = outerTime.findIndex(el=>el["시간"]==innerTime);
+                    if(stateRole[el.state]?.length>0){
+                        originInner[stateRole[el.state]] = el.cnt;
+                    }
+                    if(el.state==9)innerPieSum -= el.cnt;
+                    originInner["신규예약"] += el.cnt;
+                    originInner["누적예약"] = innerPieSum;
+                    outerTime.map((el,index)=>index>originInnerIdx?el["누적예약"]=innerPieSum:'');
+                    }else{
+                    let originInner = outerTime.find(el=>el["시간"]==innerTime);
+                    let originInnerIdx = outerTime.findIndex(el=>el["시간"]==innerTime);
+                    if(stateRole[el.state]?.length>0){
+                        originInner[stateRole[el.state]] = el.cnt;
+                    }
+                    if(el.state==9)innerPieSum -= el.cnt;
+                    originInner["신규예약"] += el.cnt;
+                    originInner["누적예약"] = innerPieSum;
+                    outerTime.map((el,index)=>index>originInnerIdx?el["누적예약"]=innerPieSum:'');
+                }
+            })
+            setTimeData(outerTime);
+            setLoading(false);
+        });
+        // let res2 = await supabase.rpc("getStatesByPeriod",{year: prop[0],month:prop[1],start_date:prop[2],key:daily});
+    }
+    let chooseYear = (e) => {
+        console.log(dayjs(e).startOf('year').format(yearFormat));
+        console.log(daily);
+    }
+    /*달력, 날짜 커스텀*/
     const customWeekStartEndFormat = value =>
         `${dayjs(value).startOf('week').format(weekFormat)} ~ ${dayjs(value)
             .endOf('week')
             .format(weekFormat)}`;
 
-    class Example extends PureComponent {
+    /*바 차트 커스텀*/
+    class NewReservChart extends PureComponent {
         render() {
             return (
-                <ResponsiveContainer width="100%" height="80%">
-                    <ComposedChart
+                <ResponsiveContainer width="90%" height={500}>
+                    <BarChart
                         data={data}
                         margin={{
                             top: 20,
-                            right: 20,
+                            right: 10,
                             bottom: 20,
-                            left: 20,
+                            left: 10,
                         }}
                     >
                         <CartesianGrid stroke="#f5f5f5"/>
-                        <XAxis dataKey="name" fontSize={8} angle={-25} textAnchor="end"/>
+                        <XAxis dataKey="일자" fontSize={8} angle={-45} textAnchor="end"/>
                         <YAxis
                             label={{
-                                value: '누적예약 건',
-                                angle: -90,
-                                position: 'left',
-                                offset: -10
-                            }}
-                            yAxisId="left"
-                            domain={[0, 800]}
-                        />
-                        <YAxis
-                            label={{
-                                value: '예약 건',
-                                angle: 90,
                                 position: 'right',
                                 offset: -10
                             }}
-                            yAxisId="right"
-                            orientation="right"
+                            yAxisId="left"
+                            orientation="left"
                         />
-                        <Tooltip/>
-                        <Legend/>
-                        <Area type="monotone" dataKey="완료" fill="#8884d8" stroke="#8884d8" yAxisId={"right"}/>
-                        <Bar dataKey="신규예약" barSize={20} fill="#413ea0" yAxisId={"right"}/>
-                        <Line type="monotone" dataKey="누적예약" stroke="#ff7300" yAxisId={"left"}/>
-                        <Scatter dataKey="예약취소" fill="red" yAxisId={"right"}/>
-                    </ComposedChart>
+                        <Tooltip color="#FFFFFF"/>
+                        <Bar dataKey="신규예약" fill="#93B2FF" yAxisId={"left"}/>
+                        <Bar dataKey="취소" fill="#FFA69F" yAxisId={"left"}/>
+                        <Bar dataKey="완료" fill="#D6FF9F" yAxisId={"left"}/>
+                    </BarChart>
                 </ResponsiveContainer>
             );
         }
     }
+
+    /*파이,원형 차트 커스텀*/
+    const COLORS = ['#eafdb2', '#d5ffa0', '#9bffa0','#acffc9'];
+
+
+    const renderCustomizedLabel = (props) => {
+        let { cx, cy, midAngle, innerRadius, outerRadius, percent, index,value } = props;
+        if(value==0) return;
+        const RADIAN = Math.PI / 180;
+
+        const radius = innerRadius + (outerRadius - innerRadius) * 0.05;
+        const x = cx + radius * Math.cos(-midAngle * RADIAN);
+        const y = cy + radius * Math.sin(-midAngle * RADIAN);
+        const mx = x + (radius-75) * Math.cos(-midAngle * RADIAN);
+        const my = y + (radius-20) * Math.sin(-midAngle * RADIAN);
+        return (
+            <text x={mx} y={my} fill="black" textAnchor={x > cx ? 'start' : 'end'} dominantBaseline="central">
+                {`${state==1?"신규예약":state==9?"취소":"완료"} : ${state==1?props.신규예약:state==9?props.취소:props.완료}건`}
+            </text>
+        );
+    };
+
+
+    class TimeRound extends PureComponent {
+
+        state = {
+            activeIndex: 0,
+        };
+
+        onPieEnter = (_, index) => {
+            this.setState({
+                activeIndex: index,
+            });
+        };
+        render() {
+            return (
+                <ResponsiveContainer width="90%" height={500}>
+                <PieChart>
+                    <Pie
+                        animationDuration={500}
+                        labelLine={false}
+                        label={renderCustomizedLabel}
+                        data={timeData}
+                        cx="50%"
+                        cy="50%"
+                        innerRadius="30%"
+                        outerRadius="90%"
+                        fill="#8884d8"
+                        dataKey={state==1?"신규예약":state==9?"취소":"완료"}
+                        onMouseEnter={this.onPieEnter}
+                    >
+                        {data.map((entry, index) => (
+                            <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
+                        ))}
+                    </Pie>
+
+                </PieChart>
+                </ResponsiveContainer>
+            );
+        }
+    }
+
 
     return (
         <>
@@ -162,25 +366,25 @@ function Home(props) {
                         onChange={(e) => changeWeek(e)}
                         options={[
                             {value: 1, label: '일간'},
-                            {value: 2, label: '주간'},
+                            {value: 2, label: '월간'},
                         ]}
                     />
 
                     {
                         daily == 1 ? (
-                            <DatePicker locale={locale} defaultValue={dayjs()} format={customWeekStartEndFormat}
+                            <DatePicker locale={locale} defaultValue={dayjs()} format={customWeekStartEndFormat} onChange={(e)=>chooseDate(e)}
                                         picker="week"/>) : (
-                            <DatePicker locale={locale} defaultValue={dayjs('2015/01', monthFormat)}
-                                        format={monthFormat}
-                                        picker="month"/>)
+                            <DatePicker locale={locale} defaultValue={dayjs('2015/01', yearFormat)} onChange={(e)=>chooseYear(e)}
+                                        format={yearFormat}
+                                        picker="year"/>)
                     }
 
 
-                    <Button className={styles.Btn} icon={<SearchOutlined/>}></Button>
+                    <Button loading={loading} className={styles.Btn} icon={<SearchOutlined/>}></Button>
                 </div>
                 <Row gutter={[16, 8]}>
                     <Col xl={8} md={8} xs={24}>
-                        <Card style={{backgroundColor: '#ccc'}}>
+                        <Card style={{backgroundColor: '#F1F5FF'}}>
                             <Row justify="center" align="top">
                                 <Col md={16} xs={24}>
                                     <Row>
@@ -192,52 +396,54 @@ function Home(props) {
                                         </Col>
                                     </Row>
                                 </Col>
-                                <Col className={'gutter-row'} md={8} xs={24}>
+                                <Col className={styles.palete} md={8} xs={24}>
                                     <Row>
                                         <Col md={24} xs={24}>
                                             <h3>누계</h3>
                                         </Col>
                                         <Col md={24} xs={24}>
-                                            <p>테스트</p>
+                                            <p>{timeData?.length>0?timeData.reduce((a,b)=>{
+                                                console.log(a["신규예약"]);
+                                                console.log(b["신규예약"]);
+                                                return a["신규예약"]+b["신규예약"];
+                                            }):"0"}</p>
                                         </Col>
                                     </Row>
                                 </Col>
 
                             </Row>
                         </Card>
-                         <Example/>
                     </Col>
-                    <Col xl={8} md={8} xs={24}>
-                        <Card style={{backgroundColor: '#ccc'}}>
+                    <Col xl={8} md={8} xs={0}>
+                        <Card style={{backgroundColor: '#FEF1F0'}}>
                             <Row justify="center" align="top">
 
                                 <Col md={16} xs={24}>
                                     <Row>
                                         <Col md={24} xs={24}>
-                                            <h2>예약취소</h2>
+                                            <h2>취소</h2>
                                         </Col>
                                         <Col md={24} xs={24}>
                                             <p>테스트</p>
                                         </Col>
                                     </Row>
                                 </Col>
-                                <Col className={'gutter-row'} md={8} xs={24}>
+                                <Col className={styles.palete} md={8} xs={24}>
                                     <Row>
                                         <Col md={24} xs={24}>
                                             <h3>누계</h3>
                                         </Col>
                                         <Col md={24} xs={24}>
-                                            <p>테스트</p>
+                                            <p>{}</p>
                                         </Col>
                                     </Row>
                                 </Col>
 
                             </Row>
                         </Card>
-                        <Example/>
                     </Col>
-                    <Col xl={8} md={8} xs={24}>
-                        <Card style={{backgroundColor: '#ccc'}}>
+                    <Col xl={8} md={8} xs={0}>
+                        <Card style={{backgroundColor: '#F7FFEC'}}>
                             <Row justify="center" align="top">
 
                                 <Col md={16} xs={16}>
@@ -250,60 +456,104 @@ function Home(props) {
                                         </Col>
                                     </Row>
                                 </Col>
-                                <Col className={'gutter-row'} md={8} xs={8}>
+                                <Col className={styles.palete} md={8} xs={8}>
                                     <Row>
                                         <Col md={24} xs={24}>
                                             <h3>누계</h3>
                                         </Col>
                                         <Col md={24} xs={24}>
-                                            <p>테스트</p>
+                                            <p>{}</p>
                                         </Col>
                                     </Row>
                                 </Col>
 
                             </Row>
                         </Card>
-                        <Example/>
                     </Col>
                 </Row>
                 {/*<div className={styles.dashBoard}>
                     <Example/>
                 </div>*/}
-                <div className={styles.dashBoard}>
-                    {data.length > 0 ? (<table>
-                        <colgroup>
-                            <col style={{width: '20%'}}/>
-                            <col style={{width: '20%'}}/>
-                            <col style={{width: '20%'}}/>
-                            <col style={{width: '20%'}}/>
-                            <col style={{width: '20%'}}/>
-                        </colgroup>
-                        <tbody>
-                        <tr>
-                            <th>일자</th>
-                            <th>신규예약</th>
-                            <th>예약취소</th>
-                            <th>완료</th>
-                            <th>누적예약</th>
-                        </tr>
-                        {data.map(item =>
-                            (<tr key={item.name}>
-                                <td>
-                                    {item.name}
-                                </td>
-                                <td>{item.신규예약}</td>
-                                <td>{item.예약취소}</td>
-                                <td>{item.완료}</td>
-                                <td>{item.누적예약}</td>
-                            </tr>)
-                        )}
-                        </tbody>
-                    </table>) : ""}
-                </div>
+                <Row style={{marginTop: 8,height:"80%",placeItems:'center',padding:'10px'}} gutter={[16, 16]}>
+                    <Col md={12} xs={24}>
+                        <NewReservChart/>
+                        <Table
+                            columns={dateColumns}
+                            dataSource={data}
+                            pagination={false}
+                            scroll={{ y: 195 }}
+                            bordered
+                            summary={(barDataList) => {
+                                let totalNew = 0;
+                                let totalCancel = 0;
+                                let totalComplete = 0;
+                                let totalTotal = 0;
+                                barDataList.forEach(({신규예약,취소,완료,누적예약}) => {
+                                        totalNew+= 신규예약;
+                                        totalCancel+= 취소;
+                                        totalComplete+= 완료;
+                                        totalTotal = 누적예약;
+                                })
+
+                                return (<Table.Summary fixed>
+                                    <Table.Summary.Row>
+                                        <Table.Summary.Cell index={0}>누계</Table.Summary.Cell>
+                                        <Table.Summary.Cell index={1}>{totalNew}</Table.Summary.Cell>
+                                        <Table.Summary.Cell index={2}>{totalCancel}</Table.Summary.Cell>
+                                        <Table.Summary.Cell index={3}>{totalComplete}</Table.Summary.Cell>
+                                        <Table.Summary.Cell index={4}>{totalTotal}</Table.Summary.Cell>
+                                    </Table.Summary.Row>
+                                </Table.Summary>)
+                            }}
+                            size={"small"}
+                        />
+                    </Col>
+                    <Col md={12} xs={24}>
+                        <Select
+                            defaultValue={state}
+                            style={{minWidth: 80, maxWidth: 100}}
+                            onChange={(e) => changeState(e)}
+                            options={[
+                                {value: 1, label: '신규예약'},
+                                {value: 9, label: '취소'},
+                                {value: 5, label: '완료'},
+                            ]}
+                        />
+                    <TimeRound/>
+                        <Table
+                            columns={timeColumns}
+                            dataSource={timeData}
+                            pagination={false}
+                            bordered
+                            scroll={{ x: 500 }}
+                            summary={(pieDataList) => {
+                                let totalNew = 0;
+                                let totalCancel = 0;
+                                let totalComplete = 0;
+                                let totalTotal = 0;
+                                pieDataList.forEach(({신규예약,취소,완료,누적예약}) => {
+                                    totalNew+= 신규예약;
+                                    totalCancel+= 취소;
+                                    totalComplete+= 완료;
+                                    totalTotal = 누적예약;
+                                })
+                                return (<Table.Summary fixed>
+                                    <Table.Summary.Row>
+                                        <Table.Summary.Cell index={0}>누계</Table.Summary.Cell>
+                                        <Table.Summary.Cell index={1}>{totalNew}</Table.Summary.Cell>
+                                        <Table.Summary.Cell index={2}>{totalCancel}</Table.Summary.Cell>
+                                        <Table.Summary.Cell index={3}>{totalComplete}</Table.Summary.Cell>
+                                        <Table.Summary.Cell index={4}>{totalTotal}</Table.Summary.Cell>
+                                    </Table.Summary.Row>
+                                </Table.Summary>)
+                            }}
+                            size={"small"}
+                        />
+                    </Col>
+                </Row>
             </div>
         </>
-    )
-        ;
+    );
 }
 
 export default Home;
