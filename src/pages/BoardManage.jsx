@@ -1,7 +1,7 @@
 import React, {useEffect, useState} from 'react';
-import {Breadcrumb, Button, Form, Image, Input, message, Modal, Select} from "antd";
-import {PlusOutlined, SearchOutlined, RedoOutlined} from "@ant-design/icons";
-import {format} from 'date-fns';
+import {Breadcrumb, Button, Card, Form, Image, Input, message, Modal, Select, Space, Table} from "antd";
+import {PlusOutlined, SearchOutlined, RedoOutlined, EditOutlined, DeleteOutlined} from "@ant-design/icons";
+// import {format} from 'date-fns';
 
 import '../css/BoardManage.css';
 import {supabase} from "../js/supabaseClient.js";
@@ -256,10 +256,11 @@ const BoardManage = () => {
             dataIndex: 'created_at',
             key: 'created_at',
             width: 100,
+            sorter: (a, b) => new Date(a.created_at) - new Date(b.created_at),
             ellipsis: false,
             render: (date) => (
                 <span style={{whiteSpace: 'normal', wordBreak: 'break-word'}}>
-                    {format(new Date(date),'yyyy-MM-dd')}
+                    {/*{format(new Date(date), 'yyyy-MM-dd')}*/}
                 </span>
             ),
         },
@@ -275,18 +276,116 @@ const BoardManage = () => {
                 </span>
             ),
         },
-        // {
-        //     title: '작업',
-        //     key: 'actions',
-        //     width: 200,
-        //     render: (_, record) => (
-        //         <Space size = "middle">
-        //             <Button
-        //         </Space>
-        //     )
-        // }
+        {
+            title: '작업',
+            key: 'actions',
+            width: 200,
+            render: (_, record) => (
+                <Space size="middle">
+                    <Button
+                        icon={<EditOutlined/>}
+                        onClick={() => {
+                            setIsEditMode(true);
+                            setSelectedPost(record);
+                            form.setFieldValue(record);
+                            setFileList(record.image_url ? [{
+                                uid: '- 1,',
+                                name: 'image',
+                                status: 'done',
+                                url: record.image_url,
+                            }] : []);
+                            setIsModalOpen(true);
+                        }}
+                        style={{color: '#1890ff'}}
+                    >
+                        수정
+                    </Button>
+                    <Button
+                        icon={<DeleteOutlined/>}>
+                        onClick={() => handleDelete(record)}
+                        style={{color: '#ff4d4f'}}
+                        삭제
+                    </Button>
+                    <Button onClick={() => handlePin(record)} style={{color: '#595959'}}>
+                        {record.is_notice ? '공지 해제' : '공지 고정'}
+                    </Button>
+                </Space>
+            ),
+        },
+    ];
 
-    ]
+    const renderCards = () => (
+        <div className="post-cards-container">
+            <div className="post-cards">
+                {posts.map((post) => (
+                    <Card
+                        key={post.id}
+                        className="post-card"
+                        variant="outlined"
+                    >
+                        <div className="post-card-content">
+                            {post.image_url && (
+                                <div className="post-image">
+                                    <Image src={post.image_url} alt="게시글 이미지" width={50} height={50}
+                                           style={{objectFit: 'cover'}}/>
+                                </div>
+                            )}
+                            <div className="post-details">
+                                <div className="post-title">
+                                    {post.is_notice && <Tag color="blue">공지</Tag>}
+                                    <span>{post.title}</span>
+                                </div>
+                                <div className={"post-meta"}>
+                                    <span>작성자: {post.author}</span>
+                                    <span>카테고리: {post.categories.name}</span>
+                                    {/*<span>등록일: {format(new Date(post.created_at), 'yyyy-MM-dd')}</span>*/}
+                                    <span>조회수: {post.views}</span>
+                                </div>
+                            </div>
+                        </div>
+                        <div className="post-actions">
+                            <Button
+                                icon={<EditOutlined/>}
+                                onClick={() => {
+                                    setIsEditMode(true);
+                                    setSelectedPost(record);
+                                    form.setFieldValue(record);
+                                    setFileList(record.image_url ? [{
+                                        uid: '- 1,',
+                                        name: 'image',
+                                        status: 'done',
+                                        url: record.image_url,
+                                    }] : []);
+                                    setIsModalOpen(true);
+                                }}
+                                style={{color: '#1890ff', marginRight: '8px'}}
+                            >
+                                수정
+                            </Button>
+                            <Button
+                                icon={<DeleteOutlined/>}>
+                                onClick={() => handleDelete(record)}
+                                style={{color: '#ff4d4f', marginRight: '8px'}}
+                                삭제
+                            </Button>
+                            <Button onClick={() => handlePin(record)} style={{color: '#595959'}}>
+                                {record.is_notice ? '공지 해제' : '공지 고정'}
+                            </Button>
+                        </div>
+                    </Card>
+                ))}
+            </div>
+            <div>
+                <Pagenation
+                    current={currentPage}
+                    pageSize={pageSize}
+                    total={totalPosts}
+                    onChange={(page) => setCurrentPage(page)}
+                    style={{marginTop: '16px'}}
+                />
+            </div>
+        </div>
+    )
 
     return (
         <div className="content">
@@ -342,8 +441,22 @@ const BoardManage = () => {
                 >
                     게시글 등록
                 </Button>
-
             </div>
+            {isEditMode ? renderCards() : (
+                <Table
+                    columns={columns}
+                    // dataSource={posts}
+                    rowKey="id"
+                    pagination={{
+                        current: currentPage,
+                        pageSize: pageSize,
+                        total: totalPosts,
+                        onChange: (page) => setCurrentPage(page),
+                    }}
+                    scroll={{x: 'max-content'}}
+                />
+            )}
+
         </div>
     );
 }
