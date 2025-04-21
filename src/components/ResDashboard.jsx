@@ -1,20 +1,20 @@
 import React from 'react';
-import {Card, Statistic, DatePicker, Row, Col} from 'antd';
+import { Card, Statistic, DatePicker } from 'antd';
+import { Col, Row } from 'antd';
+import { CalendarOutlined, CheckCircleOutlined, ClockCircleOutlined, FileDoneOutlined } from '@ant-design/icons';
+import dayjs from 'dayjs';
 import 'dayjs/locale/ko';
 import locale from "antd/es/date-picker/locale/ko_KR";
-import dayjs from "dayjs";
-import {CalendarOutlined, CheckCircleOutlined, ClockCircleOutlined, FileDoneOutlined} from "@ant-design/icons";
 dayjs.locale('ko');
 
-const {RangePicker} = DatePicker;
+const { RangePicker } = DatePicker;
 
-
-function ResDashboard({reservations, dateRange, setDateRange}) {
+const ResDashboard = ({ reservations, dateRange, setDateRange }) => {
     const stats = {
         total: reservations.length,
-        pending: reservations.filter((r) => r.state === 1).length,
-        confirmed: reservations.filter((r) => r.state === 2).length,
-        completed: reservations.filter((r) => r.state === 3 ).length,
+        pending: reservations.filter((r) => r.state === 0).length,
+        confirmed: reservations.filter((r) => r.state === 1).length,
+        completed: reservations.filter((r) => r.state === 4).length
     };
 
     const handleDateChange = (dates) => {
@@ -25,13 +25,14 @@ function ResDashboard({reservations, dateRange, setDateRange}) {
         }
     };
 
-
     return (
-        <Card style={{
-            marginBottom: 16,
-            boxShadow: '0 4px 8px rgba(0,0,0,0.1)',
-            borderRadius: 8,
-        }}>
+        <Card
+            style={{
+                marginBottom: 16,
+                boxShadow: '0 4px 8px rgba(0,0,0,0.1)',
+                borderRadius: 8,
+            }}
+        >
             <RangePicker
                 locale={locale}
                 value={dateRange}
@@ -42,51 +43,52 @@ function ResDashboard({reservations, dateRange, setDateRange}) {
                 disabledDate={(current) => {
                     return current && (current > dayjs().endOf('day') || current.year() > 2025);
                 }}
-            ></RangePicker>
+            />
             <Row gutter={[16, 16]}>
                 <Col xs={24} sm={12} md={6}>
-                    <Card style={{backgroundColor:'e6f7ff', borderRadius:8}}>
-                        <Statistic>
+                    <Card style={{ background: '#e6f7ff', borderRadius: 8 }}>
+                        <Statistic
                             title="전체 예약"
                             value={stats.total}
                             prefix={<CalendarOutlined />}
                             valueStyle={{ color: '#1890ff', fontSize: '24px', fontWeight: 'bold' }}
-                        </Statistic>
+                        />
                     </Card>
                 </Col>
                 <Col xs={24} sm={12} md={6}>
-                    <Card>
-                        <Statistic>
+                    <Card style={{ background: '#fff1f0', borderRadius: 8 }}>
+                        <Statistic
                             title="예약 대기"
                             value={stats.pending}
                             prefix={<ClockCircleOutlined />}
                             valueStyle={{ color: '#ff4d4f', fontSize: '24px', fontWeight: 'bold' }}
-                        </Statistic>
+                        />
                     </Card>
                 </Col>
                 <Col xs={24} sm={12} md={6}>
-                    <Card>
-                        <Statistic>
-                            title="배정 대기"
+                    <Card style={{ background: '#f0f5ff', borderRadius: 8 }}>
+                        <Statistic
+                            title="예약 완료"
                             value={stats.confirmed}
                             prefix={<FileDoneOutlined />}
                             valueStyle={{ color: '#096dd9', fontSize: '24px', fontWeight: 'bold' }}
-                        </Statistic>
+                        />
                     </Card>
                 </Col>
                 <Col xs={24} sm={12} md={6}>
-                    <Card>
-                        <Statistic>
-                            title="배정 완료"
+                    <Card style={{ background: '#f6ffed', borderRadius: 8 }}>
+                        <Statistic
+                            title="청소 완료"
                             value={stats.completed}
                             prefix={<CheckCircleOutlined />}
                             valueStyle={{ color: '#52c41a', fontSize: '24px', fontWeight: 'bold' }}
-                        </Statistic>
+                        />
                     </Card>
                 </Col>
+
             </Row>
         </Card>
     );
-}
+};
 
 export default ResDashboard;
