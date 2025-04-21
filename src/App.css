@@ -161,7 +161,7 @@ main.login {
 }
 @media (max-width: 1199px){
     aside.login{
-        width:400px;
+        width:300px;
         z-index:9999;
         &>div:first-child {
             display:flex;

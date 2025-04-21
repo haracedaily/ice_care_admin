@@ -17,7 +17,7 @@ function Side({toggleAside,setToggleAside}) {
             <aside className={`login ${toggleAside ? "toggle" : ""}`}>
                 <div>
                     <NavLink to="/">
-                        <img src="/src/images/side_logo.png" width={150} alt="Logo"/>
+                        <img src="/images/side_logo.png" width={150} alt="Logo"/>
                     </NavLink>
                     <div className={`${toggleAside?"toggle":""}`}>
                     <CloseCircleOutlined style={{ fontSize: '30px' }} onClick={()=>{setToggleAside(!toggleAside)}} />
@@ -56,7 +56,7 @@ function Side({toggleAside,setToggleAside}) {
                     <div>
                         <div className={`${currentSide==="reservation"? "select" : ""}`} onClick={() => {setCurrentSide("reservation");setToggleAside(!toggleAside);sideNav("/reservation")}}>
                             <h3>예약관리</h3>
-                            <img className={`${currentSide==="reservation"?"rotate":""}`} src="/src/images/polygon.png" alt="" width={10} height={10}/>
+                            <img className={`${currentSide==="reservation"?"rotate":""}`} src="/images/polygon.png" alt="" width={10} height={10}/>
                         </div>
                         <ul className={`${currentSide==="reservation"? '' : 'none'}`}>
                             <li>예약 등록</li>
@@ -67,7 +67,7 @@ function Side({toggleAside,setToggleAside}) {
                     <div>
                         <div className={`${currentSide==="contact"? "select" : ""}`} onClick={() => {setCurrentSide("contact");setToggleAside(!toggleAside);sideNav("/contact")}}>
                             <h3>게시판</h3>
-                            <img className={`${currentSide==="contact"? "rotate" : ""}`} src="/src/images/polygon.png" alt="" width={10} height={10}/>
+                            <img className={`${currentSide==="contact"? "rotate" : ""}`} src="/images/polygon.png" alt="" width={10} height={10}/>
                         </div>
                         <ul className={`${currentSide==="contact" ? '' : 'none'}`}>
                             <li>게시글 등록</li>
@@ -79,7 +79,7 @@ function Side({toggleAside,setToggleAside}) {
                     <div>
                         <div className={`${currentSide==="employee" ? "select" : ""}`} onClick={() => {setCurrentSide("employee")}}>
                             <h3>환경설정</h3>
-                            <img  className={`${currentSide==="employee"? "rotate" : ""}`} src="/src/images/polygon.png" alt="" width={10} height={10}/>
+                            <img className={`${currentSide==="employee"? "rotate" : ""}`} src="/images/polygon.png" alt="" width={10} height={10}/>
                         </div>
                         <ul className={`${currentSide==="employee" ? '' : 'none'}`}>
                             <li>메뉴관리</li>
