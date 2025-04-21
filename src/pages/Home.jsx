@@ -57,6 +57,7 @@ function Home(props) {
             dataIndex: '일자',
             key: '일자',
             width: 80,
+            fixed: 'left',
         },
         {
             title: '신규예약',
@@ -92,6 +93,7 @@ function Home(props) {
             dataIndex: '시간',
             key: '시간',
             width: 120,
+            fixed: 'left',
         },
         {
             title: '신규예약',
@@ -400,7 +402,11 @@ function Home(props) {
                                             <h3>누계</h3>
                                         </Col>
                                         <Col md={24} xs={24}>
-                                            <p>테스트</p>
+                                            <p>{timeData?.length>0?timeData.reduce((a,b)=>{
+                                                console.log(a["신규예약"]);
+                                                console.log(b["신규예약"]);
+                                                return a["신규예약"]+b["신규예약"];
+                                            }):"0"}</p>
                                         </Col>
                                     </Row>
                                 </Col>
@@ -428,7 +434,7 @@ function Home(props) {
                                             <h3>누계</h3>
                                         </Col>
                                         <Col md={24} xs={24}>
-                                            <p>테스트</p>
+                                            <p>{}</p>
                                         </Col>
                                     </Row>
                                 </Col>
@@ -456,7 +462,7 @@ function Home(props) {
                                             <h3>누계</h3>
                                         </Col>
                                         <Col md={24} xs={24}>
-                                            <p>테스트</p>
+                                            <p>{}</p>
                                         </Col>
                                     </Row>
                                 </Col>
@@ -488,6 +494,7 @@ function Home(props) {
                                         totalComplete+= 완료;
                                         totalTotal = 누적예약;
                                 })
+
                                 return (<Table.Summary fixed>
                                     <Table.Summary.Row>
                                         <Table.Summary.Cell index={0}>누계</Table.Summary.Cell>
@@ -518,6 +525,7 @@ function Home(props) {
                             dataSource={timeData}
                             pagination={false}
                             bordered
+                            scroll={{ x: 500 }}
                             summary={(pieDataList) => {
                                 let totalNew = 0;
                                 let totalCancel = 0;
