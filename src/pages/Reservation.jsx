@@ -1,16 +1,18 @@
 import React, { useState, useEffect } from 'react';
-import {Breadcrumb, Card, Layout, Tabs} from 'antd';
-import ResDashboard from "../components/ResDashboard.jsx";
+import { Layout, Button, Modal, Tabs, Card, Flex } from 'antd';
+import ReservationTable from '../components/ReservationTable';
+import ReservationForm from '../components/ReservationForm';
+import ResDashboard from '../components/ResDashboard';
+import ResSearchFilters from "../components/ResSearchFilters.jsx";
+
 import {supabase} from "../js/supabase.js";
-import dayjs from "dayjs";
+
+import dayjs from 'dayjs';
 import 'dayjs/locale/ko';
 
+const { Content } = Layout;
 
-
-const {Content} = Layout;
-
-
-const Reservation = () =>{
+const Reservation = () => {
     const [reservations, setReservations] = useState([]);
     const [filteredReservations, setFilteredReservations] = useState([]);
     const [isModalOpen, setIsModalOpen] = useState(false);
@@ -21,20 +23,19 @@ const Reservation = () =>{
         tel: '',
         email: '',
         addr: '',
-        state: null,
     });
-
     const [dateRange, setDateRange] = useState([
-        dayjs().subtract(1, 'month').startOf('day'), // 한 달 전
-        dayjs().endOf('day'), // 오늘
+        dayjs().subtract(1, 'month').startOf('day'),
+        dayjs().endOf('day'),
     ]);
 
+    // 데이터 가져오기
     const fetchReservations = async () => {
         let query = supabase.from('ice_res').select('*');
 
-        if(filterType === 'cleaning') {
+        if (filterType === 'cleaning') {
             query = query.eq('service', '청소');
-        }else if(filterType === 'repair') {
+        } else if (filterType === 'repair') {
             query = query.eq('service', '수리');
         }
 
@@ -54,13 +55,9 @@ const Reservation = () =>{
             console.error('Error fetching reservations:', error);
             return;
         }
-        setReservations(data);
-        applyFilters(data);
-    };
 
-    const applyFilters = (data) => {
+        // 필터 적용
         let filtered = [...data];
-
         if (filters.name) {
             filtered = filtered.filter((r) =>
                 r.name.toLowerCase().includes(filters.name.toLowerCase())
@@ -79,20 +76,15 @@ const Reservation = () =>{
                 r.addr.toLowerCase().includes(filters.addr.toLowerCase())
             );
         }
-        if (filters.state !== null) {
-            filtered = filtered.filter((r) => r.state === filters.state);
-        }
 
+        setReservations(data);
         setFilteredReservations(filtered);
     };
 
+    // 초기 데이터 로드
     useEffect(() => {
         fetchReservations();
     }, [filterType, dateRange]);
-
-    useEffect(() => {
-        applyFilters(reservations);
-    }, [filters]);
 
     // 모달 핸들러
     const showModal = (reservation = null) => {
@@ -111,42 +103,71 @@ const Reservation = () =>{
         setEditingReservation(null);
     };
 
-    return(
-        <Layout style={{minHeight: '100vh', padding: '20px'}}>
+    // 조회 버튼 핸들러
+    const handleSearch = () => {
+        fetchReservations();
+    };
+
+    return (
+        <Layout style={{ minHeight: '100vh', padding: '20px' }}>
             <Content>
-                <Breadcrumb
-                    separator=">"
-                    items={[
-                        {
-                            title: 'Home',
-                        },
-                        {
-                            title: '예약관리',
-                            // onClick:(e)=>{e.preventDefault();reservationNavi("/reservation");},
-                            href: '',
-                        },
-                    ]}
-                />
                 <Card>
                     <Tabs
                         defaultActiveKey="all"
                         onChange={setFilterType}
-                        item={[
-                            {key:'all', label:'전체'},
-                            {key: 'cleaning', label:'청소'},
-                            {key: 'repair', label: '수리'},
+                        items={[
+                            { key: 'all', label: '전체' },
+                            { key: 'cleaning', label: '청소' },
+                            { key: 'repair', label: '수리' },
                         ]}
-                    ></Tabs>
+                    />
+
                     <ResDashboard
-                        reservation={reservations}
-                        dataRange={dataRange}
-                        setDataRange={setDateRange}
-                    ></ResDashboard>
+                        reservations={reservations}
+                        dateRange={dateRange}
+                        setDateRange={setDateRange}
+                    />
 
+                    <ResSearchFilters
+                        filters={filters}
+                        setFilters={setFilters}
+                        onSearch={handleSearch}
+                    />
+
+                    <Flex justify="end" style={{ marginBottom: 16 }}>
+                        <Button
+                            type="primary"
+                            onClick={() => showModal()}
+                        >
+                            예약등록
+                        </Button>
+                    </Flex>
+
+                    <ReservationTable
+                        reservations={filteredReservations}
+                        onEdit={showModal}
+                        onDelete={async (res_no) => {
+                            await supabase.from('ice_res').delete().eq('res_no', res_no);
+                            fetchReservations();
+                        }}
+                        onUpdate={fetchReservations} // onUpdate prop 추가
+                    />
+
+                    <Modal
+                        title={editingReservation ? '예약 수정' : '새 예약 등록'}
+                        open={isModalOpen}
+                        onOk={handleOk}
+                        onCancel={handleCancel}
+                        footer={null}
+                        width={800}
+                    >
+                        <ReservationForm
+                            reservation={editingReservation}
+                            onSuccess={handleOk}
+                        />
+                    </Modal>
                 </Card>
-
             </Content>
-
         </Layout>
     );
 };
