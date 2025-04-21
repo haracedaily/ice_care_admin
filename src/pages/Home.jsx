@@ -31,7 +31,11 @@ function Home(props) {
     let [daily, setDaily] = useState(1);
     let [state, setState] = useState(1);
     useEffect(() => {
-         chooseDate(dayjs());
+        if(daily==1) {
+            chooseDate(dayjs());
+        }else{
+            chooseYear(dayjs());
+        }
     }, []);
     let homeNavi = useNavigate();
 
@@ -46,6 +50,42 @@ function Home(props) {
         9: "취소",
         10: "누적예약"
     };
+    /*table 설정*/
+    let dateColumns = [
+        {
+            title: '일자',
+            dataIndex: '일자',
+            key: '일자',
+            width: 100,
+        },
+        {
+            title: '신규예약',
+            dataIndex: '신규예약',
+            key: '신규예약',
+            width: 100,
+            sorter: (a, b) => a.신규예약 - b.신규예약,
+        },
+        {
+            title: '취소',
+            dataIndex: '취소',
+            key: '취소',
+            width: 100,
+            sorter: (a, b) => a.취소 - b.취소,
+        },
+        {
+            title: '완료',
+            dataIndex: '완료',
+            key: '완료',
+            width: 100,
+            sorter: (a,b) => a.완료 - b.완료,
+        },
+        {
+            title: '누적예약',
+            dataIndex: '누적예약',
+            key: '누적예약',
+            width: 100,
+        },
+    ]
     /*기능 함수*/
     let changeWeek = (e) => {
         setDaily(e);
@@ -77,28 +117,45 @@ function Home(props) {
                 innerData["누적예약"] = 0;
                 outerData.push(innerData);
             }
-            res.data.stat_by_date.map(el => {
+            let totalBarData = {};
+            totalBarData["일자"] = "누계";
+            totalBarData["신규예약"] = 0;
+            totalBarData["취소"] = 0;
+            totalBarData["완료"] = 0;
+            totalBarData["누적예약"] = '-';
+            res.data.stat_by_date.map((el,idx) => {
                 let innerData = {};
+
                 innerBarSum+= el.cnt;
                 if(innerDate != el.date.slice(5).replace("-", "/")){
                     innerDate = el.date.slice(5).replace("-", "/");
                     let originInner = outerData.find(el=>el["일자"]==innerDate);
+                    let originInnerIdx = outerData.findIndex(el=>el["일자"]==innerDate);
                     if(stateRole[el.state]?.length>0){
                         originInner[stateRole[el.state]] = el.cnt;
+                        totalBarData[stateRole[el.state]] += el.cnt;
                     }
                     if(el.state==9)innerBarSum-= el.cnt;
                     originInner["신규예약"] += el.cnt;
+                    totalBarData["신규예약"] += el.cnt;
                     originInner["누적예약"] = innerBarSum;
+                    outerData.map((el,index)=>index>originInnerIdx?el["누적예약"]=innerBarSum:'');
                 }else{
                     let originInner = outerData.find(el=>el["일자"]==innerDate);
+                    let originInnerIdx = outerData.findIndex(el=>el["일자"]==innerDate);
                     if(stateRole[el.state]?.length>0){
                         originInner[stateRole[el.state]] = el.cnt;
+                        totalBarData[stateRole[el.state]] += el.cnt;
                     }
                     if(el.state==9)innerBarSum -= el.cnt;
                     originInner["신규예약"] += el.cnt;
+                    totalBarData["신규예약"] += el.cnt;
                     originInner["누적예약"] = innerBarSum;
+                    outerData.map((el,index)=>index>originInnerIdx?el["누적예약"]=innerBarSum:'');
                 }
             });
+            totalBarData["누적예약"] = innerBarSum;
+            outerData.push(totalBarData);
             setData(outerData);
             
             /*파이차트 데이터*/
@@ -111,28 +168,44 @@ function Home(props) {
                 innerTimeData["누적예약"] = 0;
                 outerTime.push(innerTimeData);
             })
+            let totalTimeData = {};
+            totalTimeData["시간"] = '누계';
+            totalTimeData["신규예약"] = 0;
+            totalTimeData["취소"] = 0;
+            totalTimeData["완료"] = 0;
+
             res.data.stat_total_by_state.map(el=>{
                 let innerTimeData = {};
                 innerPieSum+=el.cnt;
                 if(innerTime != el.time){
                     innerTime = el.time;
                     let originInner = outerTime.find(el=>el["시간"]==innerTime);
+                    let originInnerIdx = outerTime.findIndex(el=>el["시간"]==innerTime);
                     if(stateRole[el.state]?.length>0){
                         originInner[stateRole[el.state]] = el.cnt;
+                        totalTimeData[stateRole[el.state]] += el.cnt;
                     }
                     if(el.state==9)innerPieSum -= el.cnt;
                     originInner["신규예약"] += el.cnt;
+                    totalTimeData["신규예약"] += el.cnt;
                     originInner["누적예약"] = innerPieSum;
+                    outerTime.map((el,index)=>index>originInnerIdx?el["누적예약"]=innerPieSum:'');
                     }else{
                     let originInner = outerTime.find(el=>el["시간"]==innerTime);
+                    let originInnerIdx = outerTime.findIndex(el=>el["시간"]==innerTime);
                     if(stateRole[el.state]?.length>0){
                         originInner[stateRole[el.state]] = el.cnt;
+                        totalTimeData[stateRole[el.state]] += el.cnt;
                     }
                     if(el.state==9)innerPieSum -= el.cnt;
                     originInner["신규예약"] += el.cnt;
+                    totalTimeData["신규예약"] += el.cnt;
                     originInner["누적예약"] = innerPieSum;
+                    outerTime.map((el,index)=>index>originInnerIdx?el["누적예약"]=innerPieSum:'');
                 }
             })
+            totalTimeData["누적예약"] = innerPieSum;
+            outerTime.push(totalTimeData);
             setTimeData(outerTime);
             setLoading(false);
         });
@@ -383,6 +456,21 @@ function Home(props) {
                 <Row style={{marginTop: 8,height:"80%",placeItems:'center',padding:'10px'}} gutter={[16, 16]}>
                     <Col md={12} xs={24}>
                         <NewReservChart/>
+                        {/*<Table
+                            columns={dateColumns}
+                            dataSource={data}
+                            pagination={false}
+                            scroll={{ y: 195 }}
+                            bordered
+                            summary={() => (
+                                <Table.Summary fixed>
+                                    <Table.Summary.Row>
+                                        <Table.Summary.Cell index={0}>Summary</Table.Summary.Cell>
+                                        <Table.Summary.Cell index={1}>This is a summary content</Table.Summary.Cell>
+                                    </Table.Summary.Row>
+                                </Table.Summary>
+                            )}
+                        />*/}
                         <div className={styles.dashBoard}>
                             {data.length > 0 ? (<table>
                                 <colgroup>
