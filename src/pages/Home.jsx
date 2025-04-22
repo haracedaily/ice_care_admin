@@ -13,16 +13,17 @@ import {
     BarChart,
     ResponsiveContainer, PieChart, Pie, Cell,Sector
 } from 'recharts';
-import {Breadcrumb, DatePicker, Button, Flex, Select, Card, Col, Row, Table} from 'antd';
+import {Breadcrumb, DatePicker, Button, Flex, Select, Card, Col, Row, Table, Statistic} from 'antd';
 import dayjs from 'dayjs';
 import customParseFormat from 'dayjs/plugin/customParseFormat';
 import {useNavigate} from "react-router-dom";
 import styles from '../css/home.module.css'
-import {SearchOutlined} from '@ant-design/icons';
+import {CalendarOutlined, CheckCircleOutlined, CloseCircleOutlined, SearchOutlined} from '@ant-design/icons';
 import locale from "antd/es/date-picker/locale/ko_KR";
-import {getStatesByPeriod} from "../js/supabase.js";
-
+import '../css/home.css';
+import {getStatesByPeriod} from "../js/supabaseDashboard.js";
 dayjs.extend(customParseFormat);
+
 
 function Home(props) {
     let [data, setData] = useState([]);
@@ -58,6 +59,7 @@ function Home(props) {
             key: '일자',
             width: 80,
             fixed: 'left',
+            align: 'center',
         },
         {
             title: '신규예약',
@@ -65,6 +67,13 @@ function Home(props) {
             key: '신규예약',
             width: 90,
             sorter: (a, b) => a.신규예약 - b.신규예약,
+            render: (text) => {
+                return (
+                    <div style={{textAlign: 'right'}}>
+                        {text}
+                    </div>
+                );
+            },
         },
         {
             title: '취소',
@@ -72,6 +81,13 @@ function Home(props) {
             key: '취소',
             width: 80,
             sorter: (a, b) => a.취소 - b.취소,
+            render: (text) => {
+                return (
+                    <div style={{textAlign: 'right'}}>
+                        {text}
+                    </div>
+                );
+            },
         },
         {
             title: '완료',
@@ -79,12 +95,26 @@ function Home(props) {
             key: '완료',
             width: 80,
             sorter: (a,b) => a.완료 - b.완료,
+            render: (text) => {
+                return (
+                    <div style={{textAlign: 'right'}}>
+                        {text}
+                    </div>
+                );
+            },
         },
         {
             title: '누적예약',
             dataIndex: '누적예약',
             key: '누적예약',
             width: 80,
+            render: (text) => {
+                return (
+                    <div style={{textAlign: 'right'}}>
+                        {text}
+                    </div>
+                );
+            },
         },
     ]
     let timeColumns = [
@@ -101,6 +131,13 @@ function Home(props) {
             key: '신규예약',
             width: 80,
             sorter: (a, b) => a.신규예약 - b.신규예약,
+            render: (text) => {
+                return (
+                    <div style={{textAlign: 'right'}}>
+                        {text}
+                    </div>
+                );
+            },
         },
         {
             title: '취소',
@@ -108,6 +145,13 @@ function Home(props) {
             key: '취소',
             width: 70,
             sorter: (a, b) => a.취소 - b.취소,
+            render: (text) => {
+                return (
+                    <div style={{textAlign: 'right'}}>
+                        {text}
+                    </div>
+                );
+            },
         },
         {
             title: '완료',
@@ -115,17 +159,36 @@ function Home(props) {
             key: '완료',
             width: 70,
             sorter: (a,b) => a.완료 - b.완료,
+            render: (text) => {
+                return (
+                    <div style={{textAlign: 'right'}}>
+                        {text}
+                    </div>
+                );
+            },
         },
         {
             title: '누적예약',
             dataIndex: '누적예약',
             key: '누적예약',
             width: 70,
+            render: (text) => {
+                return (
+                    <div style={{textAlign: 'right'}}>
+                        {text}
+                    </div>
+                );
+            },
         },
         ]
     /*기능 함수*/
     let changeWeek = (e) => {
         setDaily(e);
+        if(e == 1) {
+            chooseDate(dayjs());
+        }else{
+            chooseYear(dayjs());
+        }
     }
     
     let changeState = (e) => {
@@ -137,7 +200,7 @@ function Home(props) {
         let prop = dayjs(e).startOf('week').format('YYYY,MM,DD');
         setLoading(true);
         prop = prop.split(',').map(el=>parseInt(el));
-        await getStatesByPeriod(prop[0], prop[1], prop[2], daily).then((res) => {
+        await getStatesByPeriod(prop[0], prop[1], prop[2], 1).then((res) => {
             let outerData = [];
             let innerDate = "";
             let outerTime = [];
@@ -155,34 +218,38 @@ function Home(props) {
                 innerData["누적예약"] = 0;
                 outerData.push(innerData);
             }
-
-            res.data.stat_by_date.map((el,idx) => {
-                let innerData = {};
-
-                innerBarSum+= el.cnt;
-                if(innerDate != el.date.slice(5).replace("-", "/")){
-                    innerDate = el.date.slice(5).replace("-", "/");
-                    let originInner = outerData.find(el=>el["일자"]==innerDate);
-                    let originInnerIdx = outerData.findIndex(el=>el["일자"]==innerDate);
-                    if(stateRole[el.state]?.length>0){
-                        originInner[stateRole[el.state]] = el.cnt;
+        console.log(outerData);
+            if(res.data.stat_by_date?.length>0) {
+                res.data.stat_by_date.map((el, idx) => {
+                    let innerData = {};
+                    innerBarSum += el.cnt;
+                    if (innerDate != el.date.slice(5).replace("-", "/")) {
+                        innerDate = el.date.slice(5).replace("-", "/");
+                        console.log(innerDate);
+                        console.log(outerData);
+                        let originInner = outerData.find(el => el["일자"] == innerDate);
+                        let originInnerIdx = outerData.findIndex(el => el["일자"] == innerDate);
+                        console.log(originInner);
+                        if (stateRole[el.state]?.length > 0) {
+                            originInner[stateRole[el.state]] = el.cnt;
+                        }
+                        if (el.state == 9) innerBarSum -= el.cnt;
+                        originInner["신규예약"] += el.cnt;
+                        originInner["누적예약"] = innerBarSum;
+                        outerData.map((el, index) => index > originInnerIdx ? el["누적예약"] = innerBarSum : '');
+                    } else {
+                        let originInner = outerData.find(el => el["일자"] == innerDate);
+                        let originInnerIdx = outerData.findIndex(el => el["일자"] == innerDate);
+                        if (stateRole[el.state]?.length > 0) {
+                            originInner[stateRole[el.state]] = el.cnt;
+                        }
+                        if (el.state == 9) innerBarSum -= el.cnt;
+                        originInner["신규예약"] += el.cnt;
+                        originInner["누적예약"] = innerBarSum;
+                        outerData.map((el, index) => index > originInnerIdx ? el["누적예약"] = innerBarSum : '');
                     }
-                    if(el.state==9)innerBarSum-= el.cnt;
-                    originInner["신규예약"] += el.cnt;
-                    originInner["누적예약"] = innerBarSum;
-                    outerData.map((el,index)=>index>originInnerIdx?el["누적예약"]=innerBarSum:'');
-                }else{
-                    let originInner = outerData.find(el=>el["일자"]==innerDate);
-                    let originInnerIdx = outerData.findIndex(el=>el["일자"]==innerDate);
-                    if(stateRole[el.state]?.length>0){
-                        originInner[stateRole[el.state]] = el.cnt;
-                    }
-                    if(el.state==9)innerBarSum -= el.cnt;
-                    originInner["신규예약"] += el.cnt;
-                    originInner["누적예약"] = innerBarSum;
-                    outerData.map((el,index)=>index>originInnerIdx?el["누적예약"]=innerBarSum:'');
-                }
-            });
+                });
+            };
             setData(outerData);
             
             /*파이차트 데이터*/
@@ -196,41 +263,138 @@ function Home(props) {
                 innerTimeData["누적예약"] = 0;
                 outerTime.push(innerTimeData);
             })
-
-            res.data.stat_total_by_state.map(el=>{
-                let innerTimeData = {};
-                innerPieSum+=el.cnt;
-                if(innerTime != el.time){
-                    innerTime = el.time;
-                    let originInner = outerTime.find(el=>el["시간"]==innerTime);
-                    let originInnerIdx = outerTime.findIndex(el=>el["시간"]==innerTime);
-                    if(stateRole[el.state]?.length>0){
-                        originInner[stateRole[el.state]] = el.cnt;
+            if(res.data.stat_total_by_state?.length>0) {
+                res.data.stat_total_by_state.map(el => {
+                    let innerTimeData = {};
+                    innerPieSum += el.cnt;
+                    if (innerTime != el.time) {
+                        innerTime = el.time;
+                        let originInner = outerTime.find(el => el["시간"] == innerTime);
+                        let originInnerIdx = outerTime.findIndex(el => el["시간"] == innerTime);
+                        if (stateRole[el.state]?.length > 0) {
+                            originInner[stateRole[el.state]] = el.cnt;
+                        }
+                        if (el.state == 9) innerPieSum -= el.cnt;
+                        originInner["신규예약"] += el.cnt;
+                        originInner["누적예약"] = innerPieSum;
+                        outerTime.map((el, index) => index > originInnerIdx ? el["누적예약"] = innerPieSum : '');
+                    } else {
+                        let originInner = outerTime.find(el => el["시간"] == innerTime);
+                        let originInnerIdx = outerTime.findIndex(el => el["시간"] == innerTime);
+                        if (stateRole[el.state]?.length > 0) {
+                            originInner[stateRole[el.state]] = el.cnt;
+                        }
+                        if (el.state == 9) innerPieSum -= el.cnt;
+                        originInner["신규예약"] += el.cnt;
+                        originInner["누적예약"] = innerPieSum;
+                        outerTime.map((el, index) => index > originInnerIdx ? el["누적예약"] = innerPieSum : '');
                     }
-                    if(el.state==9)innerPieSum -= el.cnt;
-                    originInner["신규예약"] += el.cnt;
-                    originInner["누적예약"] = innerPieSum;
-                    outerTime.map((el,index)=>index>originInnerIdx?el["누적예약"]=innerPieSum:'');
-                    }else{
-                    let originInner = outerTime.find(el=>el["시간"]==innerTime);
-                    let originInnerIdx = outerTime.findIndex(el=>el["시간"]==innerTime);
-                    if(stateRole[el.state]?.length>0){
-                        originInner[stateRole[el.state]] = el.cnt;
-                    }
-                    if(el.state==9)innerPieSum -= el.cnt;
-                    originInner["신규예약"] += el.cnt;
-                    originInner["누적예약"] = innerPieSum;
-                    outerTime.map((el,index)=>index>originInnerIdx?el["누적예약"]=innerPieSum:'');
-                }
-            })
+                })
+            };
             setTimeData(outerTime);
             setLoading(false);
         });
         // let res2 = await supabase.rpc("getStatesByPeriod",{year: prop[0],month:prop[1],start_date:prop[2],key:daily});
     }
-    let chooseYear = (e) => {
-        console.log(dayjs(e).startOf('year').format(yearFormat));
-        console.log(daily);
+    let chooseYear = async(e) => {
+        if(e == null) return;
+        let prop = dayjs(e).startOf('year').format('YYYY,MM,DD');
+        console.log(prop);
+        setLoading(true);
+        prop = prop.split(',').map(el=>parseInt(el));
+        console.log(prop);
+        await getStatesByPeriod(prop[0], prop[1], prop[2], 2).then((res) => {
+            console.log(res);
+            let outerData = [];
+            let innerDate = "";
+            let outerTime = [];
+            let innerTime = "";
+            let innerBarSum = 0;
+            let innerPieSum = 0;
+            /*바차트 데이터 가공*/
+            for(let i=0; i<12; i++){
+                let innerData = {};
+                innerData["key"] = i+1;
+                innerData["일자"] = dayjs(`${prop[0]}-${prop[1]+i}-${prop[2]}`).startOf("MONTH").format("MM월");
+                innerData["신규예약"] = 0;
+                innerData["취소"] = 0;
+                innerData["완료"] = 0;
+                innerData["누적예약"] = 0;
+                outerData.push(innerData);
+            }
+            console.log(outerData);
+            if(res.data.state_by_date?.length>0) {
+                res.data.stat_by_date.map((el, idx) => {
+                    let innerData = {};
+                    innerBarSum += el.cnt;
+                    if (innerDate != el.date.slice(5, 7) + "월") {
+                        innerDate = el.date.slice(5, 7) + "월";
+                        let originInner = outerData.find(el => el["일자"] == innerDate);
+                        let originInnerIdx = outerData.findIndex(el => el["일자"] == innerDate);
+                        if (stateRole[el.state]?.length > 0) {
+                            originInner[stateRole[el.state]] = el.cnt;
+                        }
+                        if (el.state == 9) innerBarSum -= el.cnt;
+                        originInner["신규예약"] += el.cnt;
+                        originInner["누적예약"] = innerBarSum;
+                        outerData.map((el, index) => index > originInnerIdx ? el["누적예약"] = innerBarSum : '');
+                    } else {
+                        let originInner = outerData.find(el => el["일자"] == innerDate);
+                        let originInnerIdx = outerData.findIndex(el => el["일자"] == innerDate);
+                        if (stateRole[el.state]?.length > 0) {
+                            originInner[stateRole[el.state]] = el.cnt;
+                        }
+                        if (el.state == 9) innerBarSum -= el.cnt;
+                        originInner["신규예약"] += el.cnt;
+                        originInner["누적예약"] = innerBarSum;
+                        outerData.map((el, index) => index > originInnerIdx ? el["누적예약"] = innerBarSum : '');
+                    }
+                });
+            }
+            setData(outerData);
+
+            /*파이차트 데이터*/
+            timeRole.forEach((el,i) => {
+                let innerTimeData = {};
+                innerTimeData["key"] = i+1;
+                innerTimeData["시간"] = el;
+                innerTimeData["신규예약"] = 0;
+                innerTimeData["취소"] = 0;
+                innerTimeData["완료"] = 0;
+                innerTimeData["누적예약"] = 0;
+                outerTime.push(innerTimeData);
+            })
+            if(res.data.stat_total_by_state?.length>0) {
+                res.data.stat_total_by_state.map(el => {
+                    let innerTimeData = {};
+                    innerPieSum += el.cnt;
+                    if (innerTime != el.time) {
+                        innerTime = el.time;
+                        let originInner = outerTime.find(el => el["시간"] == innerTime);
+                        let originInnerIdx = outerTime.findIndex(el => el["시간"] == innerTime);
+                        if (stateRole[el.state]?.length > 0) {
+                            originInner[stateRole[el.state]] = el.cnt;
+                        }
+                        if (el.state == 9) innerPieSum -= el.cnt;
+                        originInner["신규예약"] += el.cnt;
+                        originInner["누적예약"] = innerPieSum;
+                        outerTime.map((el, index) => index > originInnerIdx ? el["누적예약"] = innerPieSum : '');
+                    } else {
+                        let originInner = outerTime.find(el => el["시간"] == innerTime);
+                        let originInnerIdx = outerTime.findIndex(el => el["시간"] == innerTime);
+                        if (stateRole[el.state]?.length > 0) {
+                            originInner[stateRole[el.state]] = el.cnt;
+                        }
+                        if (el.state == 9) innerPieSum -= el.cnt;
+                        originInner["신규예약"] += el.cnt;
+                        originInner["누적예약"] = innerPieSum;
+                        outerTime.map((el, index) => index > originInnerIdx ? el["누적예약"] = innerPieSum : '');
+                    }
+                })
+            };
+            setTimeData(outerTime);
+            setLoading(false);
+        });
     }
     /*달력, 날짜 커스텀*/
     const customWeekStartEndFormat = value =>
@@ -389,10 +553,19 @@ function Home(props) {
                                 <Col md={16} xs={24}>
                                     <Row>
                                         <Col md={24} xs={24}>
-                                            <h2>신규예약</h2>
+                                            <Statistic
+                                                title="신규예약"
+                                                value={timeData.reduce((a,b)=>{
+                                                    return a+b.신규예약;
+                                                },0)>0?[...timeData].sort((a,b)=>(a.신규예약-b.신규예약))[0].시간:" "}
+                                                prefix={timeData.reduce((a,b)=>{
+                                                    return a+b.신규예약;
+                                                },0)>0?<CalendarOutlined />:""}
+                                                valueStyle={{ color: '#1890ff', fontSize: '1.45vw', fontWeight: 'bold' }}
+                                            />
                                         </Col>
                                         <Col md={24} xs={24}>
-                                            <p>테스트</p>
+                                            <p></p>
                                         </Col>
                                     </Row>
                                 </Col>
@@ -403,10 +576,8 @@ function Home(props) {
                                         </Col>
                                         <Col md={24} xs={24}>
                                             <p>{timeData?.length>0?timeData.reduce((a,b)=>{
-                                                console.log(a["신규예약"]);
-                                                console.log(b["신규예약"]);
-                                                return a["신규예약"]+b["신규예약"];
-                                            }):"0"}</p>
+                                                return a+b.신규예약;
+                                            },0):"0"} 건</p>
                                         </Col>
                                     </Row>
                                 </Col>
@@ -421,10 +592,19 @@ function Home(props) {
                                 <Col md={16} xs={24}>
                                     <Row>
                                         <Col md={24} xs={24}>
-                                            <h2>취소</h2>
+                                            <Statistic
+                                                title="취소"
+                                                value={timeData.reduce((a,b)=>{
+                                                    return a+b.취소;
+                                                },0)>0?[...timeData].sort((a,b)=>(a.취소-b.취소))[0].시간:" "}
+                                                prefix={timeData.reduce((a,b)=>{
+                                                    return a+b.취소;
+                                                },0)>0?<CloseCircleOutlined />:""}
+                                                valueStyle={{ color: '#ff4d4f', fontSize: '1.45vw', fontWeight: 'bold' }}
+                                            />
                                         </Col>
                                         <Col md={24} xs={24}>
-                                            <p>테스트</p>
+                                            <p></p>
                                         </Col>
                                     </Row>
                                 </Col>
@@ -434,7 +614,9 @@ function Home(props) {
                                             <h3>누계</h3>
                                         </Col>
                                         <Col md={24} xs={24}>
-                                            <p>{}</p>
+                                            <p>{timeData?.length>0?timeData.reduce((a,b)=>{
+                                                return a+b.취소;
+                                            },0):"0"} 건</p>
                                         </Col>
                                     </Row>
                                 </Col>
@@ -449,10 +631,19 @@ function Home(props) {
                                 <Col md={16} xs={16}>
                                     <Row>
                                         <Col md={24} xs={24}>
-                                            <h2>완료</h2>
+                                            <Statistic
+                                                title="완료"
+                                                value={timeData.reduce((a,b)=>{
+                                                    return a+b.완료;
+                                                },0)>0?[...timeData].sort((a,b)=>(a.완료-b.완료))[0].시간:"  "}
+                                                prefix={timeData.reduce((a,b)=>{
+                                                    return a+b.완료;
+                                                },0)>0?<CheckCircleOutlined />:""}
+                                                valueStyle={{ color: '#096dd9', fontSize: '1.45vw', fontWeight: 'bold' }}
+                                            />
                                         </Col>
                                         <Col md={24} xs={24}>
-                                            <p>테스트</p>
+                                            <p></p>
                                         </Col>
                                     </Row>
                                 </Col>
@@ -462,7 +653,9 @@ function Home(props) {
                                             <h3>누계</h3>
                                         </Col>
                                         <Col md={24} xs={24}>
-                                            <p>{}</p>
+                                            <p>{timeData?.length>0?timeData.reduce((a,b)=>{
+                                                return a+b.완료;
+                                            },0):"0"} 건</p>
                                         </Col>
                                     </Row>
                                 </Col>
@@ -497,11 +690,11 @@ function Home(props) {
 
                                 return (<Table.Summary fixed>
                                     <Table.Summary.Row>
-                                        <Table.Summary.Cell index={0}>누계</Table.Summary.Cell>
-                                        <Table.Summary.Cell index={1}>{totalNew}</Table.Summary.Cell>
-                                        <Table.Summary.Cell index={2}>{totalCancel}</Table.Summary.Cell>
-                                        <Table.Summary.Cell index={3}>{totalComplete}</Table.Summary.Cell>
-                                        <Table.Summary.Cell index={4}>{totalTotal}</Table.Summary.Cell>
+                                        <Table.Summary.Cell index={0} className={styles.summary_text_center}>누계</Table.Summary.Cell>
+                                        <Table.Summary.Cell index={1} className={styles.summary_text_right}>{totalNew}</Table.Summary.Cell>
+                                        <Table.Summary.Cell index={2} className={styles.summary_text_right}>{totalCancel}</Table.Summary.Cell>
+                                        <Table.Summary.Cell index={3} className={styles.summary_text_right}>{totalComplete}</Table.Summary.Cell>
+                                        <Table.Summary.Cell index={4} className={styles.summary_text_right}>{totalTotal}</Table.Summary.Cell>
                                     </Table.Summary.Row>
                                 </Table.Summary>)
                             }}
@@ -539,11 +732,11 @@ function Home(props) {
                                 })
                                 return (<Table.Summary fixed>
                                     <Table.Summary.Row>
-                                        <Table.Summary.Cell index={0}>누계</Table.Summary.Cell>
-                                        <Table.Summary.Cell index={1}>{totalNew}</Table.Summary.Cell>
-                                        <Table.Summary.Cell index={2}>{totalCancel}</Table.Summary.Cell>
-                                        <Table.Summary.Cell index={3}>{totalComplete}</Table.Summary.Cell>
-                                        <Table.Summary.Cell index={4}>{totalTotal}</Table.Summary.Cell>
+                                        <Table.Summary.Cell index={0} className={styles.summary_text}>누계</Table.Summary.Cell>
+                                        <Table.Summary.Cell index={1} className={styles.summary_text_right}>{totalNew}</Table.Summary.Cell>
+                                        <Table.Summary.Cell index={2} className={styles.summary_text_right}>{totalCancel}</Table.Summary.Cell>
+                                        <Table.Summary.Cell index={3} className={styles.summary_text_right}>{totalComplete}</Table.Summary.Cell>
+                                        <Table.Summary.Cell index={4} className={styles.summary_text_right}>{totalTotal}</Table.Summary.Cell>
                                     </Table.Summary.Row>
                                 </Table.Summary>)
                             }}
