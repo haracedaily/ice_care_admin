@@ -1,10 +1,10 @@
 import React from 'react';
 import { Card, Statistic, DatePicker } from 'antd';
 import { Col, Row } from 'antd';
-import { CalendarOutlined, CheckCircleOutlined, ClockCircleOutlined, FileDoneOutlined } from '@ant-design/icons';
+import { CalendarOutlined, CheckCircleOutlined, ClockCircleOutlined, FileDoneOutlined, CloseCircleOutlined } from '@ant-design/icons';
 import dayjs from 'dayjs';
 import 'dayjs/locale/ko';
-import locale from "antd/es/date-picker/locale/ko_KR";
+import locale from 'antd/es/date-picker/locale/ko_KR';
 dayjs.locale('ko');
 
 const { RangePicker } = DatePicker;
@@ -12,9 +12,10 @@ const { RangePicker } = DatePicker;
 const ResDashboard = ({ reservations, dateRange, setDateRange }) => {
     const stats = {
         total: reservations.length,
-        pending: reservations.filter((r) => r.state === 0).length,
-        confirmed: reservations.filter((r) => r.state === 1).length,
-        completed: reservations.filter((r) => r.state === 4).length
+        state1: reservations.filter((r) => r.state === 1).length,
+        state4: reservations.filter((r) => r.state === 4).length,
+        state5: reservations.filter((r) => r.state === 5).length,
+        state9: reservations.filter((r) => r.state === 9).length
     };
 
     const handleDateChange = (dates) => {
@@ -45,47 +46,61 @@ const ResDashboard = ({ reservations, dateRange, setDateRange }) => {
                 }}
             />
             <Row gutter={[16, 16]}>
-                <Col xs={24} sm={12} md={6}>
+                <Col xs={24} sm={24} md={4}>
                     <Card style={{ background: '#e6f7ff', borderRadius: 8 }}>
                         <Statistic
                             title="전체 예약"
                             value={stats.total}
                             prefix={<CalendarOutlined />}
                             valueStyle={{ color: '#1890ff', fontSize: '24px', fontWeight: 'bold' }}
+                            style={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}
                         />
                     </Card>
                 </Col>
-                <Col xs={24} sm={12} md={6}>
+                <Col xs={12} sm={12} md={4}>
                     <Card style={{ background: '#fff1f0', borderRadius: 8 }}>
                         <Statistic
                             title="예약 대기"
-                            value={stats.pending}
+                            value={stats.state1}
                             prefix={<ClockCircleOutlined />}
                             valueStyle={{ color: '#ff4d4f', fontSize: '24px', fontWeight: 'bold' }}
+                            style={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}
                         />
                     </Card>
                 </Col>
-                <Col xs={24} sm={12} md={6}>
+                <Col xs={12} sm={12} md={4}>
                     <Card style={{ background: '#f0f5ff', borderRadius: 8 }}>
                         <Statistic
-                            title="예약 완료"
-                            value={stats.confirmed}
+                            title="처리 중"
+                            value={stats.state4}
                             prefix={<FileDoneOutlined />}
                             valueStyle={{ color: '#096dd9', fontSize: '24px', fontWeight: 'bold' }}
+                            style={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}
                         />
                     </Card>
                 </Col>
-                <Col xs={24} sm={12} md={6}>
+                <Col xs={12} sm={12} md={4}>
                     <Card style={{ background: '#f6ffed', borderRadius: 8 }}>
                         <Statistic
-                            title="청소 완료"
-                            value={stats.completed}
+                            title="처리 완료"
+                            value={stats.state5}
                             prefix={<CheckCircleOutlined />}
                             valueStyle={{ color: '#52c41a', fontSize: '24px', fontWeight: 'bold' }}
+                            style={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}
                         />
                     </Card>
                 </Col>
-
+                <Col xs={12} sm={12} md={4}>
+                    <Card style={{ background: '#fffbe6', borderRadius: 8 }}>
+                        <Statistic
+                            title="예약 취소"
+                            value={stats.state9}
+                            prefix={<CloseCircleOutlined />}
+                            valueStyle={{ color: '#fa8c16', fontSize: '24px', fontWeight: 'bold' }}
+                            style={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}
+                        />
+                    </Card>
+                </Col>
             </Row>
         </Card>
     );
