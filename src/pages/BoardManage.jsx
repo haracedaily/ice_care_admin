@@ -1,6 +1,13 @@
 import React, {useEffect, useState} from 'react';
-import {Breadcrumb, Button, Card, Form, Image, Input, message, Modal, Select, Space, Table} from "antd";
-import {PlusOutlined, SearchOutlined, RedoOutlined, EditOutlined, DeleteOutlined} from "@ant-design/icons";
+import {Breadcrumb, Button, Card, Form, Image, Input, message, Modal, Select, Space, Table, Upload} from "antd";
+import {
+    PlusOutlined,
+    SearchOutlined,
+    RedoOutlined,
+    EditOutlined,
+    DeleteOutlined,
+    UploadOutlined
+} from "@ant-design/icons";
 // import {format} from 'date-fns';
 
 import '../css/BoardManage.css';
@@ -165,11 +172,11 @@ const BoardManage = () => {
                     await supabase.storage.from('board-images').remove([`board-images/${fileName}`]); // 이미지 삭제
                 }
 
-                // const {error} = await supabase
-                //     .from('board')
-                //     .delete()
-                //     .eq('id', post.id)
-                //     .eq('password', post.passwordInput);
+                const {error} = await supabase
+                    .from('board')
+                    .delete()
+                    .eq('id', post.id)
+                    .eq('password', post.passwordInput);
 
                 if (postData.password !== post.passwordInput) {
                     message.error('비밀번호가 틀렸거나 삭제에 실패했습니다.');
@@ -301,9 +308,10 @@ const BoardManage = () => {
                         수정
                     </Button>
                     <Button
-                        icon={<DeleteOutlined/>}>
+                        icon={<DeleteOutlined/>}
                         onClick={() => handleDelete(record)}
-                        style={{color: '#ff4d4f'}}
+                        danger
+                    >
                         삭제
                     </Button>
                     <Button onClick={() => handlePin(record)} style={{color: '#595959'}}>
@@ -442,10 +450,11 @@ const BoardManage = () => {
                     게시글 등록
                 </Button>
             </div>
+
             {isEditMode ? renderCards() : (
                 <Table
                     columns={columns}
-                    // dataSource={posts}
+                    dataSource={posts}
                     rowKey="id"
                     pagination={{
                         current: currentPage,
@@ -456,6 +465,61 @@ const BoardManage = () => {
                     scroll={{x: 'max-content'}}
                 />
             )}
+
+            <Modal
+                title={isEditMode ? "게시글 수정" : "게시글 등록"}
+                open={isEditMode}
+                onCancel={() => {
+                    setIsEditMode(false);
+                    form.resetFields();
+                    form.resetFields();
+                }}
+                footer={null}
+            >
+                <Form form={form} onFinish={handleSave} layout="vertical">
+                    <Form.Item name="title" label="제목" rules={[{required: true, message: '제목을 입력하세요.'}]}>
+                        <Input/>
+                    </Form.Item>
+                    <Form.Item name="content" label="내용" rules={[{required: true, message: '내용을 입력하세요.'}]}>
+                        <Input.TextArea rows={4}/>
+                    </Form.Item>
+                    <Form.Item name="author" label="작성자" rules={[{required: true, message: '작성자를 입력하세요.'}]}>
+                        <Input/>
+                    </Form.Item>
+                    <Form.Item
+                        name="password"
+                        label="비밀번호"
+                        rules={[{required: true, message: '비밀번호를 입력하세요.'}]}
+                    >
+                        <Input.Password/>
+                    </Form.Item>
+                    <Form.Item name="category_id" label="카테고리" rules={[{required: true, message: '카테고리를 선택하세요.'}]}>
+                        <Select placeholder="카테고리 선택">
+                            {categories
+                                .filter((category) => category.id !== 'all') // 'all' 제외
+                                .map((category) => (
+                                    <Option key={category.id} value={category.id}>
+                                        {category.name}
+                                    </Option>
+                                ))}
+                        </Select>
+                    </Form.Item>
+                    <Form.Item label="이미지">
+                        <Upload {...uploadProps} listType="picture">
+                            <Button icon={<UploadOutlined/>}>이미지 업로드 (최대 1개)</Button>
+                        </Upload>
+                    </Form.Item>
+                    <Form.Item>
+                        <Button
+                            type="primary"
+                            htmlType="submit"
+                            style={{background: '#1890ff', borderColor: '#1890ff'}}
+                        >
+                            {isEditMode ? '수정' : '등록'}
+                        </Button>
+                    </Form.Item>
+                </Form>
+            </Modal>
 
         </div>
     );
