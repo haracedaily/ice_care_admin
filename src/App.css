@@ -148,6 +148,12 @@ main.login {
 .recharts-tooltip-item{
     color:black !important;
 }
+.ant-statistic-title{
+    white-space:nowrap;
+}
+.ant-statistic-content{
+    white-space:nowrap;
+}
 @media (min-width:1200px){
     aside.login{
         display:flex;
