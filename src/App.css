@@ -198,8 +198,8 @@ main.login {
         font-size:0.5rem;
     }
 
-    .toggle{
-        display:none !important;
+    .toggleSide{
+        display:none!important;
     }
 }
 @media (max-width: 620px) {
@@ -207,7 +207,7 @@ main.login {
         font-size:2vw;
     }
 }
-div.toggle{
+div.toggleSide{
     display:none;
 }
 .recharts-surface{

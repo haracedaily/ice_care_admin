@@ -43,7 +43,15 @@
         }
     }
 }
-
+.summary_text_center{
+    color: #55423d;
+    text-align:center;
+    font-weight:bold;
+}
+.summary_text_right{
+    text-align:right;
+    font-weight:bold;
+}
 .palete{
     padding:0.6vw;
     border-radius:0.5vw;

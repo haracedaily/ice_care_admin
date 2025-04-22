@@ -14,12 +14,12 @@ function Side({toggleAside,setToggleAside}) {
     }
     return (
         <>
-            <aside className={`login ${toggleAside ? "toggle" : ""}`}>
+            <aside className={`login ${toggleAside ? "toggleSide" : ""}`}>
                 <div>
                     <NavLink to="/">
                         <img src="/images/side_logo.png" width={150} alt="Logo"/>
                     </NavLink>
-                    <div className={`${toggleAside?"toggle":""}`}>
+                    <div className={`${toggleAside?"toggleSide":""}`}>
                     <CloseCircleOutlined style={{ fontSize: '30px' }} onClick={()=>{setToggleAside(!toggleAside)}} />
                     </div>
                 </div>
@@ -39,6 +39,7 @@ function Side({toggleAside,setToggleAside}) {
                         style={{ width: 150 }}
                         options={sideMenu}
                         onSelect={autocompleteSelect}
+                        getPopupContainer={(triggerNode) => triggerNode.parentElement}
                         placeholder="메뉴검색"
                         filterOption={(inputValue, option) =>
                             option.value.toUpperCase().indexOf(inputValue.toUpperCase()) !== -1
