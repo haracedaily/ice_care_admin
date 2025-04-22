@@ -13,15 +13,15 @@ import {
     BarChart,
     ResponsiveContainer, PieChart, Pie, Cell,Sector
 } from 'recharts';
-import {Breadcrumb, DatePicker, Button, Flex, Select, Card, Col, Row, Table} from 'antd';
+import {Breadcrumb, DatePicker, Button, Flex, Select, Card, Col, Row, Table, Statistic} from 'antd';
 import dayjs from 'dayjs';
 import customParseFormat from 'dayjs/plugin/customParseFormat';
 import {useNavigate} from "react-router-dom";
 import styles from '../css/home.module.css'
-import {SearchOutlined} from '@ant-design/icons';
+import {CalendarOutlined, CheckCircleOutlined, CloseCircleOutlined, SearchOutlined} from '@ant-design/icons';
 import locale from "antd/es/date-picker/locale/ko_KR";
 import {getStatesByPeriod} from "../js/supabase.js";
-
+import '../css/home.css';
 dayjs.extend(customParseFormat);
 
 function Home(props) {
@@ -389,10 +389,17 @@ function Home(props) {
                                 <Col md={16} xs={24}>
                                     <Row>
                                         <Col md={24} xs={24}>
-                                            <h2>신규예약</h2>
+                                            <Statistic
+                                                title="신규예약"
+                                                value={timeData.reduce((a,b)=>{
+                                                    return a+b.신규예약;
+                                                },0)>0?[...timeData].sort((a,b)=>(a.신규예약-b.신규예약))[0].시간:" "}
+                                                prefix={<CalendarOutlined />}
+                                                valueStyle={{ color: '#1890ff', fontSize: '1.45vw', fontWeight: 'bold' }}
+                                            />
                                         </Col>
                                         <Col md={24} xs={24}>
-                                            <p>테스트</p>
+                                            <p></p>
                                         </Col>
                                     </Row>
                                 </Col>
@@ -403,10 +410,8 @@ function Home(props) {
                                         </Col>
                                         <Col md={24} xs={24}>
                                             <p>{timeData?.length>0?timeData.reduce((a,b)=>{
-                                                console.log(a["신규예약"]);
-                                                console.log(b["신규예약"]);
-                                                return a["신규예약"]+b["신규예약"];
-                                            }):"0"}</p>
+                                                return a+b.신규예약;
+                                            },0):"0"} 건</p>
                                         </Col>
                                     </Row>
                                 </Col>
@@ -421,10 +426,17 @@ function Home(props) {
                                 <Col md={16} xs={24}>
                                     <Row>
                                         <Col md={24} xs={24}>
-                                            <h2>취소</h2>
+                                            <Statistic
+                                                title="취소"
+                                                value={timeData.reduce((a,b)=>{
+                                                    return a+b.취소;
+                                                },0)>0?[...timeData].sort((a,b)=>(a.취소-b.취소))[0].시간:" "}
+                                                prefix={<CloseCircleOutlined />}
+                                                valueStyle={{ color: '#1890ff', fontSize: '1.45vw', fontWeight: 'bold' }}
+                                            />
                                         </Col>
                                         <Col md={24} xs={24}>
-                                            <p>테스트</p>
+                                            <p></p>
                                         </Col>
                                     </Row>
                                 </Col>
@@ -434,7 +446,9 @@ function Home(props) {
                                             <h3>누계</h3>
                                         </Col>
                                         <Col md={24} xs={24}>
-                                            <p>{}</p>
+                                            <p>{timeData?.length>0?timeData.reduce((a,b)=>{
+                                                return a+b.취소;
+                                            },0):"0"} 건</p>
                                         </Col>
                                     </Row>
                                 </Col>
@@ -449,10 +463,17 @@ function Home(props) {
                                 <Col md={16} xs={16}>
                                     <Row>
                                         <Col md={24} xs={24}>
-                                            <h2>완료</h2>
+                                            <Statistic
+                                                title="완료"
+                                                value={timeData.reduce((a,b)=>{
+                                                    return a+b.완료;
+                                                },0)>0?[...timeData].sort((a,b)=>(a.완료-b.완료))[0].시간:"  "}
+                                                prefix={<CheckCircleOutlined />}
+                                                valueStyle={{ color: '#1890ff', fontSize: '1.45vw', fontWeight: 'bold' }}
+                                            />
                                         </Col>
                                         <Col md={24} xs={24}>
-                                            <p>테스트</p>
+                                            <p></p>
                                         </Col>
                                     </Row>
                                 </Col>
@@ -462,7 +483,9 @@ function Home(props) {
                                             <h3>누계</h3>
                                         </Col>
                                         <Col md={24} xs={24}>
-                                            <p>{}</p>
+                                            <p>{timeData?.length>0?timeData.reduce((a,b)=>{
+                                                return a+b.완료;
+                                            },0):"0"} 건</p>
                                         </Col>
                                     </Row>
                                 </Col>
