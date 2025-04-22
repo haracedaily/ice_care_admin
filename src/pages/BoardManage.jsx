@@ -356,13 +356,13 @@ const BoardManage = () => {
                                 icon={<EditOutlined/>}
                                 onClick={() => {
                                     setIsEditMode(true);
-                                    setSelectedPost(record);
-                                    form.setFieldValue(record);
-                                    setFileList(record.image_url ? [{
+                                    setSelectedPost(post);
+                                    form.setFieldValue(post);
+                                    setFileList(post.image_url ? [{
                                         uid: '- 1,',
                                         name: 'image',
                                         status: 'done',
-                                        url: record.image_url,
+                                        url: post.image_url,
                                     }] : []);
                                     setIsModalOpen(true);
                                 }}
@@ -372,19 +372,19 @@ const BoardManage = () => {
                             </Button>
                             <Button
                                 icon={<DeleteOutlined/>}>
-                                onClick={() => handleDelete(record)}
+                                onClick={() => handleDelete(post)}
                                 style={{color: '#ff4d4f', marginRight: '8px'}}
                                 삭제
                             </Button>
-                            <Button onClick={() => handlePin(record)} style={{color: '#595959'}}>
-                                {record.is_notice ? '공지 해제' : '공지 고정'}
+                            <Button onClick={() => handlePin(post)} style={{color: '#595959'}}>
+                                {post.is_notice ? '공지 해제' : '공지 고정'}
                             </Button>
                         </div>
                     </Card>
                 ))}
             </div>
             <div>
-                <Pagenation
+                <Pagination
                     current={currentPage}
                     pageSize={pageSize}
                     total={totalPosts}
@@ -471,7 +471,7 @@ const BoardManage = () => {
                 open={isEditMode}
                 onCancel={() => {
                     setIsEditMode(false);
-                    form.resetFields();
+                    setFileList([]);
                     form.resetFields();
                 }}
                 footer={null}
