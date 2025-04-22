@@ -176,9 +176,9 @@ const BoardManage = () => {
                     .from('board')
                     .delete()
                     .eq('id', post.id)
-                    .eq('password', post.passwordInput);
+                    .eq('password', post.password);
 
-                if (postData.password !== post.passwordInput) {
+                if (postData.password !== post.password) {
                     message.error('비밀번호가 틀렸거나 삭제에 실패했습니다.');
                     return;
                 }
@@ -265,11 +265,11 @@ const BoardManage = () => {
             width: 100,
             sorter: (a, b) => new Date(a.created_at) - new Date(b.created_at),
             ellipsis: false,
-            render: (date) => (
-                <span style={{whiteSpace: 'normal', wordBreak: 'break-word'}}>
-                    {/*{format(new Date(date), 'yyyy-MM-dd')}*/}
-                </span>
-            ),
+            // render: (date) => (
+            //     <span style={{whiteSpace: 'normal', wordBreak: 'break-word'}}>
+            //         {/*{format(new Date(date), 'yyyy-MM-dd')}*/}
+            //     </span>
+            // ),
         },
         {
             title: '조회수',
@@ -294,7 +294,7 @@ const BoardManage = () => {
                         onClick={() => {
                             setIsEditMode(true);
                             setSelectedPost(record);
-                            form.setFieldValue(record);
+                            form.setFieldsValue(record);
                             setFileList(record.image_url ? [{
                                 uid: '- 1,',
                                 name: 'image',
@@ -322,14 +322,14 @@ const BoardManage = () => {
         },
     ];
 
-    const renderCards = () => (
+    const renderCards = () => ( // 게시글 카드 형태로 렌더링
         <div className="post-cards-container">
             <div className="post-cards">
                 {posts.map((post) => (
                     <Card
                         key={post.id}
                         className="post-card"
-                        variant="outlined"
+                        variant="outlined" // bordered 대신 variant 사용
                     >
                         <div className="post-card-content">
                             {post.image_url && (
@@ -343,7 +343,7 @@ const BoardManage = () => {
                                     {post.is_notice && <Tag color="blue">공지</Tag>}
                                     <span>{post.title}</span>
                                 </div>
-                                <div className={"post-meta"}>
+                                <div className="post-meta">
                                     <span>작성자: {post.author}</span>
                                     <span>카테고리: {post.categories.name}</span>
                                     {/*<span>등록일: {format(new Date(post.created_at), 'yyyy-MM-dd')}</span>*/}
@@ -357,12 +357,12 @@ const BoardManage = () => {
                                 onClick={() => {
                                     setIsEditMode(true);
                                     setSelectedPost(post);
-                                    form.setFieldValue(post);
+                                    form.setFieldsValue(post);
                                     setFileList(post.image_url ? [{
-                                        uid: '- 1,',
+                                        uid: '-1',
                                         name: 'image',
                                         status: 'done',
-                                        url: post.image_url,
+                                        url: post.image_url
                                     }] : []);
                                     setIsModalOpen(true);
                                 }}
@@ -371,9 +371,10 @@ const BoardManage = () => {
                                 수정
                             </Button>
                             <Button
-                                icon={<DeleteOutlined/>}>
+                                icon={<DeleteOutlined/>}
                                 onClick={() => handleDelete(post)}
                                 style={{color: '#ff4d4f', marginRight: '8px'}}
+                            >
                                 삭제
                             </Button>
                             <Button onClick={() => handlePin(post)} style={{color: '#595959'}}>
@@ -383,7 +384,7 @@ const BoardManage = () => {
                     </Card>
                 ))}
             </div>
-            <div>
+            <div style={{width: 'fit-content', margin: '0 auto'}}>
                 <Pagination
                     current={currentPage}
                     pageSize={pageSize}
@@ -393,7 +394,7 @@ const BoardManage = () => {
                 />
             </div>
         </div>
-    )
+    );
 
     return (
         <div className="content">
@@ -451,7 +452,7 @@ const BoardManage = () => {
                 </Button>
             </div>
 
-            {isEditMode ? renderCards() : (
+            {isMobile ? renderCards() : (
                 <Table
                     columns={columns}
                     dataSource={posts}
@@ -468,7 +469,7 @@ const BoardManage = () => {
 
             <Modal
                 title={isEditMode ? "게시글 수정" : "게시글 등록"}
-                open={isEditMode}
+                open={isModalOpen}
                 onCancel={() => {
                     setIsEditMode(false);
                     setFileList([]);
@@ -476,49 +477,6 @@ const BoardManage = () => {
                 }}
                 footer={null}
             >
-                <Form form={form} onFinish={handleSave} layout="vertical">
-                    <Form.Item name="title" label="제목" rules={[{required: true, message: '제목을 입력하세요.'}]}>
-                        <Input/>
-                    </Form.Item>
-                    <Form.Item name="content" label="내용" rules={[{required: true, message: '내용을 입력하세요.'}]}>
-                        <Input.TextArea rows={4}/>
-                    </Form.Item>
-                    <Form.Item name="author" label="작성자" rules={[{required: true, message: '작성자를 입력하세요.'}]}>
-                        <Input/>
-                    </Form.Item>
-                    <Form.Item
-                        name="password"
-                        label="비밀번호"
-                        rules={[{required: true, message: '비밀번호를 입력하세요.'}]}
-                    >
-                        <Input.Password/>
-                    </Form.Item>
-                    <Form.Item name="category_id" label="카테고리" rules={[{required: true, message: '카테고리를 선택하세요.'}]}>
-                        <Select placeholder="카테고리 선택">
-                            {categories
-                                .filter((category) => category.id !== 'all') // 'all' 제외
-                                .map((category) => (
-                                    <Option key={category.id} value={category.id}>
-                                        {category.name}
-                                    </Option>
-                                ))}
-                        </Select>
-                    </Form.Item>
-                    <Form.Item label="이미지">
-                        <Upload {...uploadProps} listType="picture">
-                            <Button icon={<UploadOutlined/>}>이미지 업로드 (최대 1개)</Button>
-                        </Upload>
-                    </Form.Item>
-                    <Form.Item>
-                        <Button
-                            type="primary"
-                            htmlType="submit"
-                            style={{background: '#1890ff', borderColor: '#1890ff'}}
-                        >
-                            {isEditMode ? '수정' : '등록'}
-                        </Button>
-                    </Form.Item>
-                </Form>
             </Modal>
 
         </div>
