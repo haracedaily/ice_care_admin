@@ -1,5 +1,5 @@
 import React, {useEffect, useState} from 'react';
-import {Breadcrumb, Button, Card, Form, Image, Input, message, Modal, Select, Space, Table, Upload} from "antd";
+import {Breadcrumb, Button, Card, Form, Image, Input, message, Modal, Select, Space, Table, Upload, Tag, Pagination} from "antd";
 import {
     PlusOutlined,
     SearchOutlined,
