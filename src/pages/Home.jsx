@@ -500,6 +500,7 @@ function Home(props) {
 
     return (
         <>
+            <div className={'content'}>
             <div>
                 <div>
                     <Breadcrumb
@@ -744,6 +745,7 @@ function Home(props) {
                         />
                     </Col>
                 </Row>
+            </div>
             </div>
         </>
     );
