@@ -98,8 +98,12 @@ const BoardManage = () => {
         let imageUrl = null; // 이미지 URL을 저장할 변수
 
         if (fileList.length > 0) {
-            imageUrl = await handleUpload(fileList[0].originFileObj); // 이미지 업로드
-            if (!imageUrl) return; // 업로드 실패 시 함수 종료
+            if(fileList[0].originFileObj) {
+                imageUrl = await handleUpload(fileList[0].originFileObj); // 이미지 업로드
+                if (!imageUrl) return; // 업로드 실패 시 함수 종료
+            }else{
+                imageUrl = isEditMode ? selectedPost.image_url : null; // 수정 모드일 때 기존 이미지 URL 사용
+            }
         }
 
         if (isEditMode) {
@@ -129,7 +133,7 @@ const BoardManage = () => {
                 message.error("게시글 등록에 실패했습니다.");
                 return;
             }
-            message.error("게시글이 등록되었습니다.");
+            message.success("게시글이 등록되었습니다.");
         }
 
         setIsModalOpen(false); // 모달 닫기
@@ -226,17 +230,26 @@ const BoardManage = () => {
             title: '제목',
             dataIndex: 'title',
             key: 'title',
+            width: 150,
             ellipsis: false, // 텍스트 줄바꿈
-            render: (text, record) => (
-                <span style={{whiteSpace: 'normal', wordBreak: 'break-word'}}>
-                    {record.is_notice && <Tag color="blue">공지</Tag>} {text} // 공지 태그
-                </span>
-            ),
+            // render: (text, record) => (
+            //     <span style={{whiteSpace: 'normal', wordBreak: 'break-word'}}>
+            //         {record.is_notice && <Tag color="blue">공지</Tag>} {text} // 공지 태그
+            //     </span>
+            // ),
+        },
+        {
+            title: '내용',
+            dataIndex: 'content',
+            key: 'content',
+            width: 500,
+            ellipsis: false, // 텍스트 줄바꿈
         },
         {
             title: '작성자',
             dataIndex: 'author',
             key: 'author',
+            width: 120,
             ellipsis: false,
             render: (text) => (
                 <span style={{whiteSpace: 'normal', wordBreak: 'break-word'}}>
@@ -260,7 +273,7 @@ const BoardManage = () => {
             title: '등록일',
             dataIndex: 'created_at',
             key: 'created_at',
-            width: 100,
+            width: 120,
             sorter: (a, b) => new Date(a.created_at) - new Date(b.created_at),
             ellipsis: false,
 
@@ -274,7 +287,7 @@ const BoardManage = () => {
             title: '조회수',
             dataIndex: 'views',
             key: 'views',
-            width: 50,
+            width: 75,
             ellipsis: false,
             render: (text) => (
                 <span style={{whiteSpace: 'normal', wordBreak: 'break-word'}}>
