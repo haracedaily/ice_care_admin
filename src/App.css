@@ -24,6 +24,7 @@ aside.login {
     justify-content: flex-start;
     align-items: flex-start;
     color:white;
+
     h4 {
         font-size: 0.8rem;
         margin-block-end: 0;
@@ -157,6 +158,11 @@ main.login {
 @media (min-width:1200px){
     aside.login{
         display:flex;
+        &>div:first-child{
+            &>div{
+                display:none!important;
+            }
+        }
     }
 
     .recharts-cartesian-axis-tick-value{

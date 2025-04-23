@@ -39,7 +39,8 @@ function Side({toggleAside,setToggleAside}) {
                         style={{ width: 150 }}
                         options={sideMenu}
                         onSelect={autocompleteSelect}
-                        getPopupContainer={(triggerNode) => triggerNode.parentElement}
+                        getPopupContainer={() => document.querySelector('aside.login')}
+                        dropdownStyle={{zIndex:1050}}
                         placeholder="메뉴검색"
                         filterOption={(inputValue, option) =>
                             option.value.toUpperCase().indexOf(inputValue.toUpperCase()) !== -1
