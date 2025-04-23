@@ -323,7 +323,7 @@ function Home(props) {
                 outerData.push(innerData);
             }
             console.log(outerData);
-            if(res.data.state_by_date?.length>0) {
+            if(res.data.stat_by_date?.length>0) {
                 res.data.stat_by_date.map((el, idx) => {
                     let innerData = {};
                     innerBarSum += el.cnt;
@@ -406,7 +406,7 @@ function Home(props) {
     class NewReservChart extends PureComponent {
         render() {
             return (
-                <ResponsiveContainer width="90%" height={500}>
+                <ResponsiveContainer width="100%" aspect={1.4}>
                     <BarChart
                         data={data}
                         margin={{
@@ -471,7 +471,7 @@ function Home(props) {
         };
         render() {
             return (
-                <ResponsiveContainer width="90%" height={500}>
+                <ResponsiveContainer width="90%" aspect={1.4}>
                 <PieChart>
                     <Pie
                         animationDuration={500}
@@ -713,6 +713,20 @@ function Home(props) {
                                 {value: 5, label: '완료'},
                             ]}
                         />
+                        <div style={{position:"absolute",top:"0",right:"0",display:"flex",flexDirection:"column",gap:"0.1rem",justifyContent:"center"}} >
+
+                        {
+                            timeData.map((el, idx) => {
+                                console.log(el);
+                                return (
+                                    <span key={el.key} style={{display:"flex"}}>
+                                        <div style={{backgroundColor:`${COLORS[idx % COLORS.length]}`,width:'2vw',height:'2vw'}}/>
+                                        <div style={{fontSize:"1.6vh"}}>{el.시간}</div>
+                                    </span>
+                                );
+                            })
+                        }
+                        </div>
                     <TimeRound/>
                         <Table
                             columns={timeColumns}
@@ -733,7 +747,7 @@ function Home(props) {
                                 })
                                 return (<Table.Summary fixed>
                                     <Table.Summary.Row>
-                                        <Table.Summary.Cell index={0} className={styles.summary_text}>누계</Table.Summary.Cell>
+                                        <Table.Summary.Cell index={0} className={styles.summary_text_left}>누계</Table.Summary.Cell>
                                         <Table.Summary.Cell index={1} className={styles.summary_text_right}>{totalNew}</Table.Summary.Cell>
                                         <Table.Summary.Cell index={2} className={styles.summary_text_right}>{totalCancel}</Table.Summary.Cell>
                                         <Table.Summary.Cell index={3} className={styles.summary_text_right}>{totalComplete}</Table.Summary.Cell>
