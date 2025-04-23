@@ -1,17 +1,15 @@
 import React, {useEffect, useState} from 'react';
-import {Breadcrumb, Button, Card, Form, Image, Input, message, Modal, Select, Space, Table, Upload, Tag, Pagination} from "antd";
-import {
-    PlusOutlined,
-    SearchOutlined,
-    RedoOutlined,
-    EditOutlined,
-    DeleteOutlined,
-    UploadOutlined
-} from "@ant-design/icons";
-// import {format} from 'date-fns';
-
+import {Breadcrumb, Button, Card, Form, Image, Input, message, Modal, Select, Space, Table, Upload, Tag, Pagination}
+    from "antd";
+import {PlusOutlined, SearchOutlined, RedoOutlined, EditOutlined, DeleteOutlined, UploadOutlined}
+    from "@ant-design/icons";
 import '../css/BoardManage.css';
+import styles from '../css/BoardManage.module.css';
 import {supabase} from "../js/supabaseClient.js";
+import dayjs from "dayjs";
+import customParseFormat from 'dayjs/plugin/customParseFormat';
+
+dayjs.extend(customParseFormat);
 
 const {Option} = Select;
 
@@ -265,11 +263,12 @@ const BoardManage = () => {
             width: 100,
             sorter: (a, b) => new Date(a.created_at) - new Date(b.created_at),
             ellipsis: false,
-            // render: (date) => (
-            //     <span style={{whiteSpace: 'normal', wordBreak: 'break-word'}}>
-            //         {/*{format(new Date(date), 'yyyy-MM-dd')}*/}
-            //     </span>
-            // ),
+
+            render: (date) => (
+                <span style={{whiteSpace: 'normal', wordBreak: 'break-word'}}>
+                    {date ? dayjs(date).format('YYYY-MM-DD') : '-'}
+                </span>
+            ),
         },
         {
             title: '조회수',
@@ -323,35 +322,35 @@ const BoardManage = () => {
     ];
 
     const renderCards = () => ( // 게시글 카드 형태로 렌더링
-        <div className="post-cards-container">
-            <div className="post-cards">
+        <div className={styles.post_cards_container}>
+            <div className={styles.post_cards}>
                 {posts.map((post) => (
                     <Card
                         key={post.id}
-                        className="post-card"
+                        className={styles.post_card}
                         variant="outlined" // bordered 대신 variant 사용
                     >
-                        <div className="post-card-content">
+                        <div className={styles.post_card_content}>
                             {post.image_url && (
-                                <div className="post-image">
+                                <div className={styles.post_image}>
                                     <Image src={post.image_url} alt="게시글 이미지" width={50} height={50}
                                            style={{objectFit: 'cover'}}/>
                                 </div>
                             )}
-                            <div className="post-details">
-                                <div className="post-title">
+                            <div className={styles.post_details}>
+                                <div className={styles.post_title}>
                                     {post.is_notice && <Tag color="blue">공지</Tag>}
                                     <span>{post.title}</span>
                                 </div>
-                                <div className="post-meta">
+                                <div className={styles.post_meta}>
                                     <span>작성자: {post.author}</span>
                                     <span>카테고리: {post.categories.name}</span>
-                                    {/*<span>등록일: {format(new Date(post.created_at), 'yyyy-MM-dd')}</span>*/}
+                                    <span>등록일: {post.created_at ? dayjs(post.create_at).format('YYYY-MM-DD') : '-'}</span>
                                     <span>조회수: {post.views}</span>
                                 </div>
                             </div>
                         </div>
-                        <div className="post-actions">
+                        <div className={styles.post_actions}>
                             <Button
                                 icon={<EditOutlined/>}
                                 onClick={() => {
@@ -382,31 +381,31 @@ const BoardManage = () => {
                             </Button>
                         </div>
                     </Card>
+
                 ))}
-            </div>
-            <div style={{width: 'fit-content', margin: '0 auto'}}>
-                <Pagination
-                    current={currentPage}
-                    pageSize={pageSize}
-                    total={totalPosts}
-                    onChange={(page) => setCurrentPage(page)}
-                    style={{marginTop: '16px'}}
-                />
+                <div className={styles.pagination_container}>
+                    <Pagination
+                        current={currentPage}
+                        pageSize={pageSize}
+                        total={totalPosts}
+                        onChange={(page) => setCurrentPage(page)}
+                        style={{marginTop: '16px'}}
+                    />
+                </div>
             </div>
         </div>
     );
 
     return (
         <div className="content">
-            <div className="header">
-                <h1>게시판 관리</h1>
+            <div className={styles.header}>
                 <Breadcrumb
                     separator=">"
                     items={[{title: 'Home',}, {title: '게시판관리', href: '',},]}
                 />
             </div>
 
-            <div className="filter-section">
+            <div className={styles.filter_section}>
                 <Input
                     placeholder="제목 또는 작성자 검색"
                     value={searchText}
@@ -477,6 +476,45 @@ const BoardManage = () => {
                 }}
                 footer={null}
             >
+                <Form form={form} onFinish={handleSave} layout="vertical">
+                    <Form.Item name="title" label="제목" rules={[{required: true, message: '제목을 입력해주세요.'}]}>
+                        <Input/>
+                    </Form.Item>
+                    <Form.Item name="content" label="내용" rules={[{required: true, message: '내용을 입력해주세요.'}]}>
+                        <Input/>
+                    </Form.Item>
+                    <Form.Item name="author" label="작성자" rules={[{required: true, message: '작성자를 입력해주세요.'}]}>
+                        <Input/>
+                    </Form.Item>
+                    <Form.Item name="password" label="비밀번호" rules={[{required: true, message: '비밀번호를 입력해주세요.'}]}>
+                        <Input.Password/>
+                    </Form.Item>
+                    <Form.Item name="category_id" label="카테고리" rules={[{required: true, message: '카테고리를 선택해주세요.'}]}>
+                        <Select placeholder="카테고리 선택">
+                            {categories
+                                .filter((category) => category.id !== 'all')
+                                .map((category) => (
+                                    <Option key={category.id} value={category.id}>
+                                        {category.name}
+                                    </Option>
+                                ))}
+                        </Select>
+                    </Form.Item>
+                    <Form.Item label="이미지">
+                        <Upload {...uploadProps} listType="picture">
+                            <Button icon={<UploadOutlined/>}>이미지 업로드 (최대 1개)</Button>
+                        </Upload>
+                    </Form.Item>
+                    <Form.Item>
+                        <Button
+                            type="primary"
+                            htmlType="submit"
+                            style={{background: '#1890ff', borderColor: '#1890ff'}}
+                        >
+                            {isEditMode ? '수정' : '등록'}
+                        </Button>
+                    </Form.Item>
+                </Form>
             </Modal>
 
         </div>
