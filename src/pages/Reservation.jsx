@@ -5,7 +5,7 @@ import ReservationForm from '../components/ReservationForm';
 import ResDashboard from '../components/ResDashboard';
 import ResSearchFilters from "../components/ResSearchFilters.jsx";
 
-import {supabase} from "../js/supabase.js";
+import { supabase } from "../js/supabase.js";
 
 import dayjs from 'dayjs';
 import 'dayjs/locale/ko';
@@ -29,8 +29,8 @@ const Reservation = () => {
         dayjs().endOf('day'),
     ]);
 
-    // 데이터 가져오기
-    const fetchReservations = async () => {
+    // 데이터 가져오기 (전달된 filters 사용)
+    const fetchReservations = async (appliedFilters) => {
         let query = supabase.from('ice_res').select('*');
 
         if (filterType === 'cleaning') {
@@ -56,24 +56,24 @@ const Reservation = () => {
             return;
         }
 
-        // 필터 적용
+        // 필터 적용 (전달된 filters 사용)
         let filtered = [...data];
-        if (filters.name) {
+        if (appliedFilters.name) {
             filtered = filtered.filter((r) =>
-                r.name.toLowerCase().includes(filters.name.toLowerCase())
+                r.name.toLowerCase().includes(appliedFilters.name.toLowerCase())
             );
         }
-        if (filters.tel) {
-            filtered = filtered.filter((r) => r.tel.includes(filters.tel));
+        if (appliedFilters.tel) {
+            filtered = filtered.filter((r) => r.tel.includes(appliedFilters.tel));
         }
-        if (filters.email) {
+        if (appliedFilters.email) {
             filtered = filtered.filter((r) =>
-                r.email.toLowerCase().includes(filters.email.toLowerCase())
+                r.email.toLowerCase().includes(appliedFilters.email.toLowerCase())
             );
         }
-        if (filters.addr) {
+        if (appliedFilters.addr) {
             filtered = filtered.filter((r) =>
-                r.addr.toLowerCase().includes(filters.addr.toLowerCase())
+                r.addr.toLowerCase().includes(appliedFilters.addr.toLowerCase())
             );
         }
 
@@ -81,10 +81,10 @@ const Reservation = () => {
         setFilteredReservations(filtered);
     };
 
-    // 초기 데이터 로드
+    // 초기 데이터 로드 (filters 의존성 제거)
     useEffect(() => {
-        fetchReservations();
-    }, [filterType, dateRange]);
+        fetchReservations(filters);
+    }, [filterType, dateRange]); // filters 제거
 
     // 모달 핸들러
     const showModal = (reservation = null) => {
@@ -95,7 +95,7 @@ const Reservation = () => {
     const handleOk = () => {
         setIsModalOpen(false);
         setEditingReservation(null);
-        fetchReservations();
+        fetchReservations(filters);
     };
 
     const handleCancel = () => {
@@ -104,8 +104,8 @@ const Reservation = () => {
     };
 
     // 조회 버튼 핸들러
-    const handleSearch = () => {
-        fetchReservations();
+    const handleSearch = (searchFilters) => {
+        fetchReservations(searchFilters);
     };
 
     return (
@@ -148,9 +148,9 @@ const Reservation = () => {
                         onEdit={showModal}
                         onDelete={async (res_no) => {
                             await supabase.from('ice_res').delete().eq('res_no', res_no);
-                            fetchReservations();
+                            fetchReservations(filters);
                         }}
-                        onUpdate={fetchReservations} // onUpdate prop 추가
+                        onUpdate={(updatedFilters) => fetchReservations(updatedFilters || filters)}
                     />
 
                     <Modal
