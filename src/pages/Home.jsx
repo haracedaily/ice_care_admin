@@ -218,18 +218,18 @@ function Home(props) {
                 innerData["누적예약"] = 0;
                 outerData.push(innerData);
             }
-        console.log(outerData);
+        // console.log(outerData);
             if(res.data.stat_by_date?.length>0) {
                 res.data.stat_by_date.map((el, idx) => {
                     let innerData = {};
                     innerBarSum += el.cnt;
                     if (innerDate != el.date.slice(5).replace("-", "/")) {
                         innerDate = el.date.slice(5).replace("-", "/");
-                        console.log(innerDate);
-                        console.log(outerData);
+                        // console.log(innerDate);
+                        // console.log(outerData);
                         let originInner = outerData.find(el => el["일자"] == innerDate);
                         let originInnerIdx = outerData.findIndex(el => el["일자"] == innerDate);
-                        console.log(originInner);
+                        // console.log(originInner);
                         if (stateRole[el.state]?.length > 0) {
                             originInner[stateRole[el.state]] = el.cnt;
                         }
@@ -249,7 +249,7 @@ function Home(props) {
                         outerData.map((el, index) => index > originInnerIdx ? el["누적예약"] = innerBarSum : '');
                     }
                 });
-            };
+            }
             setData(outerData);
             
             /*파이차트 데이터*/
@@ -299,12 +299,12 @@ function Home(props) {
     let chooseYear = async(e) => {
         if(e == null) return;
         let prop = dayjs(e).startOf('year').format('YYYY,MM,DD');
-        console.log(prop);
+        // console.log(prop);
         setLoading(true);
         prop = prop.split(',').map(el=>parseInt(el));
-        console.log(prop);
+        // console.log(prop);
         await getStatesByPeriod(prop[0], prop[1], prop[2], 2).then((res) => {
-            console.log(res);
+            // console.log(res);
             let outerData = [];
             let innerDate = "";
             let outerTime = [];
@@ -322,7 +322,7 @@ function Home(props) {
                 innerData["누적예약"] = 0;
                 outerData.push(innerData);
             }
-            console.log(outerData);
+            // console.log(outerData);
             if(res.data.stat_by_date?.length>0) {
                 res.data.stat_by_date.map((el, idx) => {
                     let innerData = {};
@@ -545,7 +545,7 @@ function Home(props) {
                     }
 
 
-                    <Button loading={loading} className={styles.Btn} icon={<SearchOutlined/>}></Button>
+                    <Button loading={loading} variant={"outlined"} color={"geekblue"} className={styles.Btn} icon={<SearchOutlined/>}></Button>
                 </div>
                 <Row gutter={[16, 8]}>
                     <Col xl={8} md={8} xs={24}>
@@ -717,7 +717,6 @@ function Home(props) {
 
                         {
                             timeData.map((el, idx) => {
-                                console.log(el);
                                 return (
                                     <span key={el.key} style={{display:"flex"}}>
                                         <div style={{backgroundColor:`${COLORS[idx % COLORS.length]}`,width:'2vw',height:'2vw'}}/>

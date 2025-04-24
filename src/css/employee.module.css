@@ -4,3 +4,10 @@
     gap: 8px;
     flex-wrap: wrap;
 }
+
+.content{
+    padding:20px;
+    &>div{
+        margin: 1rem 0;
+    }
+}
