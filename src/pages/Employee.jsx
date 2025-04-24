@@ -6,6 +6,7 @@ import {Breadcrumb, Select, Input, Button} from "antd";
 import {useNavigate} from "react-router-dom";
 import styles from "../css/employee.module.css"
 import {RedoOutlined, SearchOutlined} from "@ant-design/icons";
+import EmployeeTable from "../components/EmployeeTable.jsx";
 
 dayjs.extend(customParseFormat);
 
@@ -15,7 +16,7 @@ function Employee(props) {
     const division = [{id:"all",name:"전체"},{id:1,name:"계약직"},{id:2,name:"정규직"},{id:3,name:"관리자"}];
     return (
         <>
-            <div className="content">
+            <div className={styles.content}>
                 <div>
                         <Breadcrumb
                             separator=">"
@@ -55,13 +56,11 @@ function Employee(props) {
                             />
                         <Button
                             icon={<SearchOutlined/>}
-                            // onClick={handleSearch}
                         >
                             조회
                         </Button>
                         <Button
                             icon={<RedoOutlined/>}
-                            // onClick={handleReset}
                         >
                             초기화
                         </Button>
@@ -69,7 +68,7 @@ function Employee(props) {
 
 
                 </div>
-
+                <EmployeeTable />
             </div>
         </>
     );
