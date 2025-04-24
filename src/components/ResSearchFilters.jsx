@@ -7,12 +7,14 @@ const ResSearchFilters = ({ filters, setFilters, onSearch }) => {
     };
 
     const handleReset = () => {
-        setFilters({
+        const resetFilters = {
             name: '',
             tel: '',
             email: '',
             addr: '',
-        });
+        };
+        setFilters(resetFilters);
+        onSearch(resetFilters);
     };
 
     return (
@@ -49,7 +51,7 @@ const ResSearchFilters = ({ filters, setFilters, onSearch }) => {
                 <Button onClick={handleReset} style={{ marginRight: 8 }}>
                     초기화
                 </Button>
-                <Button type="primary" onClick={onSearch}>
+                <Button type="primary" onClick={() => onSearch(filters)}>
                     조회
                 </Button>
             </Form.Item>

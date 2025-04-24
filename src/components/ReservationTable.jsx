@@ -1,16 +1,16 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Table, Button, Popconfirm, Card, Select, message } from 'antd';
-import { EditOutlined, DeleteOutlined } from '@ant-design/icons';
+import { EditOutlined, DeleteOutlined, DownOutlined } from '@ant-design/icons';
 import dayjs from 'dayjs';
 import { useMediaQuery } from 'react-responsive';
-import {supabase} from "../js/supabase.js";
-
+import { supabase } from "../js/supabase.js";
 
 const { Option } = Select;
 
 const ReservationTable = ({ reservations, onEdit, onDelete, onUpdate }) => {
     const isMobile = useMediaQuery({ maxWidth: 768 });
     const [editingCell, setEditingCell] = useState({ res_no: null, field: null });
+    const [pendingUpdate, setPendingUpdate] = useState({ res_no: null, field: null, value: null });
 
     const handleUpdate = async (res_no, field, value) => {
         try {
@@ -26,296 +26,36 @@ const ReservationTable = ({ reservations, onEdit, onDelete, onUpdate }) => {
             message.error(`수정 실패: ${error.message}`, 3);
         }
         setEditingCell({ res_no: null, field: null });
+        setPendingUpdate({ res_no: null, field: null, value: null });
     };
 
-    const cellStyle = {
-        border: '1px solid #d9d9d9',
-        borderRadius: '4px',
-        padding: '4px 8px',
-        cursor: 'pointer',
-        transition: 'border-color 0.3s',
-        display: 'inline-block',
+    const handleChange = (res_no, field, value) => {
+        setPendingUpdate({ res_no, field, value });
+        setEditingCell({ res_no: null, field: null }); // 드롭다운 닫기
     };
 
-    const cellHoverStyle = {
-        borderColor: '#1890ff',
+    const confirmUpdate = () => {
+        const { res_no, field, value } = pendingUpdate;
+        if (res_no && field && value !== null) {
+            handleUpdate(res_no, field, value);
+        }
     };
 
-    const selectStyle = {
-        width: '100%',
-        border: '2px solid #1890ff',
-        borderRadius: '4px',
+    const cancelUpdate = () => {
+        setPendingUpdate({ res_no: null, field: null, value: null });
+        setEditingCell({ res_no: null, field: null });
     };
+
+    const selectStyle = (width) => ({
+        width: width,
+        boxSizing: 'border-box',
+    });
 
     const columns = [
         {
-            title: '예약번호',
-            dataIndex: 'res_no',
-            key: 'res_no',
-            width: 100,
-            responsive: ['xs', 'sm', 'md', 'lg'],
-        },
-        {
-            title: '이름',
-            dataIndex: 'name',
-            key: 'name',
-            width: 120,
-            responsive: ['xs', 'sm', 'md', 'lg'],
-        },
-        {
-            title: '연락처',
-            dataIndex: 'tel',
-            key: 'tel',
-            width: 150,
-            responsive: ['md', 'lg'],
-        },
-        {
-            title: '이메일',
-            dataIndex: 'email',
-            key: 'email',
-            width: 200,
-            responsive: ['md', 'lg'],
-        },
-        {
-            title: '주소',
-            dataIndex: 'addr',
-            key: 'addr',
-            width: 200,
-            responsive: ['lg'],
-        },
-        {
-            title: '예약 날짜',
-            dataIndex: 'date',
-            key: 'date',
-            width: 120,
-            render: (text) => dayjs(text).format('YYYY-MM-DD'),
-            responsive: ['xs', 'sm', 'md', 'lg'],
-        },
-        {
-            title: '예약 시간',
-            dataIndex: 'time',
-            key: 'time',
-            width: 150,
-            render: (time, record) => (
-                editingCell.res_no === record.res_no && editingCell.field === 'time' ? (
-                    <Select
-                        value={time}
-                        onChange={(value) => handleUpdate(record.res_no, 'time', value)}
-                        style={selectStyle}
-                        onBlur={() => setEditingCell({ res_no: null, field: null })}
-                        autoFocus
-                        dropdownStyle={{ minWidth: '150px' }}
-                    >
-                        <Option value="오전 10시 ~ 오후 1시">오전 10시 ~ 오후 1시</Option>
-                        <Option value="오후 2시 ~ 오후 5시">오후 2시 ~ 오후 5시</Option>
-                        <Option value="오후 4시 ~ 오후 7시">오후 4시 ~ 오후 7시</Option>
-                        <Option value="오후 6시 ~ 오후 9시">오후 6시 ~ 오후 9시</Option>
-                    </Select>
-                ) : (
-                    <span
-                        onClick={() => setEditingCell({ res_no: record.res_no, field: 'time' })}
-                        style={cellStyle}
-                        onMouseEnter={(e) => (e.target.style.borderColor = cellHoverStyle.borderColor)}
-                        onMouseLeave={(e) => (e.target.style.borderColor = '#d9d9d9')}
-                    >
-                        {time || '미지정'}
-                    </span>
-                )
-            ),
-            responsive: ['md', 'lg'],
-        },
-        {
-            title: '모델명',
-            dataIndex: 'model',
-            key: 'model',
-            width: 150,
-            responsive: ['lg'],
-        },
-        {
-            title: '용량',
-            dataIndex: 'capacity',
-            key: 'capacity',
-            width: 120,
-            render: (capacity, record) => (
-                editingCell.res_no === record.res_no && editingCell.field === 'capacity' ? (
-                    <Select
-                        value={capacity}
-                        onChange={(value) => handleUpdate(record.res_no, 'capacity', value)}
-                        style={selectStyle}
-                        onBlur={() => setEditingCell({ res_no: null, field: null })}
-                        autoFocus
-                        dropdownStyle={{ minWidth: '120px' }}
-                    >
-                        <Option value="1">20~50kg</Option>
-                        <Option value="2">50~100kg</Option>
-                        <Option value="3">100kg 이상</Option>
-                    </Select>
-                ) : (
-                    <span
-                        onClick={() => setEditingCell({ res_no: record.res_no, field: 'capacity' })}
-                        style={cellStyle}
-                        onMouseEnter={(e) => (e.target.style.borderColor = cellHoverStyle.borderColor)}
-                        onMouseLeave={(e) => (e.target.style.borderColor = '#d9d9d9')}
-                    >
-                        {capacity === '1' ? '20~50kg' : capacity === '2' ? '50~100kg' : capacity === '3' ? '100kg 이상' : '미지정'}
-                    </span>
-                )
-            ),
-            responsive: ['lg'],
-        },
-        {
-            title: '선택 서비스',
-            dataIndex: 'service',
-            key: 'service',
-            width: 100,
-            render: (service, record) => (
-                editingCell.res_no === record.res_no && editingCell.field === 'service' ? (
-                    <Select
-                        value={service}
-                        onChange={(value) => handleUpdate(record.res_no, 'service', value)}
-                        style={selectStyle}
-                        onBlur={() => setEditingCell({ res_no: null, field: null })}
-                        autoFocus
-                        dropdownStyle={{ minWidth: '100px' }}
-                    >
-                        <Option value="청소">청소</Option>
-                        <Option value="수리">수리</Option>
-                    </Select>
-                ) : (
-                    <span
-                        onClick={() => setEditingCell({ res_no: record.res_no, field: 'service' })}
-                        style={cellStyle}
-                        onMouseEnter={(e) => (e.target.style.borderColor = cellHoverStyle.borderColor)}
-                        onMouseLeave={(e) => (e.target.style.borderColor = '#d9d9d9')}
-                    >
-                        {service || '미지정'}
-                    </span>
-                )
-            ),
-            responsive: ['md', 'lg'],
-        },
-        {
-            title: '서비스 주기',
-            dataIndex: 'cycle',
-            key: 'cycle',
-            width: 150,
-            render: (cycle, record) => (
-                editingCell.res_no === record.res_no && editingCell.field === 'cycle' ? (
-                    <Select
-                        value={cycle}
-                        onChange={(value) => handleUpdate(record.res_no, 'cycle', value)}
-                        style={selectStyle}
-                        onBlur={() => setEditingCell({ res_no: null, field: null })}
-                        autoFocus
-                        dropdownStyle={{ minWidth: '150px' }}
-                    >
-                        <Option value="이번 한 번만">이번 한 번만</Option>
-                        <Option value="한 달에 한 번">한 달에 한 번</Option>
-                    </Select>
-                ) : (
-                    <span
-                        onClick={() => setEditingCell({ res_no: record.res_no, field: 'cycle' })}
-                        style={cellStyle}
-                        onMouseEnter={(e) => (e.target.style.borderColor = cellHoverStyle.borderColor)}
-                        onMouseLeave={(e) => (e.target.style.borderColor = '#d9d9d9')}
-                    >
-                        {cycle || '없음'}
-                    </span>
-                )
-            ),
-            responsive: ['lg'],
-        },
-        {
-            title: '추가 서비스 선택',
-            dataIndex: 'add',
-            key: 'add',
-            width: 200,
-            render: (add, record) => (
-                editingCell.res_no === record.res_no && editingCell.field === 'add' ? (
-                    <Select
-                        value={add}
-                        onChange={(value) => handleUpdate(record.res_no, 'add', value)}
-                        style={selectStyle}
-                        onBlur={() => setEditingCell({ res_no: null, field: null })}
-                        autoFocus
-                        dropdownStyle={{ minWidth: '200px' }}
-                    >
-                        <Option value="심화 청소">심화 청소</Option>
-                        <Option value="물탱크 청소">물탱크 청소</Option>
-                        <Option value="필터 교체">필터 교체</Option>
-                        <Option value="선택 안함">선택 안함</Option>
-                    </Select>
-                ) : (
-                    <span
-                        onClick={() => setEditingCell({ res_no: record.res_no, field: 'add' })}
-                        style={cellStyle}
-                        onMouseEnter={(e) => (e.target.style.borderColor = cellHoverStyle.borderColor)}
-                        onMouseLeave={(e) => (e.target.style.borderColor = '#d9d9d9')}
-                    >
-                        {add || '없음'}
-                    </span>
-                )
-            ),
-            responsive: ['lg'],
-        },
-        {
-            title: '특별 요청사항',
-            dataIndex: 'remark',
-            key: 'remark',
-            width: 200,
-            responsive: ['lg'],
-        },
-        {
-            title: '예약금',
-            dataIndex: 'deposit',
-            key: 'deposit',
-            width: 120,
-            responsive: ['md', 'lg'],
-        },
-        {
-            title: '상태',
-            dataIndex: 'state',
-            key: 'state',
-            width: 150,
-            render: (state, record) => (
-                editingCell.res_no === record.res_no && editingCell.field === 'state' ? (
-                    <Select
-                        value={state}
-                        onChange={(value) => handleUpdate(record.res_no, 'state', value)}
-                        style={selectStyle}
-                        onBlur={() => setEditingCell({ res_no: null, field: null })}
-                        autoFocus
-                        dropdownStyle={{ minWidth: '150px' }}
-                    >
-                        <Option value={0}>예약대기</Option>
-                        <Option value={1}>예약완료</Option>
-                        <Option value={2}>기사배정중</Option>
-                        <Option value={3}>기사배정완료</Option>
-                        <Option value={4}>청소완료</Option>
-                    </Select>
-                ) : (
-                    <span
-                        onClick={() => setEditingCell({ res_no: record.res_no, field: 'state' })}
-                        style={cellStyle}
-                        onMouseEnter={(e) => (e.target.style.borderColor = cellHoverStyle.borderColor)}
-                        onMouseLeave={(e) => (e.target.style.borderColor = '#d9d9d9')}
-                    >
-                        {({
-                            0: '예약대기',
-                            1: '예약완료',
-                            2: '기사배정중',
-                            3: '기사배정완료',
-                            4: '청소완료',
-                        })[state] || '알 수 없음'}
-                    </span>
-                )
-            ),
-            responsive: ['xs', 'sm', 'md', 'lg'],
-        },
-        {
             title: '수정/삭제',
             key: 'action',
-            width: 120,
+            width: 100,
             render: (_, record) => (
                 <>
                     <Button
@@ -333,6 +73,310 @@ const ReservationTable = ({ reservations, onEdit, onDelete, onUpdate }) => {
                 </>
             ),
             responsive: ['xs', 'sm', 'md', 'lg'],
+        },
+        {
+            title: 'No.',
+            dataIndex: 'res_no',
+            key: 'res_no',
+            width: 50,
+            responsive: ['xs', 'sm', 'md', 'lg'],
+        },
+        {
+            title: '상태',
+            dataIndex: 'state',
+            key: 'state',
+            width: 110,
+            render: (state, record) => (
+                <>
+                    <Select
+                        value={
+                            ({
+                                0: '예약대기',
+                                1: '예약완료',
+                                2: '기사배정중',
+                                3: '기사배정완료',
+                                4: '청소완료',
+                            })[state] || '알 수 없음'
+                        }
+                        onChange={(value) => handleChange(record.res_no, 'state', value)}
+                        onClick={(e) => {
+                            e.stopPropagation();
+                            setEditingCell({ res_no: record.res_no, field: 'state' });
+                        }}
+                        style={selectStyle(110)}
+                        dropdownStyle={{ width: 110 }}
+                        popupClassName="custom-state-dropdown"
+                        suffixIcon={<DownOutlined style={{ fontSize: '12px', color: '#1890ff' }} />}
+                    >
+                        <Option value={0}>예약대기</Option>
+                        <Option value={1}>예약완료</Option>
+                        <Option value={2}>기사배정중</Option>
+                        <Option value={3}>기사배정완료</Option>
+                        <Option value={4}>청소완료</Option>
+                    </Select>
+                    {pendingUpdate.res_no === record.res_no && pendingUpdate.field === 'state' && pendingUpdate.value !== null && (
+                        <Popconfirm
+                            title="수정하시겠습니까?"
+                            onConfirm={confirmUpdate}
+                            onCancel={cancelUpdate}
+                            okText="예"
+                            cancelText="아니오"
+                            open={true}
+                        />
+                    )}
+                </>
+            ),
+            responsive: ['xs', 'sm', 'md', 'lg'],
+        },
+        {
+            title: '이름',
+            dataIndex: 'name',
+            key: 'name',
+            width: 90,
+            responsive: ['xs', 'sm', 'md', 'lg'],
+        },
+        {
+            title: '연락처',
+            dataIndex: 'tel',
+            key: 'tel',
+            width: 120,
+            responsive: ['md', 'lg'],
+        },
+        {
+            title: '이메일',
+            dataIndex: 'email',
+            key: 'email',
+            width: 180,
+            responsive: ['md', 'lg'],
+        },
+        {
+            title: '주소',
+            dataIndex: 'addr',
+            key: 'addr',
+            width: 200,
+            responsive: ['lg'],
+        },
+        {
+            title: '예약 날짜',
+            dataIndex: 'date',
+            key: 'date',
+            width: 90,
+            render: (text) => dayjs(text).format('YYYY-MM-DD'),
+            responsive: ['xs', 'sm', 'md', 'lg'],
+        },
+        {
+            title: '예약 시간',
+            dataIndex: 'time',
+            key: 'time',
+            width: 180,
+            render: (time, record) => (
+                <>
+                    <Select
+                        value={time || '미지정'}
+                        onChange={(value) => handleChange(record.res_no, 'time', value)}
+                        onClick={(e) => {
+                            e.stopPropagation();
+                            setEditingCell({ res_no: record.res_no, field: 'time' });
+                        }}
+                        style={selectStyle(180)}
+                        dropdownStyle={{ width: 180 }}
+                        popupClassName="custom-time-dropdown"
+                        suffixIcon={<DownOutlined style={{ fontSize: '12px', color: '#1890ff' }} />}
+                    >
+                        <Option value="오전 10시 ~ 오후 1시">오전 10시 ~ 오후 1시</Option>
+                        <Option value="오후 2시 ~ 오후 5시">오후 2시 ~ 오후 5시</Option>
+                        <Option value="오후 4시 ~ 오후 7시">오후 4시 ~ 오후 7시</Option>
+                        <Option value="오후 6시 ~ 오후 9시">오후 6시 ~ 오후 9시</Option>
+                    </Select>
+                    {pendingUpdate.res_no === record.res_no && pendingUpdate.field === 'time' && pendingUpdate.value !== null && (
+                        <Popconfirm
+                            title="수정하시겠습니까?"
+                            onConfirm={confirmUpdate}
+                            onCancel={cancelUpdate}
+                            okText="예"
+                            cancelText="아니오"
+                            open={true}
+                        />
+                    )}
+                </>
+            ),
+            responsive: ['md', 'lg'],
+        },
+        {
+            title: '모델명',
+            dataIndex: 'model',
+            key: 'model',
+            width: 120,
+            responsive: ['lg'],
+        },
+        {
+            title: '용량',
+            dataIndex: 'capacity',
+            key: 'capacity',
+            width: 100,
+            render: (capacity, record) => (
+                <>
+                    <Select
+                        value={
+                            capacity === '1'
+                                ? '20~50kg'
+                                : capacity === '2'
+                                    ? '50~100kg'
+                                    : capacity === '3'
+                                        ? '100kg 이상'
+                                        : '미지정'
+                        }
+                        onChange={(value) => handleChange(record.res_no, 'capacity', value)}
+                        onClick={(e) => {
+                            e.stopPropagation();
+                            setEditingCell({ res_no: record.res_no, field: 'capacity' });
+                        }}
+                        style={selectStyle(100)}
+                        dropdownStyle={{ width: 100 }}
+                        popupClassName="custom-capacity-dropdown"
+                        suffixIcon={<DownOutlined style={{ fontSize: '12px', color: '#1890ff' }} />}
+                    >
+                        <Option value="1">20~50kg</Option>
+                        <Option value="2">50~100kg</Option>
+                        <Option value="3">100kg 이상</Option>
+                    </Select>
+                    {pendingUpdate.res_no === record.res_no && pendingUpdate.field === 'capacity' && pendingUpdate.value !== null && (
+                        <Popconfirm
+                            title="수정하시겠습니까?"
+                            onConfirm={confirmUpdate}
+                            onCancel={cancelUpdate}
+                            okText="예"
+                            cancelText="아니오"
+                            open={true}
+                        />
+                    )}
+                </>
+            ),
+            responsive: ['lg'],
+        },
+        {
+            title: '선택 서비스',
+            dataIndex: 'service',
+            key: 'service',
+            width: 80,
+            render: (service, record) => (
+                <>
+                    <Select
+                        value={service || '미지정'}
+                        onChange={(value) => handleChange(record.res_no, 'service', value)}
+                        onClick={(e) => {
+                            e.stopPropagation();
+                            setEditingCell({ res_no: record.res_no, field: 'service' });
+                        }}
+                        style={selectStyle(80)}
+                        dropdownStyle={{ width: 80 }}
+                        popupClassName="custom-service-dropdown"
+                        suffixIcon={<DownOutlined style={{ fontSize: '12px', color: '#1890ff' }} />}
+                    >
+                        <Option value="청소">청소</Option>
+                        <Option value="수리">수리</Option>
+                    </Select>
+                    {pendingUpdate.res_no === record.res_no && pendingUpdate.field === 'service' && pendingUpdate.value !== null && (
+                        <Popconfirm
+                            title="수정하시겠습니까?"
+                            onConfirm={confirmUpdate}
+                            onCancel={cancelUpdate}
+                            okText="예"
+                            cancelText="아니오"
+                            open={true}
+                        />
+                    )}
+                </>
+            ),
+            responsive: ['md', 'lg'],
+        },
+        {
+            title: '서비스 주기',
+            dataIndex: 'cycle',
+            key: 'cycle',
+            width: 120,
+            render: (cycle, record) => (
+                <>
+                    <Select
+                        value={cycle || '없음'}
+                        onChange={(value) => handleChange(record.res_no, 'cycle', value)}
+                        onClick={(e) => {
+                            e.stopPropagation();
+                            setEditingCell({ res_no: record.res_no, field: 'cycle' });
+                        }}
+                        style={selectStyle(120)}
+                        dropdownStyle={{ width: 120 }}
+                        popupClassName="custom-cycle-dropdown"
+                        suffixIcon={<DownOutlined style={{ fontSize: '12px', color: '#1890ff' }} />}
+                    >
+                        <Option value="이번 한 번만">이번 한 번만</Option>
+                        <Option value="한 달에 한 번">한 달에 한 번</Option>
+                    </Select>
+                    {pendingUpdate.res_no === record.res_no && pendingUpdate.field === 'cycle' && pendingUpdate.value !== null && (
+                        <Popconfirm
+                            title="수정하시겠습니까?"
+                            onConfirm={confirmUpdate}
+                            onCancel={cancelUpdate}
+                            okText="예"
+                            cancelText="아니오"
+                            open={true}
+                        />
+                    )}
+                </>
+            ),
+            responsive: ['lg'],
+        },
+        {
+            title: '추가 서비스 선택',
+            dataIndex: 'add',
+            key: 'add',
+            width: 120,
+            render: (add, record) => (
+                <>
+                    <Select
+                        value={add || '없음'}
+                        onChange={(value) => handleChange(record.res_no, 'add', value)}
+                        onClick={(e) => {
+                            e.stopPropagation();
+                            setEditingCell({ res_no: record.res_no, field: 'add' });
+                        }}
+                        style={selectStyle(120)}
+                        dropdownStyle={{ width: 120 }}
+                        popupClassName="custom-add-dropdown"
+                        suffixIcon={<DownOutlined style={{ fontSize: '12px', color: '#1890ff' }} />}
+                    >
+                        <Option value="심화 청소">심화 청소</Option>
+                        <Option value="물탱크 청소">물탱크 청소</Option>
+                        <Option value="필터 교체">필터 교체</Option>
+                        <Option value="선택 안함">선택 안함</Option>
+                    </Select>
+                    {pendingUpdate.res_no === record.res_no && pendingUpdate.field === 'add' && pendingUpdate.value !== null && (
+                        <Popconfirm
+                            title="수정하시겠습니까?"
+                            onConfirm={confirmUpdate}
+                            onCancel={cancelUpdate}
+                            okText="예"
+                            cancelText="아니오"
+                            open={true}
+                        />
+                    )}
+                </>
+            ),
+            responsive: ['lg'],
+        },
+        {
+            title: '특별 요청사항',
+            dataIndex: 'remark',
+            key: 'remark',
+            width: 200,
+            responsive: ['lg'],
+        },
+        {
+            title: '예약금',
+            dataIndex: 'deposit',
+            key: 'deposit',
+            width: 80,
+            responsive: ['md', 'lg'],
         },
     ];
 
@@ -365,144 +409,189 @@ const ReservationTable = ({ reservations, onEdit, onDelete, onUpdate }) => {
                         <p><strong>예약 날짜:</strong> {dayjs(record.date).format('YYYY-MM-DD')}</p>
                         <p>
                             <strong>예약 시간:</strong>{' '}
-                            {editingCell.res_no === record.res_no && editingCell.field === 'time' ? (
+                            <>
                                 <Select
-                                    value={record.time}
-                                    onChange={(value) => handleUpdate(record.res_no, 'time', value)}
-                                    style={selectStyle}
-                                    onBlur={() => setEditingCell({ res_no: null, field: null })}
-                                    autoFocus
-                                    dropdownStyle={{ minWidth: '150px' }}
+                                    value={record.time || '미지정'}
+                                    onChange={(value) => handleChange(record.res_no, 'time', value)}
+                                    onClick={(e) => {
+                                        e.stopPropagation();
+                                        setEditingCell({ res_no: record.res_no, field: 'time' });
+                                    }}
+                                    style={selectStyle(150)}
+                                    dropdownStyle={{ width: 150 }}
+                                    popupClassName="custom-time-dropdown"
+                                    suffixIcon={<DownOutlined style={{ fontSize: '12px', color: '#1890ff' }} />}
                                 >
                                     <Option value="오전 10시 ~ 오후 1시">오전 10시 ~ 오후 1시</Option>
                                     <Option value="오후 2시 ~ 오후 5시">오후 2시 ~ 오후 5시</Option>
                                     <Option value="오후 4시 ~ 오후 7시">오후 4시 ~ 오후 7시</Option>
                                     <Option value="오후 6시 ~ 오후 9시">오후 6시 ~ 오후 9시</Option>
                                 </Select>
-                            ) : (
-                                <span
-                                    onClick={() => setEditingCell({ res_no: record.res_no, field: 'time' })}
-                                    style={cellStyle}
-                                    onMouseEnter={(e) => (e.target.style.borderColor = cellHoverStyle.borderColor)}
-                                    onMouseLeave={(e) => (e.target.style.borderColor = '#d9d9d9')}
-                                >
-                                    {record.time || '미지정'}
-                                </span>
-                            )}
+                                {pendingUpdate.res_no === record.res_no && pendingUpdate.field === 'time' && pendingUpdate.value !== null && (
+                                    <Popconfirm
+                                        title="수정하시겠습니까?"
+                                        onConfirm={confirmUpdate}
+                                        onCancel={cancelUpdate}
+                                        okText="예"
+                                        cancelText="아니오"
+                                        open={true}
+                                    />
+                                )}
+                            </>
                         </p>
                         <p>
                             <strong>용량:</strong>{' '}
-                            {editingCell.res_no === record.res_no && editingCell.field === 'capacity' ? (
+                            <>
                                 <Select
-                                    value={record.capacity}
-                                    onChange={(value) => handleUpdate(record.res_no, 'capacity', value)}
-                                    style={selectStyle}
-                                    onBlur={() => setEditingCell({ res_no: null, field: null })}
-                                    autoFocus
-                                    dropdownStyle={{ minWidth: '120px' }}
+                                    value={
+                                        record.capacity === '1'
+                                            ? '20~50kg'
+                                            : record.capacity === '2'
+                                                ? '50~100kg'
+                                                : record.capacity === '3'
+                                                    ? '100kg 이상'
+                                                    : '미지정'
+                                    }
+                                    onChange={(value) => handleChange(record.res_no, 'capacity', value)}
+                                    onClick={(e) => {
+                                        e.stopPropagation();
+                                        setEditingCell({ res_no: record.res_no, field: 'capacity' });
+                                    }}
+                                    style={selectStyle(120)}
+                                    dropdownStyle={{ width: 120 }}
+                                    popupClassName="custom-capacity-dropdown"
+                                    suffixIcon={<DownOutlined style={{ fontSize: '12px', color: '#1890ff' }} />}
                                 >
                                     <Option value="1">20~50kg</Option>
                                     <Option value="2">50~100kg</Option>
                                     <Option value="3">100kg 이상</Option>
                                 </Select>
-                            ) : (
-                                <span
-                                    onClick={() => setEditingCell({ res_no: record.res_no, field: 'capacity' })}
-                                    style={cellStyle}
-                                    onMouseEnter={(e) => (e.target.style.borderColor = cellHoverStyle.borderColor)}
-                                    onMouseLeave={(e) => (e.target.style.borderColor = '#d9d9d9')}
-                                >
-                                    {record.capacity === '1' ? '20~50kg' : record.capacity === '2' ? '50~100kg' : record.capacity === '3' ? '100kg 이상' : '미지정'}
-                                </span>
-                            )}
+                                {pendingUpdate.res_no === record.res_no && pendingUpdate.field === 'capacity' && pendingUpdate.value !== null && (
+                                    <Popconfirm
+                                        title="수정하시겠습니까?"
+                                        onConfirm={confirmUpdate}
+                                        onCancel={cancelUpdate}
+                                        okText="예"
+                                        cancelText="아니오"
+                                        open={true}
+                                    />
+                                )}
+                            </>
                         </p>
                         <p>
                             <strong>선택 서비스:</strong>{' '}
-                            {editingCell.res_no === record.res_no && editingCell.field === 'service' ? (
+                            <>
                                 <Select
-                                    value={record.service}
-                                    onChange={(value) => handleUpdate(record.res_no, 'service', value)}
-                                    style={selectStyle}
-                                    onBlur={() => setEditingCell({ res_no: null, field: null })}
-                                    autoFocus
-                                    dropdownStyle={{ minWidth: '100px' }}
+                                    value={record.service || '미지정'}
+                                    onChange={(value) => handleChange(record.res_no, 'service', value)}
+                                    onClick={(e) => {
+                                        e.stopPropagation();
+                                        setEditingCell({ res_no: record.res_no, field: 'service' });
+                                    }}
+                                    style={selectStyle(100)}
+                                    dropdownStyle={{ width: 100 }}
+                                    popupClassName="custom-service-dropdown"
+                                    suffixIcon={<DownOutlined style={{ fontSize: '12px', color: '#1890ff' }} />}
                                 >
                                     <Option value="청소">청소</Option>
                                     <Option value="수리">수리</Option>
                                 </Select>
-                            ) : (
-                                <span
-                                    onClick={() => setEditingCell({ res_no: record.res_no, field: 'service' })}
-                                    style={cellStyle}
-                                    onMouseEnter={(e) => (e.target.style.borderColor = cellHoverStyle.borderColor)}
-                                    onMouseLeave={(e) => (e.target.style.borderColor = '#d9d9d9')}
-                                >
-                                    {record.service || '미지정'}
-                                </span>
-                            )}
+                                {pendingUpdate.res_no === record.res_no && pendingUpdate.field === 'service' && pendingUpdate.value !== null && (
+                                    <Popconfirm
+                                        title="수정하시겠습니까?"
+                                        onConfirm={confirmUpdate}
+                                        onCancel={cancelUpdate}
+                                        okText="예"
+                                        cancelText="아니오"
+                                        open={true}
+                                    />
+                                )}
+                            </>
                         </p>
                         <p>
                             <strong>서비스 주기:</strong>{' '}
-                            {editingCell.res_no === record.res_no && editingCell.field === 'cycle' ? (
+                            <>
                                 <Select
-                                    value={record.cycle}
-                                    onChange={(value) => handleUpdate(record.res_no, 'cycle', value)}
-                                    style={selectStyle}
-                                    onBlur={() => setEditingCell({ res_no: null, field: null })}
-                                    autoFocus
-                                    dropdownStyle={{ minWidth: '150px' }}
+                                    value={record.cycle || '없음'}
+                                    onChange={(value) => handleChange(record.res_no, 'cycle', value)}
+                                    onClick={(e) => {
+                                        e.stopPropagation();
+                                        setEditingCell({ res_no: record.res_no, field: 'cycle' });
+                                    }}
+                                    style={selectStyle(150)}
+                                    dropdownStyle={{ width: 150 }}
+                                    popupClassName="custom-cycle-dropdown"
+                                    suffixIcon={<DownOutlined style={{ fontSize: '12px', color: '#1890ff' }} />}
                                 >
                                     <Option value="이번 한 번만">이번 한 번만</Option>
                                     <Option value="한 달에 한 번">한 달에 한 번</Option>
                                 </Select>
-                            ) : (
-                                <span
-                                    onClick={() => setEditingCell({ res_no: record.res_no, field: 'cycle' })}
-                                    style={cellStyle}
-                                    onMouseEnter={(e) => (e.target.style.borderColor = cellHoverStyle.borderColor)}
-                                    onMouseLeave={(e) => (e.target.style.borderColor = '#d9d9d9')}
-                                >
-                                    {record.cycle || '없음'}
-                                </span>
-                            )}
+                                {pendingUpdate.res_no === record.res_no && pendingUpdate.field === 'cycle' && pendingUpdate.value !== null && (
+                                    <Popconfirm
+                                        title="수정하시겠습니까?"
+                                        onConfirm={confirmUpdate}
+                                        onCancel={cancelUpdate}
+                                        okText="예"
+                                        cancelText="아니오"
+                                        open={true}
+                                    />
+                                )}
+                            </>
                         </p>
                         <p>
                             <strong>특별 요청사항:</strong>{' '}
-                            {editingCell.res_no === record.res_no && editingCell.field === 'add' ? (
+                            <>
                                 <Select
-                                    value={record.add}
-                                    onChange={(value) => handleUpdate(record.res_no, 'add', value)}
-                                    style={selectStyle}
-                                    onBlur={() => setEditingCell({ res_no: null, field: null })}
-                                    autoFocus
-                                    dropdownStyle={{ minWidth: '200px' }}
+                                    value={record.add || '없음'}
+                                    onChange={(value) => handleChange(record.res_no, 'add', value)}
+                                    onClick={(e) => {
+                                        e.stopPropagation();
+                                        setEditingCell({ res_no: record.res_no, field: 'add' });
+                                    }}
+                                    style={selectStyle(200)}
+                                    dropdownStyle={{ width: 200 }}
+                                    popupClassName="custom-add-dropdown"
+                                    suffixIcon={<DownOutlined style={{ fontSize: '12px', color: '#1890ff' }} />}
                                 >
                                     <Option value="심화 청소">심화 청소</Option>
                                     <Option value="물탱크 청소">물탱크 청소</Option>
                                     <Option value="필터 교체">필터 교체</Option>
                                     <Option value="선택 안함">선택 안함</Option>
                                 </Select>
-                            ) : (
-                                <span
-                                    onClick={() => setEditingCell({ res_no: record.res_no, field: 'add' })}
-                                    style={cellStyle}
-                                    onMouseEnter={(e) => (e.target.style.borderColor = cellHoverStyle.borderColor)}
-                                    onMouseLeave={(e) => (e.target.style.borderColor = '#d9d9d9')}
-                                >
-                                    {record.add || '없음'}
-                                </span>
-                            )}
+                                {pendingUpdate.res_no === record.res_no && pendingUpdate.field === 'add' && pendingUpdate.value !== null && (
+                                    <Popconfirm
+                                        title="수정하시겠습니까?"
+                                        onConfirm={confirmUpdate}
+                                        onCancel={cancelUpdate}
+                                        okText="예"
+                                        cancelText="아니오"
+                                        open={true}
+                                    />
+                                )}
+                            </>
                         </p>
                         <p>
                             <strong>상태:</strong>{' '}
-                            {editingCell.res_no === record.res_no && editingCell.field === 'state' ? (
+                            <>
                                 <Select
-                                    value={record.state}
-                                    onChange={(value) => handleUpdate(record.res_no, 'state', value)}
-                                    style={selectStyle}
-                                    onBlur={() => setEditingCell({ res_no: null, field: null })}
-                                    autoFocus
-                                    dropdownStyle={{ minWidth: '150px' }}
+                                    value={
+                                        ({
+                                            0: '예약대기',
+                                            1: '예약완료',
+                                            2: '기사배정중',
+                                            3: '기사배정완료',
+                                            4: '청소완료',
+                                        })[record.state] || '알 수 없음'
+                                    }
+                                    onChange={(value) => handleChange(record.res_no, 'state', value)}
+                                    onClick={(e) => {
+                                        e.stopPropagation();
+                                        setEditingCell({ res_no: record.res_no, field: 'state' });
+                                    }}
+                                    style={selectStyle(150)}
+                                    dropdownStyle={{ width: 150 }}
+                                    popupClassName="custom-state-dropdown"
+                                    suffixIcon={<DownOutlined style={{ fontSize: '12px', color: '#1890ff' }} />}
                                 >
                                     <Option value={0}>예약대기</Option>
                                     <Option value={1}>예약완료</Option>
@@ -510,41 +599,149 @@ const ReservationTable = ({ reservations, onEdit, onDelete, onUpdate }) => {
                                     <Option value={3}>기사배정완료</Option>
                                     <Option value={4}>청소완료</Option>
                                 </Select>
-                            ) : (
-                                <span
-                                    onClick={() => setEditingCell({ res_no: record.res_no, field: 'state' })}
-                                    style={cellStyle}
-                                    onMouseEnter={(e) => (e.target.style.borderColor = cellHoverStyle.borderColor)}
-                                    onMouseLeave={(e) => (e.target.style.borderColor = '#d9d9d9')}
-                                >
-                                    {({
-                                        0: '예약대기',
-                                        1: '예약완료',
-                                        2: '기사배정중',
-                                        3: '기사배정완료',
-                                        4: '청소완료',
-                                    })[record.state] || '알 수 없음'}
-                                </span>
-                            )}
+                                {pendingUpdate.res_no === record.res_no && pendingUpdate.field === 'state' && pendingUpdate.value !== null && (
+                                    <Popconfirm
+                                        title="수정하시겠습니까?"
+                                        onConfirm={confirmUpdate}
+                                        onCancel={cancelUpdate}
+                                        okText="예"
+                                        cancelText="아니오"
+                                        open={true}
+                                    />
+                                )}
+                            </>
                         </p>
                     </Card>
                 ))}
+                <style jsx>{`
+                    .ant-select-selector {
+                        border: none !important;
+                        box-shadow: none !important;
+                        background: transparent !important;
+                        padding: 0 20px 0 8px !important;
+                    }
+
+                    .ant-select-arrow {
+                        right: 8px !important;
+                        font-size: 12px !important;
+                        color: #1890ff !important;
+                    }
+
+                    .ant-select-dropdown {
+                        border-radius: 8px;
+                        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+                        background-color: #ffffff;
+                        overflow: hidden;
+                    }
+
+                    .ant-select-item-option {
+                        padding: 8px 12px !important;
+                        font-size: 14px !important;
+                        color: #333333 !important;
+                        background-color: #ffffff !important;
+                        transition: all 0.2s ease !important;
+                        white-space: nowrap !important;
+                        overflow: hidden !important;
+                        text-overflow: ellipsis !important;
+                    }
+
+                    .ant-select-item-option:hover {
+                        background-color: #e6f7ff !important;
+                        color: #1890ff !important;
+                    }
+
+                    .ant-select-item-option-selected {
+                        background-color: #e6f7ff !important;
+                        color: #1890ff !important;
+                        font-weight: 500 !important;
+                    }
+
+                    .custom-time-dropdown .ant-select-item-option {
+                        font-weight: 500 !important;
+                    }
+
+                    .custom-state-dropdown .ant-select-item-option {
+                        color: #666666 !important;
+                    }
+                    .custom-state-dropdown .ant-select-item-option:hover {
+                        background-color: #f0f5ff !important;
+                        color: #096dd9 !important;
+                    }
+                `}</style>
             </div>
         );
     }
 
     return (
-        <Table
-            columns={columns}
-            dataSource={reservations}
-            rowKey="res_no"
-            pagination={{
-                pageSize: 10,
-                style: { textAlign: 'center' },
-            }}
-            scroll={{ x: 'max-content' }}
-            size="small"
-        />
+        <>
+            <Table
+                columns={columns}
+                dataSource={reservations}
+                rowKey="res_no"
+                pagination={{
+                    pageSize: 10,
+                    style: { textAlign: 'center' },
+                }}
+                scroll={{ x: 'max-content' }}
+                size="small"
+                tableLayout="fixed"
+            />
+            <style jsx>{`
+                .ant-select-selector {
+                    border: none !important;
+                    box-shadow: none !important;
+                    background: transparent !important;
+                    padding: 0 20px 0 8px !important;
+                }
+
+                .ant-select-arrow {
+                    right: 8px !important;
+                    font-size: 12px !important;
+                    color: #1890ff !important;
+                }
+
+                .ant-select-dropdown {
+                    border-radius: 8px;
+                    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+                    background-color: #ffffff;
+                    overflow: hidden;
+                }
+
+                .ant-select-item-option {
+                    padding: 8px 12px !important;
+                    font-size: 14px !important;
+                    color: #333333 !important;
+                    background-color: #ffffff !important;
+                    transition: all 0.2s ease !important;
+                    white-space: nowrap !important;
+                    overflow: hidden !important;
+                    text-overflow: ellipsis !important;
+                }
+
+                .ant-select-item-option:hover {
+                    background-color: #e6f7ff !important;
+                    color: #1890ff !important;
+                }
+
+                .ant-select-item-option-selected {
+                    background-color: #e6f7ff !important;
+                    color: #1890ff !important;
+                    font-weight: 500 !important;
+                }
+
+                .custom-time-dropdown .ant-select-item-option {
+                    font-weight: 500 !important;
+                }
+
+                .custom-state-dropdown .ant-select-item-option {
+                    color: #666666 !important;
+                }
+                .custom-state-dropdown .ant-select-item-option:hover {
+                    background-color: #f0f5ff !important;
+                    color: #096dd9 !important;
+                }
+            `}</style>
+        </>
     );
 };
 

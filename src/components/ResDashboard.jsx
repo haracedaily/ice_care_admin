@@ -58,12 +58,12 @@ const ResDashboard = ({ reservations, dateRange, setDateRange }) => {
                     </Card>
                 </Col>
                 <Col xs={12} sm={12} md={4}>
-                    <Card style={{ background: '#fff1f0', borderRadius: 8 }}>
+                    <Card style={{ background: '#fffbe6', borderRadius: 8 }}>
                         <Statistic
                             title="예약 대기"
                             value={stats.state1}
                             prefix={<ClockCircleOutlined />}
-                            valueStyle={{ color: '#ff4d4f', fontSize: '24px', fontWeight: 'bold' }}
+                            valueStyle={{ color: '#fa8c16 ', fontSize: '24px', fontWeight: 'bold' }}
                             style={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}
                         />
                     </Card>
@@ -91,12 +91,12 @@ const ResDashboard = ({ reservations, dateRange, setDateRange }) => {
                     </Card>
                 </Col>
                 <Col xs={12} sm={12} md={4}>
-                    <Card style={{ background: '#fffbe6', borderRadius: 8 }}>
+                    <Card style={{ background: '#fff1f0', borderRadius: 8 }}>
                         <Statistic
                             title="예약 취소"
                             value={stats.state9}
                             prefix={<CloseCircleOutlined />}
-                            valueStyle={{ color: '#fa8c16', fontSize: '24px', fontWeight: 'bold' }}
+                            valueStyle={{ color: '#ff4d4f ', fontSize: '24px', fontWeight: 'bold' }}
                             style={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}
                         />
                     </Card>
