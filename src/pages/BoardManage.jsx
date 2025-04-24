@@ -16,7 +16,7 @@ const {Option} = Select;
 const categories = [
     {id: 'all', name: '전체'},
     {id: '1', name: '공지사항'},
-    {id: '2', name: '자주묻는질문'},
+    {id: '2', name: 'FAQ'},
 ];
 
 const BoardManage = () => {
@@ -70,7 +70,7 @@ const BoardManage = () => {
 
     useEffect(() => {
         fetchPosts();
-    }, [currentPage, searchText, filterCategory]);
+    }, [currentPage]);
 
     const handleUpload = async (file) => {
         const fileExt = file.name.split('.').pop(); // 파일 확장자 추출
@@ -98,10 +98,10 @@ const BoardManage = () => {
         let imageUrl = null; // 이미지 URL을 저장할 변수
 
         if (fileList.length > 0) {
-            if(fileList[0].originFileObj) {
+            if (fileList[0].originFileObj) {
                 imageUrl = await handleUpload(fileList[0].originFileObj); // 이미지 업로드
                 if (!imageUrl) return; // 업로드 실패 시 함수 종료
-            }else{
+            } else {
                 imageUrl = isEditMode ? selectedPost.image_url : null; // 수정 모드일 때 기존 이미지 URL 사용
             }
         }
@@ -215,6 +215,18 @@ const BoardManage = () => {
         fileList,
         accept: 'image/*',
         maxCount: 1,
+    }
+
+    const handleSearch = () => {
+        setCurrentPage(1);
+        fetchPosts();
+    }
+
+    const handleReset = () => {
+        setSearchText('');
+        setFilterCategory('all');
+        setCurrentPage(1);
+        fetchPosts();
     }
 
     const columns = [
@@ -421,14 +433,14 @@ const BoardManage = () => {
             <div className={styles.filter_section}>
                 <Input
                     placeholder="제목 또는 작성자 검색"
-                    value={searchText}
+                    // value={searchText}
                     onChange={(e) => setSearchText(e.target.value)}
                     style={{width: '200px'}}
                 />
                 <Select
                     placeholder="카테고리 선택"
                     defaultValue="all"
-                    value={filterCategory}
+                    // value={filterCategory}
                     onChange={(value) => setFilterCategory(value)}
                     style={{width: '150px'}}
                     allowClear={false}
@@ -441,13 +453,13 @@ const BoardManage = () => {
                 </Select>
                 <Button
                     icon={<SearchOutlined/>}
-                    // onClick={handleSearch}
+                    onClick={handleSearch}
                 >
                     조회
                 </Button>
                 <Button
                     icon={<RedoOutlined/>}
-                    // onClick={handleReset}
+                    onClick={handleReset}
                 >
                     초기화
                 </Button>
@@ -455,7 +467,7 @@ const BoardManage = () => {
                     type="primary"
                     icon={<PlusOutlined/>}
                     onClick={() => {
-                        setIsEditMode(false);
+                        // setIsEditMode(false);
                         setIsModalOpen(true);
                     }}
                     style={{background: '#1890ff', borderColor: '#1890ff'}}
@@ -480,7 +492,7 @@ const BoardManage = () => {
             )}
 
             <Modal
-                title={isEditMode ? "게시글 수정" : "게시글 등록"}
+                title="게시글 수정"
                 open={isModalOpen}
                 onCancel={() => {
                     setIsEditMode(false);
