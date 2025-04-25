@@ -429,7 +429,7 @@ const BoardManage = () => {
     );
 
     return (
-        <div className="content">
+        <div className={styles.content}>
             <div className={styles.header}>
                 <Breadcrumb
                     separator=">"
