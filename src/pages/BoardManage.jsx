@@ -1,7 +1,7 @@
 import React, {useEffect, useState} from 'react';
 import {Breadcrumb, Button, Card, Form, Image, Input, message, Modal, Select, Space, Table, Upload, Tag, Pagination}
     from "antd";
-import {PlusOutlined, SearchOutlined, RedoOutlined, EditOutlined, DeleteOutlined, UploadOutlined}
+import {PlusOutlined, SearchOutlined, RedoOutlined, EditOutlined, DeleteOutlined, UploadOutlined, PushpinOutlined, PushpinFilled}
     from "@ant-design/icons";
 import '../css/BoardManage.css';
 import styles from '../css/BoardManage.module.css';
@@ -231,6 +231,18 @@ const BoardManage = () => {
 
     const columns = [
         {
+            title: '고정',
+            key: 'actions',
+            width: 20,
+            render: (_, record) => (
+                    <Button onClick={() => handlePin(record)}
+                            style={{color: '#595959'}}
+                            icon={record.is_notice ? <PushpinFilled /> : <PushpinOutlined />}
+                    >
+                    </Button>
+            ),
+        },
+        {
             title: '이미지',
             dataIndex: 'image_url',
             key: 'image_url',
@@ -308,9 +320,9 @@ const BoardManage = () => {
             ),
         },
         {
-            title: '작업',
+            title: '수정/삭제',
             key: 'actions',
-            width: 200,
+            width: 120,
             render: (_, record) => (
                 <Space size="middle">
                     <Button
@@ -329,17 +341,12 @@ const BoardManage = () => {
                         }}
                         style={{color: '#1890ff'}}
                     >
-                        수정
                     </Button>
                     <Button
                         icon={<DeleteOutlined/>}
                         onClick={() => handleDelete(record)}
                         danger
                     >
-                        삭제
-                    </Button>
-                    <Button onClick={() => handlePin(record)} style={{color: '#595959'}}>
-                        {record.is_notice ? '공지 해제' : '공지 고정'}
                     </Button>
                 </Space>
             ),
@@ -488,6 +495,7 @@ const BoardManage = () => {
                         onChange: (page) => setCurrentPage(page),
                     }}
                     scroll={{x: 'max-content'}}
+                    size={"middle"}
                 />
             )}
 
