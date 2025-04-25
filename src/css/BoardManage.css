@@ -1,9 +1,9 @@
 
 /* 테이블 반응형 스타일 (데스크톱 화면) */
 @media (min-width: 769px) {
-    .ant-table-thead > tr:nth-child(n+2) > th,
+    .ant-table-thead > tr > th,
     .ant-table-tbody > tr:nth-child(n+2) > td {
-        padding: 16px !important;
+
         white-space: normal !important;
         word-break: break-word !important;
     }
