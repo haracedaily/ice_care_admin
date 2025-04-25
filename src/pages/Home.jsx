@@ -500,7 +500,7 @@ function Home(props) {
 
     return (
         <>
-            <div className={'content'}>
+            <div className={styles.content}>
             <div>
                 <div>
                     <Breadcrumb
@@ -558,7 +558,7 @@ function Home(props) {
                                                 title="신규예약"
                                                 value={timeData.reduce((a,b)=>{
                                                     return a+b.신규예약;
-                                                },0)>0?[...timeData].sort((a,b)=>(a.신규예약-b.신규예약))[0].시간:" "}
+                                                },0)>0?[...timeData].sort((a,b)=>(b.신규예약-a.신규예약))[0].시간:" "}
                                                 prefix={timeData.reduce((a,b)=>{
                                                     return a+b.신규예약;
                                                 },0)>0?<CalendarOutlined />:""}
