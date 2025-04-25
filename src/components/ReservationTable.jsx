@@ -91,11 +91,12 @@ const ReservationTable = ({ reservations, onEdit, onDelete, onUpdate }) => {
                     <Select
                         value={
                             ({
-                                0: '예약대기',
-                                1: '예약완료',
-                                2: '기사배정중',
-                                3: '기사배정완료',
-                                4: '청소완료',
+                                1: '예약대기',
+                                2: '배정대기',
+                                3: '배정완료',
+                                4: '처리중',
+                                5: '처리완료',
+                                9: '취소',
                             })[state] || '알 수 없음'
                         }
                         onChange={(value) => handleChange(record.res_no, 'state', value)}
@@ -108,11 +109,12 @@ const ReservationTable = ({ reservations, onEdit, onDelete, onUpdate }) => {
                         popupClassName="custom-state-dropdown"
                         suffixIcon={<DownOutlined style={{ fontSize: '12px', color: '#1890ff' }} />}
                     >
-                        <Option value={0}>예약대기</Option>
-                        <Option value={1}>예약완료</Option>
-                        <Option value={2}>기사배정중</Option>
-                        <Option value={3}>기사배정완료</Option>
-                        <Option value={4}>청소완료</Option>
+                        <Option value={1}>예약대기</Option>
+                        <Option value={2}>배정대기</Option>
+                        <Option value={3}>배정완료</Option>
+                        <Option value={4}>처리중</Option>
+                        <Option value={5}>처리완료</Option>
+                        <Option value={9}>취소</Option>
                     </Select>
                     {pendingUpdate.res_no === record.res_no && pendingUpdate.field === 'state' && pendingUpdate.value !== null && (
                         <Popconfirm
@@ -576,11 +578,12 @@ const ReservationTable = ({ reservations, onEdit, onDelete, onUpdate }) => {
                                 <Select
                                     value={
                                         ({
-                                            0: '예약대기',
-                                            1: '예약완료',
-                                            2: '기사배정중',
-                                            3: '기사배정완료',
-                                            4: '청소완료',
+                                            1: '예약대기',
+                                            2: '배정대기',
+                                            3: '배정완료',
+                                            4: '처리중',
+                                            5: '처리완료',
+                                            9: '취소',
                                         })[record.state] || '알 수 없음'
                                     }
                                     onChange={(value) => handleChange(record.res_no, 'state', value)}
@@ -593,11 +596,12 @@ const ReservationTable = ({ reservations, onEdit, onDelete, onUpdate }) => {
                                     popupClassName="custom-state-dropdown"
                                     suffixIcon={<DownOutlined style={{ fontSize: '12px', color: '#1890ff' }} />}
                                 >
-                                    <Option value={0}>예약대기</Option>
-                                    <Option value={1}>예약완료</Option>
-                                    <Option value={2}>기사배정중</Option>
-                                    <Option value={3}>기사배정완료</Option>
-                                    <Option value={4}>청소완료</Option>
+                                    <Option value={1}>예약대기</Option>
+                                    <Option value={2}>배정대기</Option>
+                                    <Option value={3}>배정완료</Option>
+                                    <Option value={4}>처리중</Option>
+                                    <Option value={5}>처리완료</Option>
+                                    <Option value={9}>취소</Option>
                                 </Select>
                                 {pendingUpdate.res_no === record.res_no && pendingUpdate.field === 'state' && pendingUpdate.value !== null && (
                                     <Popconfirm

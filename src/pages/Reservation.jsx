@@ -9,6 +9,7 @@ import { supabase } from "../js/supabase.js";
 
 import dayjs from 'dayjs';
 import 'dayjs/locale/ko';
+import {PlusOutlined} from "@ant-design/icons";
 
 const { Content } = Layout;
 
@@ -109,7 +110,7 @@ const Reservation = () => {
     };
 
     return (
-        <Layout style={{ minHeight: '100vh', padding: '20px' }}>
+        <Layout >
             <Content>
                 <Card>
                     <Tabs
@@ -138,6 +139,7 @@ const Reservation = () => {
                         <Button
                             type="primary"
                             onClick={() => showModal()}
+                            icon={<PlusOutlined/>}
                         >
                             예약등록
                         </Button>
