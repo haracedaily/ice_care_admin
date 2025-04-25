@@ -1,0 +1,13 @@
+.searchCondition{
+    display: flex;
+    flex-direction: row;
+    gap: 8px;
+    flex-wrap: wrap;
+}
+
+.content{
+    padding:20px;
+    &>div{
+        margin: 1rem 0;
+    }
+}

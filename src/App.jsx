@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import {useEffect, useState} from 'react'
 import './App.css'
 import Side from "./layout/Side.jsx";
 import Body from "./layout/Body.jsx";
@@ -6,6 +6,9 @@ import AccountCircleIcon from '@mui/icons-material/AccountCircle';
 import {MenuUnfoldOutlined} from "@ant-design/icons";
 function App() {
 const[toggleAside,setToggleAside]=useState(true);
+useEffect(() => {
+    window.scrollTo({top: 0, left: 0});
+},[location.pathname]);
   return (
     <>
       <Side toggleAside={toggleAside} setToggleAside={setToggleAside} />
