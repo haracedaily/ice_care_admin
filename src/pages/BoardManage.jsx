@@ -1,17 +1,15 @@
 import React, {useEffect, useState} from 'react';
-import {Breadcrumb, Button, Card, Form, Image, Input, message, Modal, Select, Space, Table, Upload} from "antd";
-import {
-    PlusOutlined,
-    SearchOutlined,
-    RedoOutlined,
-    EditOutlined,
-    DeleteOutlined,
-    UploadOutlined
-} from "@ant-design/icons";
-// import {format} from 'date-fns';
-
+import {Breadcrumb, Button, Card, Form, Image, Input, message, Modal, Select, Space, Table, Upload, Tag, Pagination}
+    from "antd";
+import {PlusOutlined, SearchOutlined, RedoOutlined, EditOutlined, DeleteOutlined, UploadOutlined}
+    from "@ant-design/icons";
 import '../css/BoardManage.css';
+import styles from '../css/BoardManage.module.css';
 import {supabase} from "../js/supabaseClient.js";
+import dayjs from "dayjs";
+import customParseFormat from 'dayjs/plugin/customParseFormat';
+
+dayjs.extend(customParseFormat);
 
 const {Option} = Select;
 
@@ -100,8 +98,12 @@ const BoardManage = () => {
         let imageUrl = null; // 이미지 URL을 저장할 변수
 
         if (fileList.length > 0) {
-            imageUrl = await handleUpload(fileList[0].originFileObj); // 이미지 업로드
-            if (!imageUrl) return; // 업로드 실패 시 함수 종료
+            if(fileList[0].originFileObj) {
+                imageUrl = await handleUpload(fileList[0].originFileObj); // 이미지 업로드
+                if (!imageUrl) return; // 업로드 실패 시 함수 종료
+            }else{
+                imageUrl = isEditMode ? selectedPost.image_url : null; // 수정 모드일 때 기존 이미지 URL 사용
+            }
         }
 
         if (isEditMode) {
@@ -131,7 +133,7 @@ const BoardManage = () => {
                 message.error("게시글 등록에 실패했습니다.");
                 return;
             }
-            message.error("게시글이 등록되었습니다.");
+            message.success("게시글이 등록되었습니다.");
         }
 
         setIsModalOpen(false); // 모달 닫기
@@ -176,9 +178,9 @@ const BoardManage = () => {
                     .from('board')
                     .delete()
                     .eq('id', post.id)
-                    .eq('password', post.passwordInput);
+                    .eq('password', post.password);
 
-                if (postData.password !== post.passwordInput) {
+                if (postData.password !== post.password) {
                     message.error('비밀번호가 틀렸거나 삭제에 실패했습니다.');
                     return;
                 }
@@ -228,17 +230,26 @@ const BoardManage = () => {
             title: '제목',
             dataIndex: 'title',
             key: 'title',
+            width: 150,
             ellipsis: false, // 텍스트 줄바꿈
-            render: (text, record) => (
-                <span style={{whiteSpace: 'normal', wordBreak: 'break-word'}}>
-                    {record.is_notice && <Tag color="blue">공지</Tag>} {text} // 공지 태그
-                </span>
-            ),
+            // render: (text, record) => (
+            //     <span style={{whiteSpace: 'normal', wordBreak: 'break-word'}}>
+            //         {record.is_notice && <Tag color="blue">공지</Tag>} {text} // 공지 태그
+            //     </span>
+            // ),
+        },
+        {
+            title: '내용',
+            dataIndex: 'content',
+            key: 'content',
+            width: 500,
+            ellipsis: false, // 텍스트 줄바꿈
         },
         {
             title: '작성자',
             dataIndex: 'author',
             key: 'author',
+            width: 120,
             ellipsis: false,
             render: (text) => (
                 <span style={{whiteSpace: 'normal', wordBreak: 'break-word'}}>
@@ -262,12 +273,13 @@ const BoardManage = () => {
             title: '등록일',
             dataIndex: 'created_at',
             key: 'created_at',
-            width: 100,
+            width: 120,
             sorter: (a, b) => new Date(a.created_at) - new Date(b.created_at),
             ellipsis: false,
+
             render: (date) => (
                 <span style={{whiteSpace: 'normal', wordBreak: 'break-word'}}>
-                    {/*{format(new Date(date), 'yyyy-MM-dd')}*/}
+                    {date ? dayjs(date).format('YYYY-MM-DD') : '-'}
                 </span>
             ),
         },
@@ -275,7 +287,7 @@ const BoardManage = () => {
             title: '조회수',
             dataIndex: 'views',
             key: 'views',
-            width: 50,
+            width: 75,
             ellipsis: false,
             render: (text) => (
                 <span style={{whiteSpace: 'normal', wordBreak: 'break-word'}}>
@@ -294,7 +306,7 @@ const BoardManage = () => {
                         onClick={() => {
                             setIsEditMode(true);
                             setSelectedPost(record);
-                            form.setFieldValue(record);
+                            form.setFieldsValue(record);
                             setFileList(record.image_url ? [{
                                 uid: '- 1,',
                                 name: 'image',
@@ -322,47 +334,47 @@ const BoardManage = () => {
         },
     ];
 
-    const renderCards = () => (
-        <div className="post-cards-container">
-            <div className="post-cards">
+    const renderCards = () => ( // 게시글 카드 형태로 렌더링
+        <div className={styles.post_cards_container}>
+            <div className={styles.post_cards}>
                 {posts.map((post) => (
                     <Card
                         key={post.id}
-                        className="post-card"
-                        variant="outlined"
+                        className={styles.post_card}
+                        variant="outlined" // bordered 대신 variant 사용
                     >
-                        <div className="post-card-content">
+                        <div className={styles.post_card_content}>
                             {post.image_url && (
-                                <div className="post-image">
+                                <div className={styles.post_image}>
                                     <Image src={post.image_url} alt="게시글 이미지" width={50} height={50}
                                            style={{objectFit: 'cover'}}/>
                                 </div>
                             )}
-                            <div className="post-details">
-                                <div className="post-title">
+                            <div className={styles.post_details}>
+                                <div className={styles.post_title}>
                                     {post.is_notice && <Tag color="blue">공지</Tag>}
                                     <span>{post.title}</span>
                                 </div>
-                                <div className={"post-meta"}>
+                                <div className={styles.post_meta}>
                                     <span>작성자: {post.author}</span>
                                     <span>카테고리: {post.categories.name}</span>
-                                    {/*<span>등록일: {format(new Date(post.created_at), 'yyyy-MM-dd')}</span>*/}
+                                    <span>등록일: {post.created_at ? dayjs(post.create_at).format('YYYY-MM-DD') : '-'}</span>
                                     <span>조회수: {post.views}</span>
                                 </div>
                             </div>
                         </div>
-                        <div className="post-actions">
+                        <div className={styles.post_actions}>
                             <Button
                                 icon={<EditOutlined/>}
                                 onClick={() => {
                                     setIsEditMode(true);
-                                    setSelectedPost(record);
-                                    form.setFieldValue(record);
-                                    setFileList(record.image_url ? [{
-                                        uid: '- 1,',
+                                    setSelectedPost(post);
+                                    form.setFieldsValue(post);
+                                    setFileList(post.image_url ? [{
+                                        uid: '-1',
                                         name: 'image',
                                         status: 'done',
-                                        url: record.image_url,
+                                        url: post.image_url
                                     }] : []);
                                     setIsModalOpen(true);
                                 }}
@@ -371,41 +383,42 @@ const BoardManage = () => {
                                 수정
                             </Button>
                             <Button
-                                icon={<DeleteOutlined/>}>
-                                onClick={() => handleDelete(record)}
+                                icon={<DeleteOutlined/>}
+                                onClick={() => handleDelete(post)}
                                 style={{color: '#ff4d4f', marginRight: '8px'}}
+                            >
                                 삭제
                             </Button>
-                            <Button onClick={() => handlePin(record)} style={{color: '#595959'}}>
-                                {record.is_notice ? '공지 해제' : '공지 고정'}
+                            <Button onClick={() => handlePin(post)} style={{color: '#595959'}}>
+                                {post.is_notice ? '공지 해제' : '공지 고정'}
                             </Button>
                         </div>
                     </Card>
+
                 ))}
-            </div>
-            <div>
-                <Pagenation
-                    current={currentPage}
-                    pageSize={pageSize}
-                    total={totalPosts}
-                    onChange={(page) => setCurrentPage(page)}
-                    style={{marginTop: '16px'}}
-                />
+                <div className={styles.pagination_container}>
+                    <Pagination
+                        current={currentPage}
+                        pageSize={pageSize}
+                        total={totalPosts}
+                        onChange={(page) => setCurrentPage(page)}
+                        style={{marginTop: '16px'}}
+                    />
+                </div>
             </div>
         </div>
-    )
+    );
 
     return (
         <div className="content">
-            <div className="header">
-                <h1>게시판 관리</h1>
+            <div className={styles.header}>
                 <Breadcrumb
                     separator=">"
                     items={[{title: 'Home',}, {title: '게시판관리', href: '',},]}
                 />
             </div>
 
-            <div className="filter-section">
+            <div className={styles.filter_section}>
                 <Input
                     placeholder="제목 또는 작성자 검색"
                     value={searchText}
@@ -451,7 +464,7 @@ const BoardManage = () => {
                 </Button>
             </div>
 
-            {isEditMode ? renderCards() : (
+            {isMobile ? renderCards() : (
                 <Table
                     columns={columns}
                     dataSource={posts}
@@ -468,35 +481,31 @@ const BoardManage = () => {
 
             <Modal
                 title={isEditMode ? "게시글 수정" : "게시글 등록"}
-                open={isEditMode}
+                open={isModalOpen}
                 onCancel={() => {
                     setIsEditMode(false);
-                    form.resetFields();
+                    setFileList([]);
                     form.resetFields();
                 }}
                 footer={null}
             >
                 <Form form={form} onFinish={handleSave} layout="vertical">
-                    <Form.Item name="title" label="제목" rules={[{required: true, message: '제목을 입력하세요.'}]}>
+                    <Form.Item name="title" label="제목" rules={[{required: true, message: '제목을 입력해주세요.'}]}>
                         <Input/>
                     </Form.Item>
-                    <Form.Item name="content" label="내용" rules={[{required: true, message: '내용을 입력하세요.'}]}>
-                        <Input.TextArea rows={4}/>
-                    </Form.Item>
-                    <Form.Item name="author" label="작성자" rules={[{required: true, message: '작성자를 입력하세요.'}]}>
+                    <Form.Item name="content" label="내용" rules={[{required: true, message: '내용을 입력해주세요.'}]}>
                         <Input/>
                     </Form.Item>
-                    <Form.Item
-                        name="password"
-                        label="비밀번호"
-                        rules={[{required: true, message: '비밀번호를 입력하세요.'}]}
-                    >
+                    <Form.Item name="author" label="작성자" rules={[{required: true, message: '작성자를 입력해주세요.'}]}>
+                        <Input/>
+                    </Form.Item>
+                    <Form.Item name="password" label="비밀번호" rules={[{required: true, message: '비밀번호를 입력해주세요.'}]}>
                         <Input.Password/>
                     </Form.Item>
-                    <Form.Item name="category_id" label="카테고리" rules={[{required: true, message: '카테고리를 선택하세요.'}]}>
+                    <Form.Item name="category_id" label="카테고리" rules={[{required: true, message: '카테고리를 선택해주세요.'}]}>
                         <Select placeholder="카테고리 선택">
                             {categories
-                                .filter((category) => category.id !== 'all') // 'all' 제외
+                                .filter((category) => category.id !== 'all')
                                 .map((category) => (
                                     <Option key={category.id} value={category.id}>
                                         {category.name}

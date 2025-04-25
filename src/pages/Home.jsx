@@ -218,18 +218,18 @@ function Home(props) {
                 innerData["누적예약"] = 0;
                 outerData.push(innerData);
             }
-        console.log(outerData);
+        // console.log(outerData);
             if(res.data.stat_by_date?.length>0) {
                 res.data.stat_by_date.map((el, idx) => {
                     let innerData = {};
                     innerBarSum += el.cnt;
                     if (innerDate != el.date.slice(5).replace("-", "/")) {
                         innerDate = el.date.slice(5).replace("-", "/");
-                        console.log(innerDate);
-                        console.log(outerData);
+                        // console.log(innerDate);
+                        // console.log(outerData);
                         let originInner = outerData.find(el => el["일자"] == innerDate);
                         let originInnerIdx = outerData.findIndex(el => el["일자"] == innerDate);
-                        console.log(originInner);
+                        // console.log(originInner);
                         if (stateRole[el.state]?.length > 0) {
                             originInner[stateRole[el.state]] = el.cnt;
                         }
@@ -249,7 +249,7 @@ function Home(props) {
                         outerData.map((el, index) => index > originInnerIdx ? el["누적예약"] = innerBarSum : '');
                     }
                 });
-            };
+            }
             setData(outerData);
             
             /*파이차트 데이터*/
@@ -299,12 +299,12 @@ function Home(props) {
     let chooseYear = async(e) => {
         if(e == null) return;
         let prop = dayjs(e).startOf('year').format('YYYY,MM,DD');
-        console.log(prop);
+        // console.log(prop);
         setLoading(true);
         prop = prop.split(',').map(el=>parseInt(el));
-        console.log(prop);
+        // console.log(prop);
         await getStatesByPeriod(prop[0], prop[1], prop[2], 2).then((res) => {
-            console.log(res);
+            // console.log(res);
             let outerData = [];
             let innerDate = "";
             let outerTime = [];
@@ -322,8 +322,8 @@ function Home(props) {
                 innerData["누적예약"] = 0;
                 outerData.push(innerData);
             }
-            console.log(outerData);
-            if(res.data.state_by_date?.length>0) {
+            // console.log(outerData);
+            if(res.data.stat_by_date?.length>0) {
                 res.data.stat_by_date.map((el, idx) => {
                     let innerData = {};
                     innerBarSum += el.cnt;
@@ -406,7 +406,7 @@ function Home(props) {
     class NewReservChart extends PureComponent {
         render() {
             return (
-                <ResponsiveContainer width="90%" height={500}>
+                <ResponsiveContainer width="100%" aspect={1.4}>
                     <BarChart
                         data={data}
                         margin={{
@@ -471,7 +471,7 @@ function Home(props) {
         };
         render() {
             return (
-                <ResponsiveContainer width="90%" height={500}>
+                <ResponsiveContainer width="90%" aspect={1.4}>
                 <PieChart>
                     <Pie
                         animationDuration={500}
@@ -500,6 +500,7 @@ function Home(props) {
 
     return (
         <>
+            <div className={styles.content}>
             <div>
                 <div>
                     <Breadcrumb
@@ -544,7 +545,7 @@ function Home(props) {
                     }
 
 
-                    <Button loading={loading} className={styles.Btn} icon={<SearchOutlined/>}></Button>
+                    <Button loading={loading} variant={"outlined"} color={"geekblue"} className={styles.Btn} icon={<SearchOutlined/>}></Button>
                 </div>
                 <Row gutter={[16, 8]}>
                     <Col xl={8} md={8} xs={24}>
@@ -557,7 +558,7 @@ function Home(props) {
                                                 title="신규예약"
                                                 value={timeData.reduce((a,b)=>{
                                                     return a+b.신규예약;
-                                                },0)>0?[...timeData].sort((a,b)=>(a.신규예약-b.신규예약))[0].시간:" "}
+                                                },0)>0?[...timeData].sort((a,b)=>(b.신규예약-a.신규예약))[0].시간:" "}
                                                 prefix={timeData.reduce((a,b)=>{
                                                     return a+b.신규예약;
                                                 },0)>0?<CalendarOutlined />:""}
@@ -712,6 +713,19 @@ function Home(props) {
                                 {value: 5, label: '완료'},
                             ]}
                         />
+                        <div style={{position:"absolute",top:"0",right:"0",display:"flex",flexDirection:"column",gap:"0.1rem",justifyContent:"center"}} >
+
+                        {
+                            timeData.map((el, idx) => {
+                                return (
+                                    <span key={el.key} style={{display:"flex"}}>
+                                        <div style={{backgroundColor:`${COLORS[idx % COLORS.length]}`,width:'2vw',height:'2vw'}}/>
+                                        <div style={{fontSize:"1.6vh"}}>{el.시간}</div>
+                                    </span>
+                                );
+                            })
+                        }
+                        </div>
                     <TimeRound/>
                         <Table
                             columns={timeColumns}
@@ -732,7 +746,7 @@ function Home(props) {
                                 })
                                 return (<Table.Summary fixed>
                                     <Table.Summary.Row>
-                                        <Table.Summary.Cell index={0} className={styles.summary_text}>누계</Table.Summary.Cell>
+                                        <Table.Summary.Cell index={0} className={styles.summary_text_left}>누계</Table.Summary.Cell>
                                         <Table.Summary.Cell index={1} className={styles.summary_text_right}>{totalNew}</Table.Summary.Cell>
                                         <Table.Summary.Cell index={2} className={styles.summary_text_right}>{totalCancel}</Table.Summary.Cell>
                                         <Table.Summary.Cell index={3} className={styles.summary_text_right}>{totalComplete}</Table.Summary.Cell>
@@ -744,6 +758,7 @@ function Home(props) {
                         />
                     </Col>
                 </Row>
+            </div>
             </div>
         </>
     );
