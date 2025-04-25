@@ -1,6 +1,3 @@
 .content{
     padding: 20px;
-    &>div:first-child{
-        margin:1rem 0;
-    }
 }
