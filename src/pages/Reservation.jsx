@@ -1,10 +1,10 @@
 import React, { useState, useEffect } from 'react';
-import { Layout, Button, Modal, Tabs, Card, Flex } from 'antd';
+import {Layout, Button, Modal, Tabs, Card, Flex, Breadcrumb} from 'antd';
 import ReservationTable from '../components/ReservationTable';
 import ReservationForm from '../components/ReservationForm';
 import ResDashboard from '../components/ResDashboard';
 import ResSearchFilters from "../components/ResSearchFilters.jsx";
-
+import styles from "../css/reservation.module.css";
 import { supabase } from "../js/supabase.js";
 
 import dayjs from 'dayjs';
@@ -110,9 +110,28 @@ const Reservation = () => {
     };
 
     return (
-        <Layout >
-            <Content>
-                <Card>
+        <>
+            <div className={styles.content}>
+            <div>
+                <Breadcrumb
+                    separator=">"
+                    items={[
+                        {
+                            title: 'Home',
+                        },
+                        {
+                            title: '예약관리',
+                            href: '',
+                            onClick: (e) => {
+                                e.preventDefault();
+                                homeNavi("/reservations");
+                            },
+                        },
+
+                    ]}
+                />
+            </div>
+
                     <Tabs
                         defaultActiveKey="all"
                         onChange={setFilterType}
@@ -168,9 +187,9 @@ const Reservation = () => {
                             onSuccess={handleOk}
                         />
                     </Modal>
-                </Card>
-            </Content>
-        </Layout>
+
+            </div>
+        </>
     );
 };
 
