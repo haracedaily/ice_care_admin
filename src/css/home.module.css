@@ -1,3 +1,7 @@
+.content {
+    padding:20px;
+}
+
 #homeBody{
     display:grid;
     margin: 1vw;
@@ -19,7 +23,7 @@
     min-width:80px;
     max-width: 100px;
     &::after{
-        content:'검색';
+        content:'조회';
     }
 }
 .dashBoard{

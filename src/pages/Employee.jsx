@@ -1,4 +1,4 @@
-import React from 'react';
+import React, {useState} from 'react';
 import dayjs from 'dayjs';
 import customParseFormat from 'dayjs/plugin/customParseFormat';
 import locale from "antd/es/date-picker/locale/ko_KR";
@@ -11,6 +11,7 @@ import EmployeeTable from "../components/EmployeeTable.jsx";
 dayjs.extend(customParseFormat);
 
 function Employee(props) {
+    const [employeeList,setEmployeeList] = useState([]);
     const emplNavi = useNavigate();
     const {Option} = Select;
     const division = [{id:"all",name:"전체"},{id:1,name:"계약직"},{id:2,name:"정규직"},{id:3,name:"관리자"}];
