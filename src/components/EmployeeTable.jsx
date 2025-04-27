@@ -13,9 +13,62 @@ function EmployeeTable(props) {
             width: 90,
             sorter: (a, b) => a - b,
             render: (text) => {
+                if(text)
                 return (
                     <div style={{textAlign: 'center'}}>
                         <Image src={text} width={50} height={50}></Image>
+                    </div>
+                );
+            },
+        },
+        {
+            title: '권한',
+            dataIndex: 'auth',
+            key: 'auth',
+            width: 90,
+            filters:[
+                {
+                    text:'관리자',
+                    value:1
+                },
+                {
+                    text:'기사',
+                    value:2
+                },
+                {
+                    text:'최고관리자',
+                    value:9
+                }
+            ],
+            onFilter: (value, record) => record.auth===value,
+            render: (text) => {
+                return (
+                    <div style={{textAlign: 'center'}}>
+                        {text===1?'관리자':text===9?'최고관리자':'기사'}
+                    </div>
+                );
+            },
+        },
+        {
+            title: '계약형태',
+            dataIndex: 'type',
+            key: 'type',
+            width: 100,
+            filters: [
+                {
+                    text:'계약직',
+                    value:2
+                },
+                {
+                    text:'정규직',
+                    value:1
+                }
+            ],
+            onFilter: (value, record) => record.type===value,
+            render: (text) => {
+                return (
+                    <div style={{textAlign: 'center'}}>
+                        {text==2?"계약직":"정규직"}
                     </div>
                 );
             },
@@ -52,7 +105,7 @@ function EmployeeTable(props) {
             title: '연락처',
             dataIndex: 'tel',
             key: 'tel',
-            width: 90,
+            width: 150,
             sorter: (a, b) => a - b,
             render: (text) => {
                 return (
@@ -66,11 +119,11 @@ function EmployeeTable(props) {
             title: '주소',
             dataIndex: 'addr',
             key: 'addr',
-            width: 90,
+            width: 400,
             sorter: (a, b) => a - b,
             render: (text) => {
                 return (
-                    <div style={{textAlign: 'center'}}>
+                    <div style={{textAlign: 'left'}}>
                         {text}
                     </div>
                 );
@@ -80,59 +133,11 @@ function EmployeeTable(props) {
             title: '이메일',
             dataIndex: 'mail',
             key: 'mail',
-            width: 90,
+            width: 200,
             render: (text) => {
                 return (
-                    <div style={{textAlign: 'center'}}>
+                    <div style={{textAlign: 'left'}}>
                         {text}
-                    </div>
-                );
-            },
-        },
-        {
-            title: '계약형태',
-            dataIndex: 'type',
-            key: 'type',
-            width: 90,
-            filters: [
-                {
-                    text:'계약직',
-                    value:1
-                },
-                {
-                    text:'정규직',
-                    value:2
-                }
-            ],
-            onFilter: (value, record) => record.type===value,
-            render: (text) => {
-                return (
-                    <div style={{textAlign: 'center'}}>
-                        {text==1?"계약직":"정규직"}
-                    </div>
-                );
-            },
-        },
-        {
-            title: '권한',
-            dataIndex: 'auth',
-            key: 'auth',
-            width: 90,
-            filters:[
-                {
-                    text:'관리자',
-                    value:'admin'
-                },
-                {
-                    text:'기사',
-                    value:'1'
-                }
-            ],
-            onFilter: (value, record) => record.auth===value,
-            render: (text) => {
-                return (
-                    <div style={{textAlign: 'center'}}>
-                        {text==='admin'?'관리자':'기사'}
                     </div>
                 );
             },
@@ -155,7 +160,7 @@ function EmployeeTable(props) {
             title: '계좌번호',
             dataIndex: 'account_num',
             key: 'account_num',
-            width: 90,
+            width: 250,
             render: (text) => {
                 return (
                     <div style={{textAlign: 'center'}}>
@@ -166,9 +171,9 @@ function EmployeeTable(props) {
         },
         {
             title: '입사일',
-            dataIndex: 'entr_dt',
-            key: 'entr_dt',
-            width: 90,
+            dataIndex: 'entr_date',
+            key: 'entr_date',
+            width: 110,
             sorter: (a, b) => new Date(a) - new Date(b),
             render: (text) => {
                 return (
@@ -182,7 +187,7 @@ function EmployeeTable(props) {
             title: '퇴사일',
             dataIndex: 'rsg_dt',
             key: 'rsg_dt',
-            width: 90,
+            width: 110,
             sorter: (a, b) => a - b,
             render: (text) => {
                 return (
@@ -201,7 +206,9 @@ function EmployeeTable(props) {
         </>
     ):(
       <>
-          <Table columns={employeeColumns} dataSource={props.employeeList} size={"small"}>
+          <Table rowKey={"idx"} columns={employeeColumns} dataSource={props.employeeList} size={"small"}scroll={{ x: 'max-content' }}
+
+                 tableLayout="fixed">
 
           </Table>
       </>
