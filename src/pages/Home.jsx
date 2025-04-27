@@ -219,6 +219,7 @@ function Home(props) {
                 outerData.push(innerData);
             }
         // console.log(outerData);
+            if(res.data?.length>0)
             if(res.data.stat_by_date?.length>0) {
                 res.data.stat_by_date.map((el, idx) => {
                     let innerData = {};
@@ -263,6 +264,7 @@ function Home(props) {
                 innerTimeData["누적예약"] = 0;
                 outerTime.push(innerTimeData);
             })
+            if(res.data?.length>0)
             if(res.data.stat_total_by_state?.length>0) {
                 res.data.stat_total_by_state.map(el => {
                     let innerTimeData = {};
@@ -323,6 +325,7 @@ function Home(props) {
                 outerData.push(innerData);
             }
             // console.log(outerData);
+            if(res.data?.length>0)
             if(res.data.stat_by_date?.length>0) {
                 res.data.stat_by_date.map((el, idx) => {
                     let innerData = {};
@@ -364,6 +367,7 @@ function Home(props) {
                 innerTimeData["누적예약"] = 0;
                 outerTime.push(innerTimeData);
             })
+            if(res.data?.length>0)
             if(res.data.stat_total_by_state?.length>0) {
                 res.data.stat_total_by_state.map(el => {
                     let innerTimeData = {};
