@@ -4,7 +4,7 @@ import sideMenu from '../js/sideMenu.js';
 import { AutoComplete } from 'antd';
 import {CloseCircleOutlined} from "@ant-design/icons";
 
-function Side({toggleAside,setToggleAside}) {
+function Side({toggleAside,setToggleAside,login}) {
     const [currentSide, setCurrentSide] = useState('dashboard');
     const sideNav = useNavigate();
     const autocompleteSelect = (value,option)=>{
@@ -16,7 +16,7 @@ function Side({toggleAside,setToggleAside}) {
         <>
             <aside className={`login ${toggleAside ? "toggleSide" : ""}`}>
                 <div>
-                    <NavLink to="/">
+                    <NavLink style={{marginInlineStart:"20px"}} to="/">
                         <img src="/images/side_logo.png" width={150} alt="Logo"/>
                     </NavLink>
                     <div className={`${toggleAside?"toggleSide":""}`}>
@@ -24,7 +24,7 @@ function Side({toggleAside,setToggleAside}) {
                     </div>
                 </div>
                 <div>
-                    <h1>관리자 센터</h1>
+                    <h1 style={{marginBlockStart:"0.5rem",marginInlineStart:"20px"}}>관리자 센터</h1>
                 </div>
 
                 <nav>
@@ -77,7 +77,11 @@ function Side({toggleAside,setToggleAside}) {
                             <li>게시글 조회</li>
                         </ul>*/}
                     </div>
-
+                    <div>
+                        <div className={`${currentSide==="popup" ? "select" : ""}`} onClick={() => {setCurrentSide("popup");setToggleAside(!toggleAside);sideNav("/popup")}}>
+                            <h3>팝업관리</h3>
+                        </div>
+                    </div>
                     <div>
                         <div className={`${currentSide==="employee" ? "select" : ""}`} onClick={() => {setCurrentSide("employee");setToggleAside(!toggleAside);sideNav("/employee")}}>
                             <h3>직원관리</h3>
@@ -90,10 +94,10 @@ function Side({toggleAside,setToggleAside}) {
                     </div>
                 </nav>
                 <div>
-                    <h4>ID : </h4>
-                    <span id={"id"}></span>
-                    <h4>AUTH : </h4>
-                    <span id={"pw"}></span>
+                    <h4>ID</h4>
+                    <h5 id={"id"}>{login.id}</h5>
+                    <h4>AUTH</h4>
+                    <h5 id={"pw"}>{login.auth===9?"최고관리자":"관리자"}</h5>
                 </div>
             </aside>
         </>

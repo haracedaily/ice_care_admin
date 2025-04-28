@@ -2,7 +2,7 @@ import React, {useEffect, useRef, useState} from 'react';
 import dayjs from 'dayjs';
 import customParseFormat from 'dayjs/plugin/customParseFormat';
 import locale from "antd/es/date-picker/locale/ko_KR";
-import {Breadcrumb, Select, Input, Button} from "antd";
+import {Breadcrumb, Select, Input, Button, Modal, Form} from "antd";
 import {useNavigate} from "react-router-dom";
 import styles from "../css/employee.module.css"
 import {PlusOutlined, RedoOutlined, SearchOutlined} from "@ant-design/icons";
@@ -16,6 +16,7 @@ function Employee(props) {
     const [searchType, setSearchType] = useState("");
     const [searchNm,setSearchNm] = useState("");
     const emplNavi = useNavigate();
+    const [isInsert,setIsInsert] = useState(false);
     useEffect(() => {
       search_empl(searchType,searchNm);
     },[]);
@@ -72,7 +73,7 @@ function Employee(props) {
                     </Select>
                     <Input
                         placeholder="이름 검색"
-                        style={{width: '200px'}}
+                        style={{width: '180px'}}
                         value={searchNm}
                         onChange={(e)=>setSearchNm(e.target.value)}
                             />
@@ -88,13 +89,29 @@ function Employee(props) {
                         >
                             초기화
                         </Button>
-                        <Button icon={<PlusOutlined/>}>
+                        <Button icon={<PlusOutlined/>} type={"primary"} onClick={()=> {
+                            setIsInsert(!isInsert)
+                        }} >
                             직원등록
                         </Button>
                     </div>
 
 
                 </div>
+                <Modal open={isInsert} onCancel={()=>setIsInsert(false)}>
+                    <Form>
+                        <Form.Item label={"아이디"} name={"id"} rules={[{required:true,message:'아이디를 입력해주세요.'}]}>
+                            <Input key={"id"}/>
+                        </Form.Item>
+                        <Form.Item label={"비밀번호"} name={"pw"} rules={[{required:true,message:'비밀번호를 입력해주세요'},{pattern:/[\s\S]{8,}/,message:"8자 이상 입력해주세요."},{pattern:/[!@#$%^&*]{1,}/,message:"특수문자 1개 이상 입력해주세요."}]}>
+                            <Input.Password key={"pw"}/>
+                        </Form.Item>
+                        <Form.Item label={"이름"} name={"nm"} rules={[{required:true,message:"이름을 입력해주세요."}]}>
+                            <Input key={"nm"}/>
+                        </Form.Item>
+                    </Form>
+
+                </Modal>
                 <EmployeeTable employeeList={employeeList} />
             </div>
         </>
