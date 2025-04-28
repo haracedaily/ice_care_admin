@@ -5,7 +5,7 @@ import {PlusOutlined, SearchOutlined, RedoOutlined, EditOutlined, DeleteOutlined
     from "@ant-design/icons";
 import '../css/BoardManage.css';
 import styles from '../css/BoardManage.module.css';
-import {supabase} from "../js/supabaseClient.js";
+import {supabase} from "../js/supabase.js";
 import dayjs from "dayjs";
 import customParseFormat from 'dayjs/plugin/customParseFormat';
 
