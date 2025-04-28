@@ -61,7 +61,7 @@ const ReservationTable = ({ reservations, onEdit, onDelete, onUpdate }) => {
                     <Button
                         icon={<EditOutlined />}
                         onClick={() => onEdit(record)}
-                        style={{ marginRight: 4, color: '#1890ff' }}
+                        style={{ marginRight: 4 }}
                         size={isMobile ? 'small' : 'middle'}
                     />
                     <Popconfirm
