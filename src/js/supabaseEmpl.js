@@ -4,8 +4,6 @@ import {notification} from "antd";
 
 export const getEmpl = async(type,nm)=>{
     let query = supabase.from("member").select("*");
-    console.log(type);
-    console.log(nm);
     if(type){
         query = query.eq("type",type);
     }

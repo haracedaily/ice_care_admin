@@ -11,7 +11,7 @@ export const getLogin = async(id,pw)=>{
         else if(!await bcrypt.compare(pw.trim(),res.data.pw))notification.error({message:'비밀번호 오류',description:'비밀번호가 틀렸습니다.'});
         else {
             notification.success({message: '로그인 성공'});
-            return res.data.id;
+            return res.data;
         }
     }
     return false;
