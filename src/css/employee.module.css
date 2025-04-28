@@ -3,11 +3,14 @@
     flex-direction: row;
     gap: 8px;
     flex-wrap: wrap;
+    &>:last-child{
+        margin-left:auto;
+    }
 }
 
 .content{
     padding:20px;
     &>div{
-        margin: 1rem 0;
+        margin-bottom:1rem;
     }
 }
