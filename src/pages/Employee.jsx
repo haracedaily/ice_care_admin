@@ -17,6 +17,7 @@ function Employee(props) {
     const [searchNm,setSearchNm] = useState("");
     const emplNavi = useNavigate();
     const [isInsert,setIsInsert] = useState(false);
+    let [form] = Form.useForm();
     useEffect(() => {
       search_empl(searchType,searchNm);
     },[]);
@@ -99,15 +100,15 @@ function Employee(props) {
 
                 </div>
                 <Modal open={isInsert} onCancel={()=>setIsInsert(false)}>
-                    <Form>
+                    <Form form={form}>
                         <Form.Item label={"아이디"} name={"id"} rules={[{required:true,message:'아이디를 입력해주세요.'}]}>
-                            <Input key={"id"}/>
+                            <Input/>
                         </Form.Item>
                         <Form.Item label={"비밀번호"} name={"pw"} rules={[{required:true,message:'비밀번호를 입력해주세요'},{pattern:/[\s\S]{8,}/,message:"8자 이상 입력해주세요."},{pattern:/[!@#$%^&*]{1,}/,message:"특수문자 1개 이상 입력해주세요."}]}>
-                            <Input.Password key={"pw"}/>
+                            <Input.Password/>
                         </Form.Item>
                         <Form.Item label={"이름"} name={"nm"} rules={[{required:true,message:"이름을 입력해주세요."}]}>
-                            <Input key={"nm"}/>
+                            <Input/>
                         </Form.Item>
                     </Form>
 
