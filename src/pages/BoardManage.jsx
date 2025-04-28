@@ -273,7 +273,7 @@ const BoardManage = () => {
             title: '작성자',
             dataIndex: 'author',
             key: 'author',
-            width: 120,
+            width: 60,
             ellipsis: false,
             render: (text) => (
                 <span style={{whiteSpace: 'normal', wordBreak: 'break-word'}}>
@@ -285,7 +285,7 @@ const BoardManage = () => {
             title: '카테고리',
             dataIndex: ['categories', 'name'],
             key: 'cagegory',
-            width: 100,
+            width: 70,
             ellipsis: false,
             render: (text) => (
                 <span style={{whiteSpace: 'normal', wordBreak: 'break-word'}}>
@@ -297,7 +297,7 @@ const BoardManage = () => {
             title: '등록일',
             dataIndex: 'created_at',
             key: 'created_at',
-            width: 120,
+            width: 100,
             sorter: (a, b) => new Date(a.created_at) - new Date(b.created_at),
             ellipsis: false,
 
@@ -311,7 +311,7 @@ const BoardManage = () => {
             title: '조회수',
             dataIndex: 'views',
             key: 'views',
-            width: 75,
+            width: 60,
             ellipsis: false,
             render: (text) => (
                 <span style={{whiteSpace: 'normal', wordBreak: 'break-word'}}>
@@ -322,7 +322,7 @@ const BoardManage = () => {
         {
             title: '수정/삭제',
             key: 'actions',
-            width: 120,
+            width: 110,
             render: (_, record) => (
                 <Space size="middle">
                     <Button
@@ -477,7 +477,7 @@ const BoardManage = () => {
                         // setIsEditMode(false);
                         setIsModalOpen(true);
                     }}
-                    style={{background: '#1890ff', borderColor: '#1890ff'}}
+                    style={{background: '#1890ff', borderColor: '#1890ff', marginLeft: "auto"}}
                 >
                     게시글 등록
                 </Button>
