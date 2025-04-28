@@ -152,17 +152,18 @@ const Reservation = () => {
                         filters={filters}
                         setFilters={setFilters}
                         onSearch={handleSearch}
+                        showModal={showModal}
                     />
 
-                    <Flex justify="end" style={{ marginBottom: 16 }}>
-                        <Button
-                            type="primary"
-                            onClick={() => showModal()}
-                            icon={<PlusOutlined/>}
-                        >
-                            예약등록
-                        </Button>
-                    </Flex>
+                    {/*<Flex justify="end" style={{ marginBottom: 16 }}>*/}
+                    {/*    <Button*/}
+                    {/*        type="primary"*/}
+                    {/*        onClick={() => showModal()}*/}
+                    {/*        icon={<PlusOutlined/>}*/}
+                    {/*    >*/}
+                    {/*        예약등록*/}
+                    {/*    </Button>*/}
+                    {/*</Flex>*/}
 
                     <ReservationTable
                         reservations={filteredReservations}

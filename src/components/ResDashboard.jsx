@@ -45,8 +45,8 @@ const ResDashboard = ({ reservations, dateRange, setDateRange }) => {
                     return current && (current > dayjs().endOf('day') || current.year() > 2025);
                 }}
             />
-            <Row gutter={[16, 16]}>
-                <Col xs={24} sm={24} md={4}>
+            <Row gutter={[16, 16]} justify="space-between">
+                <Col xs={24} sm={12} md={4.5} style={{ flex: '1' }}>
                     <Card style={{ background: '#e6f7ff', borderRadius: 8 }}>
                         <Statistic
                             title="전체 예약"
@@ -57,18 +57,18 @@ const ResDashboard = ({ reservations, dateRange, setDateRange }) => {
                         />
                     </Card>
                 </Col>
-                <Col xs={12} sm={12} md={4}>
+                <Col xs={24} sm={12} md={4.5} style={{ flex: '1' }}>
                     <Card style={{ background: '#fffbe6', borderRadius: 8 }}>
                         <Statistic
                             title="예약 대기"
                             value={stats.state1}
                             prefix={<ClockCircleOutlined />}
-                            valueStyle={{ color: '#fa8c16 ', fontSize: '24px', fontWeight: 'bold' }}
+                            valueStyle={{ color: '#fa8c16', fontSize: '24px', fontWeight: 'bold' }}
                             style={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}
                         />
                     </Card>
                 </Col>
-                <Col xs={12} sm={12} md={4}>
+                <Col xs={24} sm={12} md={4.5} style={{ flex: '1' }}>
                     <Card style={{ background: '#f0f5ff', borderRadius: 8 }}>
                         <Statistic
                             title="처리 중"
@@ -79,7 +79,7 @@ const ResDashboard = ({ reservations, dateRange, setDateRange }) => {
                         />
                     </Card>
                 </Col>
-                <Col xs={12} sm={12} md={4}>
+                <Col xs={24} sm={12} md={4.5} style={{ flex: '1' }}>
                     <Card style={{ background: '#f6ffed', borderRadius: 8 }}>
                         <Statistic
                             title="처리 완료"
@@ -90,13 +90,13 @@ const ResDashboard = ({ reservations, dateRange, setDateRange }) => {
                         />
                     </Card>
                 </Col>
-                <Col xs={12} sm={12} md={4}>
+                <Col xs={24} sm={12} md={4.5} style={{ flex: '1' }}>
                     <Card style={{ background: '#fff1f0', borderRadius: 8 }}>
                         <Statistic
                             title="예약 취소"
                             value={stats.state9}
                             prefix={<CloseCircleOutlined />}
-                            valueStyle={{ color: '#ff4d4f ', fontSize: '24px', fontWeight: 'bold' }}
+                            valueStyle={{ color: '#ff4d4f', fontSize: '24px', fontWeight: 'bold' }}
                             style={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}
                         />
                     </Card>
