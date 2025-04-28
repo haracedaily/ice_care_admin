@@ -16,7 +16,7 @@ function Side({toggleAside,setToggleAside,login}) {
         <>
             <aside className={`login ${toggleAside ? "toggleSide" : ""}`}>
                 <div>
-                    <NavLink to="/">
+                    <NavLink style={{marginInlineStart:"20px"}} to="/">
                         <img src="/images/side_logo.png" width={150} alt="Logo"/>
                     </NavLink>
                     <div className={`${toggleAside?"toggleSide":""}`}>
@@ -24,7 +24,7 @@ function Side({toggleAside,setToggleAside,login}) {
                     </div>
                 </div>
                 <div>
-                    <h1>관리자 센터</h1>
+                    <h1 style={{marginBlockStart:"0.5rem",marginInlineStart:"20px"}}>관리자 센터</h1>
                 </div>
 
                 <nav>
