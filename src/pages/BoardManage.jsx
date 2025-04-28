@@ -1,7 +1,16 @@
 import React, {useEffect, useState} from 'react';
 import {Breadcrumb, Button, Card, Form, Image, Input, message, Modal, Select, Space, Table, Upload, Tag, Pagination}
     from "antd";
-import {PlusOutlined, SearchOutlined, RedoOutlined, EditOutlined, DeleteOutlined, UploadOutlined, PushpinOutlined, PushpinFilled}
+import {
+    PlusOutlined,
+    SearchOutlined,
+    RedoOutlined,
+    EditOutlined,
+    DeleteOutlined,
+    UploadOutlined,
+    PushpinOutlined,
+    PushpinFilled
+}
     from "@ant-design/icons";
 import '../css/BoardManage.css';
 import styles from '../css/BoardManage.module.css';
@@ -169,6 +178,12 @@ const BoardManage = () => {
                 }
 
                 console.log('저장된 패스워드:', postData.password);
+
+                if (postData.password !== post.passwordInput) {
+                    message.error('비밀번호가 틀렸습니다.');
+                    return;
+                }
+
                 if (post.image_url) {
                     const fileName = post.image_url.split('/').pop();
                     await supabase.storage.from('board-images').remove([`board-images/${fileName}`]); // 이미지 삭제
@@ -178,10 +193,9 @@ const BoardManage = () => {
                     .from('board')
                     .delete()
                     .eq('id', post.id)
-                    .eq('password', post.password);
 
-                if (postData.password !== post.password) {
-                    message.error('비밀번호가 틀렸거나 삭제에 실패했습니다.');
+                if (error) {
+                    message.error('게시글 삭제에 실패했습니다.');
                     return;
                 }
                 message.success('게시글이 삭제되었습니다.');
@@ -235,12 +249,18 @@ const BoardManage = () => {
             key: 'actions',
             width: 20,
             render: (_, record) => (
-                    <Button onClick={() => handlePin(record)}
-                            style={{color: '#595959'}}
-                            icon={record.is_notice ? <PushpinFilled /> : <PushpinOutlined />}
-                    >
-                    </Button>
+                <Button onClick={() => handlePin(record)}
+                        style={{color: '#595959'}}
+                        icon={record.is_notice ? <PushpinFilled/> : <PushpinOutlined/>}
+                >
+                </Button>
             ),
+        },
+        {
+            title: 'No.',
+            key: 'id',
+            dataIndex: 'id',
+            width: 50,
         },
         {
             title: '이미지',
@@ -474,7 +494,7 @@ const BoardManage = () => {
                     type="primary"
                     icon={<PlusOutlined/>}
                     onClick={() => {
-                        // setIsEditMode(false);
+                        setIsEditMode(false);
                         setIsModalOpen(true);
                     }}
                     style={{background: '#1890ff', borderColor: '#1890ff', marginLeft: "auto"}}
@@ -500,11 +520,12 @@ const BoardManage = () => {
             )}
 
             <Modal
-                title="게시글 수정"
+                title={isEditMode ? '게시글 수정' : '게시글 등록'}
                 open={isModalOpen}
                 onCancel={() => {
-                    setIsEditMode(false);
+                    setIsModalOpen(false);
                     setFileList([]);
+                    // setIsEditMode(false);
                     form.resetFields();
                 }}
                 footer={null}
