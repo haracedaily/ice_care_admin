@@ -1,4 +1,4 @@
-npmnpimport React from 'react';
+import React from 'react';
 import { Form, Input, Button } from 'antd';
 import {RedoOutlined, SearchOutlined} from "@ant-design/icons";
 
