@@ -11,7 +11,7 @@ const [login,setLogin]=useState("");
 let navigator = useNavigate();
 useEffect(() => {
     window.scrollTo({top: 0, left: 0});
-    if(localStorage.getItem("log"))setLogin(localStorage.getItem("log"));
+    if(localStorage.getItem("log"))setLogin(JSON.parse(localStorage.getItem("log")));
     else if(!login)navigator("/login");
 },[location.pathname]);
 const logout = () => {
@@ -23,7 +23,7 @@ const logout = () => {
     <>
         {login?
             <>
-            <Side toggleAside={toggleAside} setToggleAside={setToggleAside} />
+            <Side toggleAside={toggleAside} setToggleAside={setToggleAside} login={login} />
             <main className="login">
                 <nav>
                     <section>

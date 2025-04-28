@@ -15,7 +15,7 @@ function Login(props) {
         let login = await getLogin(id,pw,setLogin);
         if(login){
             setLogin(login);
-            if(logState)localStorage.setItem("log",login);
+            if(logState)localStorage.setItem("log",JSON.stringify(login));
             navigate("/");}
         setLoading(false);
     };
