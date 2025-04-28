@@ -99,8 +99,13 @@ function Employee(props) {
 
 
                 </div>
-                <Modal open={isInsert} onCancel={()=>setIsInsert(false)}>
-                    <Form form={form}>
+                <Modal
+                    title={"직원 등록"}
+                    open={isInsert}
+                    onCancel={()=>setIsInsert(false)}
+                    okText={"등록"}
+                    cancelText={"취소"}>
+                    <Form form={form} layout={"vertical"}>
                         <Form.Item label={"아이디"} name={"id"} rules={[{required:true,message:'아이디를 입력해주세요.'}]}>
                             <Input/>
                         </Form.Item>
@@ -110,6 +115,31 @@ function Employee(props) {
                         <Form.Item label={"이름"} name={"nm"} rules={[{required:true,message:"이름을 입력해주세요."}]}>
                             <Input/>
                         </Form.Item>
+                        <Form.Item label={"연락처"} name={"tel"} rules={[{required:true,message:"연락처를 입력해주세요."}]}>
+                            <Input/>
+                        </Form.Item>
+                        <Form.Item label={"권한"} name={"auth"}>
+                            <Input/>
+                        </Form.Item>
+                        <Form.Item label={"계약형태"} name={"type"}>
+                            <Input/>
+                        </Form.Item>
+                        <Form.Item label={"주소"} name={"addr"}>
+                            <Input/>
+                        </Form.Item>
+                        <Form.Item label={"이메일"} name={"mail"}>
+                            <Input/>
+                        </Form.Item>
+                        <Form.Item label={"은행"} name={"bank"}>
+                            <Input/>
+                        </Form.Item>
+                        <Form.Item label={"계좌번호"} name={"account"}>
+                            <Input/>
+                        </Form.Item>
+                        <Form.Item label={"입사일"} name={"entr_date"}>
+                            <Input/>
+                        </Form.Item>
+
                     </Form>
 
                 </Modal>
