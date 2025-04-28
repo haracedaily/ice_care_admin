@@ -1,8 +1,8 @@
 import React from 'react';
 import { Form, Input, Button } from 'antd';
-import {RedoOutlined, SearchOutlined} from "@ant-design/icons";
+import {PlusOutlined, RedoOutlined, SearchOutlined} from "@ant-design/icons";
 
-const ResSearchFilters = ({ filters, setFilters, onSearch }) => {
+const ResSearchFilters = ({ filters, setFilters, onSearch, showModal }) => {
     const handleChange = (name, value) => {
         setFilters((prev) => ({ ...prev, [name]: value }));
     };
@@ -55,7 +55,16 @@ const ResSearchFilters = ({ filters, setFilters, onSearch }) => {
                 <Button type="primary" icon={<SearchOutlined/>} onClick={() => onSearch(filters)} >
                     조회
                 </Button>
+
             </Form.Item>
+                <Button
+                    type="primary"
+                    onClick={() => showModal()}
+                    icon={<PlusOutlined/>}
+                    style={{marginLeft:"auto"}}
+                >
+                    예약등록
+                </Button>
         </Form>
     );
 };

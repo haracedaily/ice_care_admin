@@ -54,9 +54,9 @@ const ReservationForm = ({ reservation, onSuccess }) => {
     }, [form]);
 
     const depositMap = {
-        '20~50kg': 20000,
-        '50~100kg': 30000,
-        '100kg 이상': 40000,
+        '20~50kg': "2만 원",
+        '50~100kg': "3만 원",
+        '100kg 이상': "4만 원",
     }
 
     const onFinish = async (values) => {
@@ -183,7 +183,7 @@ const ReservationForm = ({ reservation, onSuccess }) => {
                   service: '청소',
                   cycle: '이번 한 번만',
                   add: '선택 안함',
-                  state: 0,
+                  state: '선택',
                   deposit: '2만 원',
                   postcode: '',
                   basicAddr: '',
@@ -195,7 +195,7 @@ const ReservationForm = ({ reservation, onSuccess }) => {
                 label="이름"
                 name="name"
                 rules={[{ required: true, message: '이름을 입력해주세요!' }]}>
-                <Input size="small"></Input>
+                <Input size="middle"></Input>
             </Form.Item>
 
             <Form.Item
@@ -208,7 +208,7 @@ const ReservationForm = ({ reservation, onSuccess }) => {
                         message: '유효한 전화번호 형식이 아닙니다. 예: 010-1234-5678',
                     },
                 ]}>
-                <Input size="small"></Input>
+                <Input size="middle"></Input>
             </Form.Item>
 
             <Form.Item
@@ -221,7 +221,7 @@ const ReservationForm = ({ reservation, onSuccess }) => {
                         message: '유효한 이메일 형식이 아닙니다. 예: example@domain.com',
                     },
                 ]}>
-                <Input size="small"></Input>
+                <Input size="middle"></Input>
             </Form.Item>
 
             <Form.Item
@@ -234,9 +234,9 @@ const ReservationForm = ({ reservation, onSuccess }) => {
                         ref={postcodeRef} //
                         style={{ width: '100px', color: 'black', background: 'white', border: '1px solid #d9d9d9' }}
                         disabled
-                        size="small"
+                        size="middle"
                     />
-                    <Button onClick={searchAddress} size="small">
+                    <Button onClick={searchAddress} size="middle">
                         검색
                     </Button>
                 </div>
@@ -251,7 +251,7 @@ const ReservationForm = ({ reservation, onSuccess }) => {
                     ref={basicAddrRef}
                     style={{ color: 'black', background: 'white', border: '1px solid #d9d9d9' }}
                     disabled
-                    size="small"
+                    size="middle"
                 />
             </Form.Item>
 
@@ -259,7 +259,7 @@ const ReservationForm = ({ reservation, onSuccess }) => {
                 <Input
                     ref={detailAddrRef}
                     placeholder="상세 주소를 입력하세요"
-                    size="small"
+                    size="middle"
                 />
             </Form.Item>
 
@@ -268,7 +268,7 @@ const ReservationForm = ({ reservation, onSuccess }) => {
                 name="date"
                 rules={[{ required: true, message: '예약 날짜를 선택해주세요!' }]}
             >
-                <DatePicker style={{ width: '100%' }} size="small" />
+                <DatePicker style={{ width: '100%' }} size="middle" />
             </Form.Item>
 
             <Form.Item
@@ -276,7 +276,7 @@ const ReservationForm = ({ reservation, onSuccess }) => {
                 name="time"
                 rules={[{ required: true, message: '시간을 선택해주세요!' }]}
             >
-                <Select size="small">
+                <Select size="middle" style={{ border: '1px solid #d9d9d9', borderRadius: 6}}>
                     <Option value="오전 10시 ~ 오후 1시">오전 10시 ~ 오후 1시</Option>
                     <Option value="오후 2시 ~ 오후 5시">오후 2시 ~ 오후 5시</Option>
                     <Option value="오후 4시 ~ 오후 7시">오후 4시 ~ 오후 7시</Option>
@@ -289,7 +289,7 @@ const ReservationForm = ({ reservation, onSuccess }) => {
                 name="model"
                 rules={[{ required: true, message: '모델명을 입력해주세요!' }]}
             >
-                <Input size="small" />
+                <Input size="middle" />
             </Form.Item>
 
             <Form.Item
@@ -297,7 +297,7 @@ const ReservationForm = ({ reservation, onSuccess }) => {
                 name="capacity"
                 rules={[{ required: true, message: '용량을 선택해주세요!' }]}
             >
-                <Select onChange={handleCapacityChange} size="small">
+                <Select onChange={handleCapacityChange} size="middle" style={{ border: '1px solid #d9d9d9', borderRadius: 6}}>
                     <Option value="20~50kg">20~50kg</Option>
                     <Option value="50~100kg">50~100kg</Option>
                     <Option value="100kg 이상">100kg 이상</Option>
@@ -305,21 +305,21 @@ const ReservationForm = ({ reservation, onSuccess }) => {
             </Form.Item>
 
             <Form.Item label="선택 서비스" name="service">
-                <Select size="small">
+                <Select size="middle">
                     <Option value="청소">청소</Option>
                     <Option value="수리">수리</Option>
                 </Select>
             </Form.Item>
 
             <Form.Item label="서비스 주기" name="cycle">
-                <Select size="small">
+                <Select size="middle">
                     <Option value="이번 한 번만">이번 한 번만</Option>
                     <Option value="한 달에 한 번">한 달에 한 번</Option>
                 </Select>
             </Form.Item>
 
             <Form.Item label="추가 서비스 선택" name="add">
-                <Select size="small">
+                <Select size="middle">
                     <Option value="심화 청소">심화 청소</Option>
                     <Option value="물탱크 청소">물탱크 청소</Option>
                     <Option value="필터 교체">필터 교체</Option>
@@ -340,11 +340,11 @@ const ReservationForm = ({ reservation, onSuccess }) => {
                 name="deposit"
                 rules={[{ required: true, message: '예약금을 확인해주세요' }]}
             >
-                <Input disabled style={{ color: 'black', background: 'white', border: '1px solid #d9d9d9' }} size="small" />
+                <Input disabled style={{ color: 'black', background: 'white', border: '1px solid #d9d9d9' }} size="middle" />
             </Form.Item>
 
             <Form.Item label="상태" name="state">
-                <Select size="small">
+                <Select size="middle">
                     <Option value={1}>예약대기</Option>
                     <Option value={2}>배정대기</Option>
                     <Option value={3}>배정완료</Option>
@@ -355,7 +355,7 @@ const ReservationForm = ({ reservation, onSuccess }) => {
             </Form.Item>
 
             <Form.Item>
-                <Button type="primary" htmlType="submit" size="small">
+                <Button type="primary" htmlType="submit" size="middle">
                     {reservation ? '수정' : '등록'}
                 </Button>
             </Form.Item>
