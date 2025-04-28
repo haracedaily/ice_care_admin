@@ -11,12 +11,11 @@ function Login(props) {
     const navigate = useNavigate();
     const onFinish = async(values) => {
         setLoading(true);
-        console.log(values);
         const {id,pw}=values;
         let login = await getLogin(id,pw,setLogin);
         if(login){
             setLogin(login);
-            if(logState)localStorage.setItem("log",login);
+            if(logState)localStorage.setItem("log",JSON.stringify(login));
             navigate("/");}
         setLoading(false);
     };
@@ -32,7 +31,7 @@ function Login(props) {
                     <Form.Item label={"비밀번호"} name={"pw"} rules={[{required:true,message:"비밀번호를 입력해주세요"},{pattern:/[\s\S]{8,}/,message: "비밀번호는 최소 8자 이상입니다."},{pattern:/[!@#$%^&*]{1,}/,message:"특수문자를 포함하여주세요."}]}>
                         <Input.Password />
                     </Form.Item>
-                    <Form.Item name={"logState"}>
+                    <Form.Item>
                         <Checkbox onChange={()=>setLogState(!logState)}>
                             로그인 유지
                         </Checkbox>
