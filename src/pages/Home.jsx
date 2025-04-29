@@ -722,7 +722,7 @@ function Home(props) {
                         {
                             timeData.map((el, idx) => {
                                 return (
-                                    <span key={el.key} style={{display:"flex"}}>
+                                    <span key={el.key} style={{display:"flex",alignItems:"center"}}>
                                         <div style={{backgroundColor:`${COLORS[idx % COLORS.length]}`,width:'2vw',height:'2vw'}}/>
                                         <div style={{fontSize:"1.6vh"}}>{el.시간}</div>
                                     </span>

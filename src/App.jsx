@@ -11,10 +11,19 @@ function App() {
     const [login, setLogin] = useState("");
     let navigator = useNavigate();
 
+    function isValidJson(item){
+        try{
+            JSON.parse(item);
+            return true;
+        }catch(e){
+            return false;
+        }
+    }
+
     useEffect(() => {
         window.scrollTo({top: 0, left: 0});
 
-        if (localStorage.getItem("log") && typeof localStorage.getItem("log") === "object") {
+        if (localStorage.getItem("log") && isValidJson(localStorage.getItem("log"))) {
             setLogin(JSON.parse(localStorage.getItem("log")));
         }
         else if (!login) navigator("/login");
