@@ -49,12 +49,13 @@ const ResSearchFilters = ({ filters, setFilters, onSearch, showModal }) => {
                 />
             </Form.Item>
             <Form.Item>
-                <Button onClick={handleReset} style={{ marginRight: 8 }} icon={<RedoOutlined/>}>
-                    초기화
-                </Button>
-                <Button type="primary" icon={<SearchOutlined/>} onClick={() => onSearch(filters)} >
+                <Button type="primary" style={{ marginRight: 8 }} icon={<SearchOutlined/>} onClick={() => onSearch(filters)} >
                     조회
                 </Button>
+                <Button onClick={handleReset}  icon={<RedoOutlined/>}>
+                    초기화
+                </Button>
+
 
             </Form.Item>
                 <Button
