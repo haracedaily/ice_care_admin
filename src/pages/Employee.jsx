@@ -2,7 +2,7 @@ import React, {useEffect, useRef, useState} from 'react';
 import dayjs from 'dayjs';
 import customParseFormat from 'dayjs/plugin/customParseFormat';
 import locale from "antd/es/date-picker/locale/ko_KR";
-import {Breadcrumb, Select, Input, Button, Modal, Form} from "antd";
+import {Breadcrumb, Select, Input, Button, Modal, Form, DatePicker} from "antd";
 import {useNavigate} from "react-router-dom";
 import styles from "../css/employee.module.css"
 import {PlusOutlined, RedoOutlined, SearchOutlined} from "@ant-design/icons";
@@ -105,6 +105,7 @@ function Employee(props) {
                     onCancel={()=>setIsInsert(false)}
                     okText={"등록"}
                     cancelText={"취소"}>
+
                     <Form form={form} layout={"vertical"}>
                         <Form.Item label={"아이디"} name={"id"} rules={[{required:true,message:'아이디를 입력해주세요.'}]}>
                             <Input/>
@@ -118,30 +119,57 @@ function Employee(props) {
                         <Form.Item label={"연락처"} name={"tel"} rules={[{required:true,message:"연락처를 입력해주세요."}]}>
                             <Input/>
                         </Form.Item>
-                        <Form.Item label={"권한"} name={"auth"}>
-                            <Input/>
+                        <Form.Item label={"권한"} name={"auth"} rules={[{required:true,message:"계정권한을 선택해주세요."}]}>
+                            <Select defaultValue={2}>
+                                <Option value={1}>관리자</Option>
+                                <Option value={2}>기사</Option>
+                            </Select>
                         </Form.Item>
-                        <Form.Item label={"계약형태"} name={"type"}>
-                            <Input/>
+                        <Form.Item label={"계약형태"} name={"type"} rules={[{required:true,message:"계약형태를 선택해주세요."}]}>
+                            <Select defaultValue={2}>
+                                <Option value={1}>정규직</Option>
+                                <Option value={2}>계약직</Option>
+                            </Select>
                         </Form.Item>
                         <Form.Item label={"주소"} name={"addr"}>
                             <Input/>
                         </Form.Item>
-                        <Form.Item label={"이메일"} name={"mail"}>
+                        <Form.Item label={"이메일"} name={"mail"} rules={[{pattern:/[\s\S]{2,}@[\S]{1,}\.[\S]{2,}/,message:"이메일 양식에 맞춰주세요. 예:exampl@example.com"}]}>
                             <Input/>
                         </Form.Item>
                         <Form.Item label={"은행"} name={"bank"}>
-                            <Input/>
+                            <Select defaultValue={null}>
+                                <Option value={null}>-</Option>
+                                <Option value={1}>한국은행</Option>
+                                <Option value={2}>산업은행</Option>
+                                <Option value={3}>기업은행</Option>
+                                <Option value={6}>국민은행</Option>
+                                <Option value={11}>농협은행</Option>
+                                <Option value={20}>우리은행</Option>
+                                <Option value={23}>SC은행</Option>
+                                <Option value={27}>한국씨티은행</Option>
+                                <Option value={81}>KEB하나은행</Option>
+                                <Option value={88}>신한은행</Option>
+                                <Option value={90}>카카오뱅크</Option>
+                                <Option value={31}>대구은행</Option>
+                                <Option value={32}>부산은행</Option>
+                                <Option value={34}>광주은행</Option>
+                                <Option value={35}>제주은행</Option>
+                                <Option value={37}>전북은행</Option>
+                                <Option value={39}>경남은행</Option>
+                                <Option value={37}>전북은행</Option>
+                            </Select>
                         </Form.Item>
                         <Form.Item label={"계좌번호"} name={"account"}>
                             <Input/>
                         </Form.Item>
                         <Form.Item label={"입사일"} name={"entr_date"}>
-                            <Input/>
+                            <DatePicker locale={locale} />
                         </Form.Item>
 
                     </Form>
-
+                    <Button onClick={()=>{form.resetFields()}}
+                            icon={<RedoOutlined/>}>초기화</Button>
                 </Modal>
                 <EmployeeTable employeeList={employeeList} />
             </div>
