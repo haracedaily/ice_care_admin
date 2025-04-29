@@ -2,12 +2,12 @@ import React, {useEffect, useRef, useState} from 'react';
 import dayjs from 'dayjs';
 import customParseFormat from 'dayjs/plugin/customParseFormat';
 import locale from "antd/es/date-picker/locale/ko_KR";
-import {Breadcrumb, Select, Input, Button, Modal, Form, DatePicker} from "antd";
+import {Breadcrumb, Select, Input, Button, Modal, Form, DatePicker, Row, Col, Upload} from "antd";
 import {useNavigate} from "react-router-dom";
 import styles from "../css/employee.module.css"
-import {PlusOutlined, RedoOutlined, SearchOutlined} from "@ant-design/icons";
+import {PlusOutlined, RedoOutlined, SearchOutlined, UploadOutlined} from "@ant-design/icons";
 import EmployeeTable from "../components/EmployeeTable.jsx";
-import {getEmpl} from "../js/supabaseEmpl.js";
+import {getEmpl, insertProfile, modifyProfile, profileUpload} from "../js/supabaseEmpl.js";
 
 dayjs.extend(customParseFormat);
 
@@ -17,13 +17,25 @@ function Employee(props) {
     const [searchNm,setSearchNm] = useState("");
     const emplNavi = useNavigate();
     const [isInsert,setIsInsert] = useState(false);
+    const [fileList, setFileList] = useState();
+    const [isModify,setIsModify] = useState(false);
+    const [loading, setLoading] = useState(false);
+    const [modifyData,setModifyData] = useState({});
     let [form] = Form.useForm();
     useEffect(() => {
       search_empl(searchType,searchNm);
     },[]);
+    useEffect(() => {
+        if(modifyData){
+            modifyData.entr_date = (typeof modifyData.entr_date) === "string"?dayjs(modifyData.entr_date):modifyData.entr_date;
+            modifyData.pw = "";
+            form.setFieldsValue(modifyData);
+            modifyData.entr_date = dayjs(modifyData.entr_date).format('YYYY-MM-DD');
+        }else{
+            form.resetFields();
+        }
+    },[modifyData]);
     async function search_empl(type,nm){
-        console.log(type);
-        console.log(nm);
         setEmployeeList(await getEmpl(type,nm));
     };
     const {Option} = Select;
@@ -35,6 +47,28 @@ function Employee(props) {
         setSearchNm("");
         setSearchType("");
     }
+    const uploadProps = {
+        onRemove: (file) => {
+            setFileList([]);
+        },
+        beforeUpload: (file) => {
+            setFileList([file]);
+            return false;
+        },
+        fileList,
+        accept: 'image/*',
+        maxCount: 1,
+    }
+    const modalFinish = async(values) =>{
+        setLoading(true);
+        if(fileList?.length>0){
+            await profileUpload(fileList[0],isModify);
+        }else{
+            isModify?await modifyProfile(values):await insertProfile(values).then(res=>search_empl());
+        }
+        setLoading(false);
+    }
+
     return (
         <>
             <div className={styles.content}>
@@ -91,6 +125,9 @@ function Employee(props) {
                             초기화
                         </Button>
                         <Button icon={<PlusOutlined/>} type={"primary"} onClick={()=> {
+                            form.resetFields();
+                            setFileList([]);
+                            setIsModify(false);
                             setIsInsert(!isInsert)
                         }} >
                             직원등록
@@ -100,46 +137,86 @@ function Employee(props) {
 
                 </div>
                 <Modal
-                    title={"직원 등록"}
+                    title={isModify?"직원 수정":"직원 등록"}
                     open={isInsert}
-                    onCancel={()=>setIsInsert(false)}
-                    okText={"등록"}
-                    cancelText={"취소"}>
+                    onCancel={()=> {
+                        setIsInsert(false);
+                        setModifyData({});
+                    }}
+                    width={"400px"}
+                    footer={null}>
 
-                    <Form form={form} layout={"vertical"}>
+                    <Form form={form} layout={"vertical"} initialValues={{type:2,auth:2,bank:""}} onFinish={modalFinish}>
+                        <Row gutter={10}>
+                            <Col span={10}>
+
                         <Form.Item label={"아이디"} name={"id"} rules={[{required:true,message:'아이디를 입력해주세요.'}]}>
-                            <Input/>
+                            {isModify?<Input disabled/>:<Input />}
                         </Form.Item>
-                        <Form.Item label={"비밀번호"} name={"pw"} rules={[{required:true,message:'비밀번호를 입력해주세요'},{pattern:/[\s\S]{8,}/,message:"8자 이상 입력해주세요."},{pattern:/[!@#$%^&*]{1,}/,message:"특수문자 1개 이상 입력해주세요."}]}>
+                            </Col>
+                            <Col span={14}>
+
+                        <Form.Item label={"비밀번호"} name={"pw"} rules={isModify?[{pattern:/[\s\S]{8,}/,message:"8자 이상 입력해주세요."},{pattern:/[!@#$%^&*]{1,}/,message:"특수문자 1개 이상 입력해주세요."}]:[{required:true,message:'비밀번호를 입력해주세요'},{pattern:/[\s\S]{8,}/,message:"8자 이상 입력해주세요."},{pattern:/[!@#$%^&*]{1,}/,message:"특수문자 1개 이상 입력해주세요."}]}>
                             <Input.Password/>
                         </Form.Item>
+                            </Col>
+                        </Row>
+                        <Row gutter={10}>
+                            <Col span={10}>
                         <Form.Item label={"이름"} name={"nm"} rules={[{required:true,message:"이름을 입력해주세요."}]}>
                             <Input/>
                         </Form.Item>
+
+                            </Col>
+                            <Col span={14}>
                         <Form.Item label={"연락처"} name={"tel"} rules={[{required:true,message:"연락처를 입력해주세요."}]}>
                             <Input/>
                         </Form.Item>
-                        <Form.Item label={"권한"} name={"auth"} rules={[{required:true,message:"계정권한을 선택해주세요."}]}>
-                            <Select defaultValue={2}>
-                                <Option value={1}>관리자</Option>
-                                <Option value={2}>기사</Option>
-                            </Select>
+
+                            </Col>
+                        </Row>
+                        <Row gutter={12}>
+                            <Col span={8}>
+
+                        <Form.Item label={"입사일"} name={"entr_date"} rules={[{required:true,message:"입사일자를 선택해주세요."}]}>
+                            <DatePicker locale={locale} />
                         </Form.Item>
+                            </Col>
+                            <Col span={8}>
+
                         <Form.Item label={"계약형태"} name={"type"} rules={[{required:true,message:"계약형태를 선택해주세요."}]}>
-                            <Select defaultValue={2}>
+                            <Select >
                                 <Option value={1}>정규직</Option>
                                 <Option value={2}>계약직</Option>
                             </Select>
                         </Form.Item>
+                            </Col>
+                            <Col span={8}>
+
+                        <Form.Item label={"권한"} name={"auth"} rules={[{required:true,message:"계정권한을 선택해주세요."}]}>
+                            <Select >
+                                <Option value={1}>관리자</Option>
+                                <Option value={2}>기사</Option>
+                                <Option value={9} disabled>최고관리자</Option>
+                            </Select>
+                        </Form.Item>
+                            </Col>
+
+                        </Row>
                         <Form.Item label={"주소"} name={"addr"}>
                             <Input/>
                         </Form.Item>
                         <Form.Item label={"이메일"} name={"mail"} rules={[{pattern:/[\s\S]{2,}@[\S]{1,}\.[\S]{2,}/,message:"이메일 양식에 맞춰주세요. 예:exampl@example.com"}]}>
                             <Input/>
                         </Form.Item>
+                        <Row gutter={16}>
+                            <Col span={8}>
+
+
+
                         <Form.Item label={"은행"} name={"bank"}>
-                            <Select defaultValue={null}>
-                                <Option value={null}>-</Option>
+                            <Select >
+                                <Option value={""}>-</Option>
                                 <Option value={1}>한국은행</Option>
                                 <Option value={2}>산업은행</Option>
                                 <Option value={3}>기업은행</Option>
@@ -160,18 +237,28 @@ function Employee(props) {
                                 <Option value={37}>전북은행</Option>
                             </Select>
                         </Form.Item>
-                        <Form.Item label={"계좌번호"} name={"account"}>
+                            </Col>
+                            <Col span={16}>
+                        <Form.Item label={"계좌번호"} name={"account_num"}>
                             <Input/>
                         </Form.Item>
-                        <Form.Item label={"입사일"} name={"entr_date"}>
-                            <DatePicker locale={locale} />
-                        </Form.Item>
+                            </Col>
+                        </Row>
 
+                        <Form.Item>
+                            <Upload {...uploadProps} listType="picture">
+                                <Button icon={<UploadOutlined/>}>이미지 업로드 (최대 1개)</Button>
+                            </Upload>
+                        </Form.Item>
+                        <Form.Item style={{display: "flex", justifyContent: "flex-end"}}>
+                            <Button onClick={()=>{form.resetFields();setFileList([])}}
+                                    icon={<RedoOutlined/>} style={{marginRight:"1rem"}}>초기화</Button>
+                            <Button type={"primary"} htmlType="submit" loading={loading} >{isModify?"수정":"등록"}</Button>
+                        </Form.Item>
                     </Form>
-                    <Button onClick={()=>{form.resetFields()}}
-                            icon={<RedoOutlined/>}>초기화</Button>
+
                 </Modal>
-                <EmployeeTable employeeList={employeeList} />
+                <EmployeeTable setModifyData={setModifyData} setIsInsert={setIsInsert} setIsModify={setIsModify} employeeList={employeeList} />
             </div>
         </>
     );
