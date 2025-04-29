@@ -50,7 +50,7 @@ function App() {
                             </section>
                         </nav>
                         <div>
-                            <Body/>
+                            <Body setLogin={setLogin}/>
                         </div>
                     </main>
                 </> : <div>

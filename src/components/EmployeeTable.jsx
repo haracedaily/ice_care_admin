@@ -6,6 +6,9 @@ import {DeleteOutlined, EditOutlined} from "@ant-design/icons";
 function EmployeeTable(props) {
 
     const isMobile = useMediaQuery({maxWidth: 767});
+    const setModifyData = props.setModifyData;
+    const setIsModify = props.setIsModify;
+    const setIsInsert = props.setIsInsert;
     const employeeColumns=[
         {
             title: '프로필',
@@ -210,7 +213,7 @@ function EmployeeTable(props) {
                           <div>
                               <Button
                                   icon={<EditOutlined />}
-                                  onClick={() => onEdit(record)}
+                                  onClick={() => {setModifyData(el);setIsModify(true);setIsInsert(true);}}
                                   style={{ marginRight: 8 }}
                                   size="small"
                               />
