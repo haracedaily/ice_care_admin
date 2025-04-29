@@ -243,6 +243,10 @@ const BoardManage = () => {
         fileList,
         accept: 'image/*',
         maxCount: 1,
+        onChange: ({fileList}) => {
+            setFileList(fileList);
+            console.log('FileList updated:', fileList); // 변경: fileList 변경 디버깅
+        },
     }
 
     const handleSearch = () => {
@@ -396,6 +400,8 @@ const BoardManage = () => {
                         className={styles.post_card}
                         variant="outlined" // bordered 대신 variant 사용
                     >
+
+
                         <div className={styles.post_card_content}>
                             {post.image_url && (
                                 <div className={styles.post_image}>
@@ -405,46 +411,61 @@ const BoardManage = () => {
                             )}
                             <div className={styles.post_details}>
                                 <div className={styles.post_title}>
-                                    {post.is_notice && <Tag color="blue">공지</Tag>}
-                                    <span>{post.title}</span>
+                                    <div className={styles.title_content}>
+                                        {post.is_notice && <Tag color="blue">공지</Tag>}
+                                        <p><strong>글번호: {post.id}</strong></p>
+                                    </div>
+                                    <div className={styles.post_actions}>
+                                        <Button
+                                            icon={<EditOutlined/>}
+                                            onClick={() => {
+                                                setIsEditMode(true);
+                                                setSelectedPost(post);
+                                                form.setFieldsValue(post);
+                                                setFileList(post.image_url ? [{
+                                                    uid: '-1',
+                                                    name: 'image',
+                                                    status: 'done',
+                                                    url: post.image_url
+                                                }] : []);
+                                                setIsModalOpen(true);
+                                            }}
+                                            style={{
+                                                color: '#1890ff',
+                                                marginRight: '8px'
+                                            }}
+                                            size={"small"}
+                                        >
+                                        </Button>
+                                        <Button
+                                            icon={<DeleteOutlined/>}
+                                            onClick={() => handleDelete(post)}
+                                            style={{
+                                                color: '#ff4d4f',
+                                                marginRight: '8px'
+                                            }}
+                                            size={"small"}
+                                        >
+                                        </Button>
+                                        <Button onClick={() => handlePin(post)}
+                                                style={{color: '#595959', marginRight: '8px'}}
+                                                size={"small"}>
+                                            {post.is_notice ? <PushpinFilled/> : <PushpinOutlined/>}
+                                        </Button>
+                                    </div>
                                 </div>
+
+
                                 <div className={styles.post_meta}>
-                                    <span>작성자: {post.author}</span>
-                                    <span>카테고리: {post.categories.name}</span>
-                                    <span>등록일: {post.created_at ? dayjs(post.create_at).format('YYYY-MM-DD') : '-'}</span>
-                                    <span>조회수: {post.views}</span>
+                                    <p><strong>제목:</strong> {post.title}</p>
+                                    <p><strong>내용:</strong> {post.content}</p>
+                                    <p><strong>작성자:</strong> {post.author}</p>
+                                    <p><strong>카테고리:</strong> {post.categories.name}</p>
+                                    <p>
+                                        <strong>등록일:</strong> {post.created_at ? dayjs(post.create_at).format('YYYY-MM-DD') : '-'}
+                                    </p>
                                 </div>
                             </div>
-                        </div>
-                        <div className={styles.post_actions}>
-                            <Button
-                                icon={<EditOutlined/>}
-                                onClick={() => {
-                                    setIsEditMode(true);
-                                    setSelectedPost(post);
-                                    form.setFieldsValue(post);
-                                    setFileList(post.image_url ? [{
-                                        uid: '-1',
-                                        name: 'image',
-                                        status: 'done',
-                                        url: post.image_url
-                                    }] : []);
-                                    setIsModalOpen(true);
-                                }}
-                                style={{color: '#1890ff', marginRight: '8px'}}
-                            >
-                                수정
-                            </Button>
-                            <Button
-                                icon={<DeleteOutlined/>}
-                                onClick={() => handleDelete(post)}
-                                style={{color: '#ff4d4f', marginRight: '8px'}}
-                            >
-                                삭제
-                            </Button>
-                            <Button onClick={() => handlePin(post)} style={{color: '#595959'}}>
-                                {post.is_notice ? '공지 해제' : '공지 고정'}
-                            </Button>
                         </div>
                     </Card>
 
