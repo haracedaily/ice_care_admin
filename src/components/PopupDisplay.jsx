@@ -50,11 +50,16 @@ const PopupDisplay = () => {
                         footer={null}
                         closable={true}
                         onCancel={() => handleClose(popup)}
-                        width={popup.displayType === 'banner' ? '100%' : 'auto'}
+                        width={popup.width || (popup.displayType === 'banner' ? '100%' : '400px')}
                         className={styles.popupModal}
                         style={{
-                            top: popup.displayType === 'banner' ? 0 : '50%',
-                            transform: popup.displayType === 'banner' ? 'none' : 'translateY(-50%)'
+                            top: popup.displayType === 'banner' ? 0 : (popup.positionY || '50%'),
+                            left: popup.displayType === 'banner' ? 0 : (popup.positionX || '50%'),
+                            width: popup.width || undefined,
+                            height: popup.height || undefined,
+                            transform: popup.displayType === 'banner' ? 'none' : 'translate(-50%, -50%)',
+                            position: 'fixed',
+                            zIndex: 1300
                         }}
                     >
                         <a 
