@@ -17,3 +17,4 @@ export const getEmpl = async(type,nm)=>{
     console.log(res);
     return res.data;
 }
+
