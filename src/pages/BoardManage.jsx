@@ -84,21 +84,26 @@ const BoardManage = () => {
     const handleUpload = async (file) => {
         const fileExt = file.name.split('.').pop(); // 파일 확장자 추출
         const fileName = `${Date.now()}.${fileExt}`; // 현재 시간으로 파일 이름 생성
-        const filePath = `board-images/${fileName}`; // supabase storage에 저장할 경로 지정
+        const filePath = `board_img/${fileName}`; // supabase storage에 저장할 경로 지정
 
         const {error: uploadError} = await supabase.storage
-            .from('board-images') // 저장할 버킷 이름은 board-images
-            .upload(filePath, file); // 파일 업로드
+            .from('icecarebucket') // 저장할 버킷 이름은 icecarebucket
+            .upload(filePath, file, {
+                cacheControl: '3600',
+                upsert: false,
+            }); // 공개 URL 가져오기
 
         if (uploadError) {
+            console.error('Upload error:', uploadError);
             message.error("이미지 업로드에 실피했습니다.");
             return null;
         }
 
         const {data: urlData} = supabase.storage // 업로드한 파일의 URL을 가져옴
-            .from('board-images')
+            .from('icecarebucket')
             .getPublicUrl(filePath); // 공개 URL 가져오기
 
+        console.log('upload image URL:', urlData.publicUrl);
         return urlData.publicUrl;
     }
 
@@ -109,7 +114,10 @@ const BoardManage = () => {
         if (fileList.length > 0) {
             if (fileList[0].originFileObj) {
                 imageUrl = await handleUpload(fileList[0].originFileObj); // 이미지 업로드
-                if (!imageUrl) return; // 업로드 실패 시 함수 종료
+                if (!imageUrl) {
+                    console.error('Image upload failed, imageUrl is null');
+                    return;
+                } // 업로드 실패 시 함수 종료
             } else {
                 imageUrl = isEditMode ? selectedPost.image_url : null; // 수정 모드일 때 기존 이미지 URL 사용
             }
@@ -128,6 +136,12 @@ const BoardManage = () => {
                 .eq('id', selectedPost.id) // 게시글 ID로 필터링
                 .eq('password', password); // 비밀번호 확인
 
+            console.log('Update parameters:', {
+                id: selectedPost.id,
+                password,
+                imageUrl,
+                selectedPostImageUrl: selectedPost.image_url,
+            });
             if (error) {
                 message.error("비밀번호가 틀렸거나 수정에 실패샜습니다.");
                 return;
@@ -186,7 +200,7 @@ const BoardManage = () => {
 
                 if (post.image_url) {
                     const fileName = post.image_url.split('/').pop();
-                    await supabase.storage.from('board-images').remove([`board-images/${fileName}`]); // 이미지 삭제
+                    await supabase.storage.from('icecarebucket').remove([`board_img/${fileName}`]); // 이미지 삭제
                 }
 
                 const {error} = await supabase
@@ -559,7 +573,7 @@ const BoardManage = () => {
                             <Button icon={<UploadOutlined/>}>이미지 업로드 (최대 1개)</Button>
                         </Upload>
                     </Form.Item>
-                    <Form.Item>
+                    <Form.Item style={{textAlign: 'right'}}>
                         <Button
                             type="primary"
                             htmlType="submit"
