@@ -52,7 +52,7 @@ function Employee(props) {
             setFileList([]);
         },
         beforeUpload: (file) => {
-            console.log(file);
+            file.originFileObj = file;
             setFileList([file]);
             return false;
         },
@@ -63,10 +63,9 @@ function Employee(props) {
     const modalFinish = async(values) =>{
         setLoading(true);
         if(fileList?.length>0){
-            console.log(fileList[0].originFileObj);
-            await profileUpload(fileList[0],isModify);
+            await profileUpload(fileList[0],isModify,values);
         }else{
-            /*isModify?await modifyProfile(values):await insertProfile(values).then(res=>search_empl());*/
+            isModify?await modifyProfile(values):await insertProfile(values).then(res=>search_empl());
         }
         setLoading(false);
     }

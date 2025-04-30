@@ -1,6 +1,6 @@
 import React from 'react';
 import {useMediaQuery} from "react-responsive";
-import {Button, Card,  Row, Col, Table} from "antd";
+import {Button, Card,  Row, Col, Table, Image} from "antd";
 import {EditOutlined} from "@ant-design/icons";
 
 function EmployeeTable(props) {
@@ -32,12 +32,11 @@ function EmployeeTable(props) {
             width: 90,
             sorter: (a, b) => a - b,
             render: (text) => {
-                if(text)
-                return (
-                    <div style={{textAlign: 'center'}}>
-                        <Image src={text} width={50} height={50}></Image>
-                    </div>
-                );
+                    return (text?
+                        <div style={{textAlign: 'center'}}>
+                            <Image src={text} alt={"이미지"} width={50} height={50} ></Image>
+                        </div>
+                    :<div></div>);
             },
         },
         {
@@ -243,7 +242,7 @@ function EmployeeTable(props) {
                       }>
 <Row gutter={8}>
     <Col span={4}>
-        {el.file_url?<Image src={el.file_url}></Image>:<div></div>}
+        {el.file_url?<Image src={el.file_url} width={50} height={50} style={{objectFit: 'cover'}}></Image>:<div></div>}
     </Col>
     <Col span={20}>
         <Row gutter={[8 , 12]}>

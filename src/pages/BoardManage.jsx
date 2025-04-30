@@ -247,8 +247,10 @@ const BoardManage = () => {
             dataIndex: 'image_url',
             key: 'image_url',
             width: 80,
-            render: (imageUrl) => imageUrl ? (
-                <Image src={imageUrl} alt="게시글 이미지" width={50} height={50} style={{objectFit: 'cover'}}/>) : ('-'),
+            render: (imageUrl) => {console.log(imageUrl);
+                return imageUrl ? (
+                    <Image src={imageUrl} alt="게시글 이미지" width={50} height={50} style={{objectFit: 'cover'}}/>) : ('-');
+            }
         },
         {
             title: '제목',
