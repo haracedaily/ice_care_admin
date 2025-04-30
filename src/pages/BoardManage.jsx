@@ -58,6 +58,8 @@ const BoardManage = () => {
             .order('created_at', {ascending: false}) // 내림차순 정렬, 가장 최근 데이터 먼저.
             .range((currentPage - 1) * pageSize, currentPage * pageSize - 1);
 
+        console.log('Fetching postsdd with:', { currentPage, searchText, filterCategory });
+
         if (searchText) {
             query = query.or(`title.ilike.%${searchText}%, author.ilike.%${searchText}%`);
         }
@@ -80,7 +82,7 @@ const BoardManage = () => {
 
     useEffect(() => {
         fetchPosts()
-    }, [currentPage]);
+    }, []);
 
     const handleUpload = async (file) => {
         const fileExt = file.name.split('.').pop(); // 파일 확장자 추출
@@ -259,7 +261,6 @@ const BoardManage = () => {
         setSearchText('');
         setFilterCategory('all');
         setCurrentPage(1);
-        fetchPosts();
     }
 
     const columns = [
