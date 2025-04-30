@@ -38,6 +38,7 @@ const ReservationTable = ({ reservations, onEdit, onDelete, onUpdate }) => {
     const confirmUpdate = () => {
         const { res_no, field, value } = pendingUpdate;
         if (res_no && field && value !== null) {
+            console.log('Confirming update:', { res_no, field, value });
             handleUpdate(res_no, field, value);
         }
     };
@@ -107,7 +108,7 @@ const ReservationTable = ({ reservations, onEdit, onDelete, onUpdate }) => {
                 { text: '처리완료', value: 5 },
                 { text: '취소', value: 9 },
             ],
-            onFilter: (value, record) => record.state === value, // 필터링 로직
+            onFilter: (value, record) => record.state === value,
             render: (state, record) => (
                 <Select
                     value={
@@ -121,8 +122,8 @@ const ReservationTable = ({ reservations, onEdit, onDelete, onUpdate }) => {
                         })[state] || '알 수 없음'
                     }
                     onChange={(value) => handleChange(record.res_no, 'state', value)}
-                    style={{ width: 110 }}
-                    dropdownStyle={{ width: 110 }}
+                    style={{ width: 100 }}
+                    dropdownStyle={{ width: 100 }}
                     suffixIcon={<DownOutlined style={{ fontSize: '12px', color: '#1890ff' }} />}
                 >
                     <Option value={1}>예약대기</Option>
@@ -176,7 +177,7 @@ const ReservationTable = ({ reservations, onEdit, onDelete, onUpdate }) => {
                             e.stopPropagation();
                             setEditingCell({ res_no: record.res_no, field: 'time' });
                         }}
-                        style={selectStyle(180)}
+                        style={selectStyle(150)}
                         dropdownStyle={{ width: 180 }}
                         popupClassName="custom-time-dropdown"
                         suffixIcon={<DownOutlined style={{ fontSize: '12px', color: '#1890ff' }} />}
@@ -211,7 +212,7 @@ const ReservationTable = ({ reservations, onEdit, onDelete, onUpdate }) => {
             title: '용량',
             dataIndex: 'capacity',
             key: 'capacity',
-            width: 100,
+            width: 120,
             render: (capacity, record) => (
                 <>
                     <Select
@@ -256,7 +257,7 @@ const ReservationTable = ({ reservations, onEdit, onDelete, onUpdate }) => {
             title: '선택 서비스',
             dataIndex: 'service',
             key: 'service',
-            width: 80,
+            width: 100,
             render: (service, record) => (
                 <>
                     <Select
@@ -302,7 +303,7 @@ const ReservationTable = ({ reservations, onEdit, onDelete, onUpdate }) => {
                             e.stopPropagation();
                             setEditingCell({ res_no: record.res_no, field: 'cycle' });
                         }}
-                        style={selectStyle(120)}
+                        style={selectStyle(100)}
                         dropdownStyle={{ width: 120 }}
                         popupClassName="custom-cycle-dropdown"
                         suffixIcon={<DownOutlined style={{ fontSize: '12px', color: '#1890ff' }} />}
@@ -328,7 +329,7 @@ const ReservationTable = ({ reservations, onEdit, onDelete, onUpdate }) => {
             title: '추가 서비스 선택',
             dataIndex: 'add',
             key: 'add',
-            width: 120,
+            width: 135,
             render: (add, record) => (
                 <>
                     <Select
@@ -366,7 +367,7 @@ const ReservationTable = ({ reservations, onEdit, onDelete, onUpdate }) => {
             title: '특별 요청사항',
             dataIndex: 'remark',
             key: 'remark',
-            width: 200,
+            width: 150,
             responsive: ['lg'],
         },
         {
