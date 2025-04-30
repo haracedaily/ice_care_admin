@@ -1,10 +1,14 @@
 import React from 'react';
 import {useMediaQuery} from "react-responsive";
-import {Table} from "antd";
+import {Button, Card, Popconfirm, Table} from "antd";
+import {DeleteOutlined, EditOutlined} from "@ant-design/icons";
 
 function EmployeeTable(props) {
 
     const isMobile = useMediaQuery({maxWidth: 767});
+    const setModifyData = props.setModifyData;
+    const setIsModify = props.setIsModify;
+    const setIsInsert = props.setIsInsert;
     const employeeColumns=[
         {
             title: '프로필',
@@ -199,10 +203,31 @@ function EmployeeTable(props) {
         },
 
     ];
-    console.log(props);
     return isMobile ? (
         <>
+            {props.employeeList.map(el=>(
+                <Card key={el.idx}
+                      style={{ marginBottom: 16, borderRadius: 8 }}
+                      title={`직원정보 : ${el.nm}`}
+                      extra={
+                          <div>
+                              <Button
+                                  icon={<EditOutlined />}
+                                  onClick={() => {setModifyData(el);setIsModify(true);setIsInsert(true);}}
+                                  style={{ marginRight: 8 }}
+                                  size="small"
+                              />
+                              <Popconfirm
+                                  title="정말 삭제하시겠습니까?"
+                                  onConfirm={() => onDelete(record.res_no)}
+                              >
+                                  <Button icon={<DeleteOutlined />} danger size="small" />
+                              </Popconfirm>
+                          </div>
+                      }>
 
+                </Card>
+            ))}
         </>
     ):(
       <>
