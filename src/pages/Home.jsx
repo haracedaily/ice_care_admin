@@ -541,7 +541,7 @@ function Home(props) {
                     }
 
 
-                    <Button loading={loading} variant={"outlined"} color={"geekblue"} className={styles.Btn} icon={<SearchOutlined/>}></Button>
+                    <Button loading={loading} type={"primary"} color={"geekblue"} className={styles.Btn} icon={<SearchOutlined/>}></Button>
                 </div>
                 <Row gutter={[16, 8]}>
                     <Col xl={8} md={8} xs={24}>

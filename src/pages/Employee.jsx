@@ -32,7 +32,7 @@ function Employee(props) {
             form.setFieldsValue(modifyData);
             modifyData.entr_date = dayjs(modifyData.entr_date).format('YYYY-MM-DD');
         }else{
-            form.resetFields();
+            if(form)form.resetFields();
         }
     },[modifyData]);
     async function search_empl(type,nm){
@@ -52,6 +52,7 @@ function Employee(props) {
             setFileList([]);
         },
         beforeUpload: (file) => {
+            console.log(file);
             setFileList([file]);
             return false;
         },
@@ -62,9 +63,10 @@ function Employee(props) {
     const modalFinish = async(values) =>{
         setLoading(true);
         if(fileList?.length>0){
+            console.log(fileList[0].originFileObj);
             await profileUpload(fileList[0],isModify);
         }else{
-            isModify?await modifyProfile(values):await insertProfile(values).then(res=>search_empl());
+            /*isModify?await modifyProfile(values):await insertProfile(values).then(res=>search_empl());*/
         }
         setLoading(false);
     }
@@ -127,6 +129,7 @@ function Employee(props) {
                             />
                         <Button
                             icon={<SearchOutlined/>}
+                            type={"primary"}
                             onClick={() => {search_empl(searchType,searchNm);}}
                         >
                             조회
@@ -192,13 +195,13 @@ function Employee(props) {
                             </Col>
                         </Row>
                         <Row gutter={12}>
-                            <Col span={8}>
+                            <Col span={10}>
 
                         <Form.Item label={"입사일"} name={"entr_date"} rules={[{required:true,message:"입사일자를 선택해주세요."}]}>
                             <DatePicker locale={locale} />
                         </Form.Item>
                             </Col>
-                            <Col span={8}>
+                            <Col span={7}>
 
                         <Form.Item label={"계약형태"} name={"type"} rules={[{required:true,message:"계약형태를 선택해주세요."}]}>
                             <Select >
@@ -207,7 +210,7 @@ function Employee(props) {
                             </Select>
                         </Form.Item>
                             </Col>
-                            <Col span={8}>
+                            <Col span={7}>
 
                         <Form.Item label={"권한"} name={"auth"} rules={[{required:true,message:"계정권한을 선택해주세요."}]}>
                             <Select >
@@ -250,7 +253,6 @@ function Employee(props) {
                                 <Option value={35}>제주은행</Option>
                                 <Option value={37}>전북은행</Option>
                                 <Option value={39}>경남은행</Option>
-                                <Option value={37}>전북은행</Option>
                             </Select>
                         </Form.Item>
                             </Col>
