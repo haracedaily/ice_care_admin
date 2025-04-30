@@ -516,6 +516,7 @@ const BoardManage = () => {
                 <Button
                     icon={<SearchOutlined/>}
                     onClick={handleSearch}
+                    type="primary"
                 >
                     조회
                 </Button>
@@ -532,7 +533,7 @@ const BoardManage = () => {
                         setIsEditMode(false);
                         setIsModalOpen(true);
                     }}
-                    style={{background: '#1890ff', borderColor: '#1890ff', marginLeft: "auto"}}
+                    style={{marginLeft: "auto"}}
                 >
                     게시글 등록
                 </Button>
