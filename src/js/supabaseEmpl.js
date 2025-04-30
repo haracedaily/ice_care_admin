@@ -1,5 +1,5 @@
 import {supabase} from "./supabase.js";
-import {notification} from "antd";
+import {message, notification} from "antd";
 import bcrypt from "bcryptjs";
 
 export const getEmpl = async(type,nm)=>{
@@ -18,10 +18,31 @@ export const getEmpl = async(type,nm)=>{
     return res.data;
 }
 
-export const profileUpload = async (file,isModify) =>{
-    console.log("image");
-    console.log(file);
-    console.log(isModify);
+export const profileUpload = async (file,isModify,props) =>{
+    if(file.originFileObj){
+        const fileExt = file.name.split('.').pop(); // 파일 확장자 추출
+        const fileName = `${Date.now()}.${fileExt}`; // 현재 시간으로 파일 이름 생성
+        const filePath = `profile-images/${fileName}`; // supabase storage에 저장할 경로 지정
+
+        const {error: uploadError} = await supabase.storage
+            .from('icecarebucket') // 저장할 버킷 이름은 board-images
+            .upload(filePath, file); // 파일 업로드
+
+        if (uploadError) {
+            message.error("이미지 업로드에 실피했습니다.");
+            return null;
+        }
+
+        const {data} = supabase.storage // 업로드한 파일의 URL을 가져옴
+            .from('icecarebucket')
+            .getPublicUrl(filePath); // 공개 URL 가져오기
+        if(data.publicUrl){
+            props.file_url = data.publicUrl;
+            props.file_name = fileName;
+            isModify?await modifyProfile(props):await insertProfile(props);
+        }
+
+    }
 }
 
 export const modifyProfile = async(props) =>{
@@ -48,6 +69,8 @@ export const insertProfile = async(props) =>{
             account_num:props.account_num,
             bank:props.bank?props.bank:null,
             type:props.type,
+            file_nm:props.file_nm?props.file_nm:null,
+            file_url:props.file_url?props.file_url:null,
         }
         ]);
     console.log(res);
