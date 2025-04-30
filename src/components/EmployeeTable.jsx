@@ -240,7 +240,7 @@ function EmployeeTable(props) {
                               />
                           </div>
                       }>
-<Row gutter={8}>
+<Row gutter={12}>
     <Col span={4}>
         {el.file_url?<Image src={el.file_url} width={50} height={50} style={{objectFit: 'cover'}}></Image>:<div></div>}
     </Col>
