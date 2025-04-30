@@ -5,6 +5,7 @@ import dayjs from 'dayjs';
 import { useMediaQuery } from 'react-responsive';
 import { supabase } from "../js/supabase.js";
 
+
 const { Option } = Select;
 
 const ReservationTable = ({ reservations, onEdit, onDelete, onUpdate }) => {
@@ -37,6 +38,7 @@ const ReservationTable = ({ reservations, onEdit, onDelete, onUpdate }) => {
     const confirmUpdate = () => {
         const { res_no, field, value } = pendingUpdate;
         if (res_no && field && value !== null) {
+            console.log('Confirming update:', { res_no, field, value });
             handleUpdate(res_no, field, value);
         }
     };
@@ -49,6 +51,7 @@ const ReservationTable = ({ reservations, onEdit, onDelete, onUpdate }) => {
     const selectStyle = (width) => ({
         width: width,
         boxSizing: 'border-box',
+        marginBottom: '10px',
     });
 
     const columns = [
@@ -78,7 +81,18 @@ const ReservationTable = ({ reservations, onEdit, onDelete, onUpdate }) => {
             title: 'No.',
             dataIndex: 'res_no',
             key: 'res_no',
-            width: 50,
+            width: 60,
+            responsive: ['xs', 'sm', 'md', 'lg'],
+            sorter: (a, b) => a.res_no - b.res_no,
+        },
+        {
+            title: '예약 날짜',
+            dataIndex: 'date',
+            key: 'date',
+            width: 90,
+            render: (text) => dayjs(text).format('YYYY-MM-DD'),
+            sorter: (a, b) => dayjs(a.date).unix() - dayjs(b.date).unix(),
+            sortDirections: ['ascend', 'descend'],
             responsive: ['xs', 'sm', 'md', 'lg'],
         },
         {
@@ -86,49 +100,40 @@ const ReservationTable = ({ reservations, onEdit, onDelete, onUpdate }) => {
             dataIndex: 'state',
             key: 'state',
             width: 110,
+            filters: [
+                { text: '예약대기', value: 1 },
+                { text: '배정대기', value: 2 },
+                { text: '배정완료', value: 3 },
+                { text: '처리중', value: 4 },
+                { text: '처리완료', value: 5 },
+                { text: '취소', value: 9 },
+            ],
+            onFilter: (value, record) => record.state === value,
             render: (state, record) => (
-                <>
-                    <Select
-                        value={
-                            ({
-                                1: '예약대기',
-                                2: '배정대기',
-                                3: '배정완료',
-                                4: '처리중',
-                                5: '처리완료',
-                                9: '취소',
-                            })[state] || '알 수 없음'
-                        }
-                        onChange={(value) => handleChange(record.res_no, 'state', value)}
-                        onClick={(e) => {
-                            e.stopPropagation();
-                            setEditingCell({ res_no: record.res_no, field: 'state' });
-                        }}
-                        style={selectStyle(110)}
-                        dropdownStyle={{ width: 110 }}
-                        popupClassName="custom-state-dropdown"
-                        suffixIcon={<DownOutlined style={{ fontSize: '12px', color: '#1890ff' }} />}
-                    >
-                        <Option value={1}>예약대기</Option>
-                        <Option value={2}>배정대기</Option>
-                        <Option value={3}>배정완료</Option>
-                        <Option value={4}>처리중</Option>
-                        <Option value={5}>처리완료</Option>
-                        <Option value={9}>취소</Option>
-                    </Select>
-                    {pendingUpdate.res_no === record.res_no && pendingUpdate.field === 'state' && pendingUpdate.value !== null && (
-                        <Popconfirm
-                            title="수정하시겠습니까?"
-                            onConfirm={confirmUpdate}
-                            onCancel={cancelUpdate}
-                            okText="예"
-                            cancelText="아니오"
-                            open={true}
-                        />
-                    )}
-                </>
+                <Select
+                    value={
+                        ({
+                            1: '예약대기',
+                            2: '배정대기',
+                            3: '배정완료',
+                            4: '처리중',
+                            5: '처리완료',
+                            9: '취소',
+                        })[state] || '알 수 없음'
+                    }
+                    onChange={(value) => handleChange(record.res_no, 'state', value)}
+                    style={{ width: 100 }}
+                    dropdownStyle={{ width: 100 }}
+                    suffixIcon={<DownOutlined style={{ fontSize: '12px', color: '#1890ff' }} />}
+                >
+                    <Option value={1}>예약대기</Option>
+                    <Option value={2}>배정대기</Option>
+                    <Option value={3}>배정완료</Option>
+                    <Option value={4}>처리중</Option>
+                    <Option value={5}>처리완료</Option>
+                    <Option value={9}>취소</Option>
+                </Select>
             ),
-            responsive: ['xs', 'sm', 'md', 'lg'],
         },
         {
             title: '이름',
@@ -159,14 +164,6 @@ const ReservationTable = ({ reservations, onEdit, onDelete, onUpdate }) => {
             responsive: ['lg'],
         },
         {
-            title: '예약 날짜',
-            dataIndex: 'date',
-            key: 'date',
-            width: 90,
-            render: (text) => dayjs(text).format('YYYY-MM-DD'),
-            responsive: ['xs', 'sm', 'md', 'lg'],
-        },
-        {
             title: '예약 시간',
             dataIndex: 'time',
             key: 'time',
@@ -180,7 +177,7 @@ const ReservationTable = ({ reservations, onEdit, onDelete, onUpdate }) => {
                             e.stopPropagation();
                             setEditingCell({ res_no: record.res_no, field: 'time' });
                         }}
-                        style={selectStyle(180)}
+                        style={selectStyle(150)}
                         dropdownStyle={{ width: 180 }}
                         popupClassName="custom-time-dropdown"
                         suffixIcon={<DownOutlined style={{ fontSize: '12px', color: '#1890ff' }} />}
@@ -215,7 +212,7 @@ const ReservationTable = ({ reservations, onEdit, onDelete, onUpdate }) => {
             title: '용량',
             dataIndex: 'capacity',
             key: 'capacity',
-            width: 100,
+            width: 120,
             render: (capacity, record) => (
                 <>
                     <Select
@@ -260,7 +257,7 @@ const ReservationTable = ({ reservations, onEdit, onDelete, onUpdate }) => {
             title: '선택 서비스',
             dataIndex: 'service',
             key: 'service',
-            width: 80,
+            width: 100,
             render: (service, record) => (
                 <>
                     <Select
@@ -306,7 +303,7 @@ const ReservationTable = ({ reservations, onEdit, onDelete, onUpdate }) => {
                             e.stopPropagation();
                             setEditingCell({ res_no: record.res_no, field: 'cycle' });
                         }}
-                        style={selectStyle(120)}
+                        style={selectStyle(100)}
                         dropdownStyle={{ width: 120 }}
                         popupClassName="custom-cycle-dropdown"
                         suffixIcon={<DownOutlined style={{ fontSize: '12px', color: '#1890ff' }} />}
@@ -332,7 +329,7 @@ const ReservationTable = ({ reservations, onEdit, onDelete, onUpdate }) => {
             title: '추가 서비스 선택',
             dataIndex: 'add',
             key: 'add',
-            width: 120,
+            width: 135,
             render: (add, record) => (
                 <>
                     <Select
@@ -370,7 +367,7 @@ const ReservationTable = ({ reservations, onEdit, onDelete, onUpdate }) => {
             title: '특별 요청사항',
             dataIndex: 'remark',
             key: 'remark',
-            width: 200,
+            width: 150,
             responsive: ['lg'],
         },
         {
@@ -379,6 +376,7 @@ const ReservationTable = ({ reservations, onEdit, onDelete, onUpdate }) => {
             key: 'deposit',
             width: 80,
             responsive: ['md', 'lg'],
+            render: (deposit) => `${deposit}만 원`,
         },
     ];
 
@@ -395,8 +393,10 @@ const ReservationTable = ({ reservations, onEdit, onDelete, onUpdate }) => {
                                 <Button
                                     icon={<EditOutlined />}
                                     onClick={() => onEdit(record)}
-                                    style={{ marginRight: 8 }}
+                                    style={{ marginRight: 8, color: '#1890ff'  }}
                                     size="small"
+
+
                                 />
                                 <Popconfirm
                                     title="정말 삭제하시겠습니까?"
@@ -407,8 +407,8 @@ const ReservationTable = ({ reservations, onEdit, onDelete, onUpdate }) => {
                             </div>
                         }
                     >
-                        <p><strong>이름:</strong> {record.name}</p>
-                        <p><strong>예약 날짜:</strong> {dayjs(record.date).format('YYYY-MM-DD')}</p>
+                        <p style={{marginBottom:10}}><strong>이름:</strong> {record.name}</p>
+                        <p style={{marginBottom:10}}><strong>예약 날짜:</strong> {dayjs(record.date).format('YYYY-MM-DD')}</p>
                         <p>
                             <strong>예약 시간:</strong>{' '}
                             <>
@@ -617,61 +617,7 @@ const ReservationTable = ({ reservations, onEdit, onDelete, onUpdate }) => {
                         </p>
                     </Card>
                 ))}
-                <style jsx>{`
-                    .ant-select-selector {
-                        border: none !important;
-                        box-shadow: none !important;
-                        background: transparent !important;
-                        padding: 0 20px 0 8px !important;
-                    }
 
-                    .ant-select-arrow {
-                        right: 8px !important;
-                        font-size: 12px !important;
-                        color: #1890ff !important;
-                    }
-
-                    .ant-select-dropdown {
-                        border-radius: 8px;
-                        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
-                        background-color: #ffffff;
-                        overflow: hidden;
-                    }
-
-                    .ant-select-item-option {
-                        padding: 8px 12px !important;
-                        font-size: 14px !important;
-                        color: #333333 !important;
-                        background-color: #ffffff !important;
-                        transition: all 0.2s ease !important;
-                        white-space: nowrap !important;
-                        overflow: hidden !important;
-                        text-overflow: ellipsis !important;
-                    }
-
-                    .ant-select-item-option:hover {
-                        background-color: #e6f7ff !important;
-                        color: #1890ff !important;
-                    }
-
-                    .ant-select-item-option-selected {
-                        background-color: #e6f7ff !important;
-                        color: #1890ff !important;
-                        font-weight: 500 !important;
-                    }
-
-                    .custom-time-dropdown .ant-select-item-option {
-                        font-weight: 500 !important;
-                    }
-
-                    .custom-state-dropdown .ant-select-item-option {
-                        color: #666666 !important;
-                    }
-                    .custom-state-dropdown .ant-select-item-option:hover {
-                        background-color: #f0f5ff !important;
-                        color: #096dd9 !important;
-                    }
-                `}</style>
             </div>
         );
     }
@@ -690,61 +636,7 @@ const ReservationTable = ({ reservations, onEdit, onDelete, onUpdate }) => {
                 size="middle"
                 tableLayout="fixed"
             />
-            <style jsx>{`
-                .ant-select-selector {
-                    border: none !important;
-                    box-shadow: none !important;
-                    background: transparent !important;
-                    padding: 0 20px 0 8px !important;
-                }
 
-                .ant-select-arrow {
-                    right: 8px !important;
-                    font-size: 12px !important;
-                    color: #1890ff !important;
-                }
-
-                .ant-select-dropdown {
-                    border-radius: 8px;
-                    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
-                    background-color: #ffffff;
-                    overflow: hidden;
-                }
-
-                .ant-select-item-option {
-                    padding: 8px 12px !important;
-                    font-size: 14px !important;
-                    color: #333333 !important;
-                    background-color: #ffffff !important;
-                    transition: all 0.2s ease !important;
-                    white-space: nowrap !important;
-                    overflow: hidden !important;
-                    text-overflow: ellipsis !important;
-                }
-
-                .ant-select-item-option:hover {
-                    background-color: #e6f7ff !important;
-                    color: #1890ff !important;
-                }
-
-                .ant-select-item-option-selected {
-                    background-color: #e6f7ff !important;
-                    color: #1890ff !important;
-                    font-weight: 500 !important;
-                }
-
-                .custom-time-dropdown .ant-select-item-option {
-                    font-weight: 500 !important;
-                }
-
-                .custom-state-dropdown .ant-select-item-option {
-                    color: #666666 !important;
-                }
-                .custom-state-dropdown .ant-select-item-option:hover {
-                    background-color: #f0f5ff !important;
-                    color: #096dd9 !important;
-                }
-            `}</style>
         </>
     );
 };
