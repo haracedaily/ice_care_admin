@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Table, Button, Tag, Image, Checkbox, Switch, Modal } from 'antd';
 import PopupBannerEditModal from '../components/PopupBannerEditModal';
 
@@ -32,6 +32,13 @@ export default function PopupBannerList() {
   const [data, setData] = useState(mockData);
   const [preview, setPreview] = useState({ visible: false, image: '', title: '' });
 
+  useEffect(() => {
+    // 팝업 차단 설정
+    window.open = function() {
+      return null;
+    };
+  }, []);
+
   const handleStatusChange = (checked, record) => {
     setData(prev =>
       prev.map(item =>
@@ -46,7 +53,7 @@ export default function PopupBannerList() {
     {
       title: <Checkbox />,
       dataIndex: 'key',
-      render: (key) => <Checkbox checked={selectedRowKeys.includes(key)} />, // 실제 체크박스 동작은 rowSelection에서 처리
+      render: (key) => <Checkbox checked={selectedRowKeys.includes(key)} />,
       width: 40,
     },
     {
@@ -68,7 +75,12 @@ export default function PopupBannerList() {
     {
       title: '미리보기',
       render: (_, record) => (
-        <Button onClick={() => setPreview({ visible: true, image: record.image, title: record.title })}>
+        <Button 
+          onClick={(e) => {
+            e.preventDefault();
+            setPreview({ visible: true, image: record.image, title: record.title });
+          }}
+        >
           미리보기
         </Button>
       ),

@@ -97,17 +97,11 @@
             }
         }
 
-        for (const style of styles) {
-            const href = (style.getAttribute('href') || '').toLowerCase();
-            if (adminKeywords.some(keyword => href.includes(keyword))) {
-                return true;
-            }
-        }
-
-        // 9. 페이지 제목 체크
-        const pageTitle = document.title.toLowerCase();
-        if (adminKeywords.some(keyword => pageTitle.includes(keyword)) || 
-            adminTexts.some(text => pageTitle.includes(text.toLowerCase()))) {
+        // 9. 추가 체크: React Router 기반 체크
+        if (window.location.pathname === '/' || 
+            window.location.pathname === '/dashboard' || 
+            window.location.pathname === '/admin' ||
+            window.location.pathname.includes('/ice-care')) {
             return true;
         }
 
@@ -274,6 +268,7 @@
 
         // 관리자 페이지인 경우 팝업을 표시하지 않음
         if (isAdminPage) {
+            console.log('관리자 페이지 감지: 팝업 비활성화');
             isInitialized = true;
             return;
         }
