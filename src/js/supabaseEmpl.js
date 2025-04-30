@@ -12,7 +12,7 @@ export const getEmpl = async(type,nm)=>{
     }
     let res = await query;
     if(res.error){
-        notification.error("에러발생:"+res.error);
+        notification.error({message:"에러발생:"+res.error});
     }
     console.log(res);
     return res.data;
@@ -75,9 +75,9 @@ export const insertProfile = async(props) =>{
         ]);
     console.log(res);
     if(res.error){
-        notification.error("에러발생:"+res.error);
+        notification.error({message:"에러발생:"+res.error});
     }else{
-        notification.success("등록 성공");
+        notification.success({message:"등록 성공"});
     }
     return res;
 
