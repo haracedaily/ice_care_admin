@@ -42,13 +42,13 @@ const Reservation = () => {
 
         if (dateRange.length === 2 && dayjs.isDayjs(dateRange[0]) && dayjs.isDayjs(dateRange[1])) {
             query = query
-                .gte('date', dateRange[0].toISOString())
-                .lte('date', dateRange[1].toISOString());
+                .gte('created_at', dateRange[0].toISOString().slice(0,10))
+                .lte('created_at', dateRange[1].toISOString().slice(0,10));
         } else {
             setDateRange([dayjs().subtract(1, 'month').startOf('day'), dayjs().endOf('day')]);
             query = query
-                .gte('date', dayjs().subtract(1, 'month').startOf('day').toISOString())
-                .lte('date', dayjs().endOf('day').toISOString());
+                .gte('created_at', dayjs().subtract(1, 'month').startOf('day').toISOString())
+                .lte('created_at', dayjs().endOf('day').toISOString());
         }
 
         const { data, error } = await query;
@@ -152,17 +152,18 @@ const Reservation = () => {
                         filters={filters}
                         setFilters={setFilters}
                         onSearch={handleSearch}
+                        showModal={showModal}
                     />
 
-                    <Flex justify="end" style={{ marginBottom: 16 }}>
-                        <Button
-                            type="primary"
-                            onClick={() => showModal()}
-                            icon={<PlusOutlined/>}
-                        >
-                            예약등록
-                        </Button>
-                    </Flex>
+                    {/*<Flex justify="end" style={{ marginBottom: 16 }}>*/}
+                    {/*    <Button*/}
+                    {/*        type="primary"*/}
+                    {/*        onClick={() => showModal()}*/}
+                    {/*        icon={<PlusOutlined/>}*/}
+                    {/*    >*/}
+                    {/*        예약등록*/}
+                    {/*    </Button>*/}
+                    {/*</Flex>*/}
 
                     <ReservationTable
                         reservations={filteredReservations}

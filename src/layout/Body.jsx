@@ -5,7 +5,7 @@ import Reservation from "../pages/Reservation.jsx";
 import BoardManage from "../pages/BoardManage.jsx";
 import Employee from "../pages/Employee.jsx";
 import Login from "../pages/Login.jsx";
-import Pop from "../pages/Pop.jsx";
+import PopupManage from "../pages/PopupManage.jsx";
 
 function Body(props) {
     return (
@@ -16,7 +16,7 @@ function Body(props) {
                     <Route path="/reservation" element={<Reservation/>} />
                     <Route path="/contact" element={<BoardManage/>} />
                     <Route path="/employee" element={<Employee/>} />
-                    <Route path="/popup" element={<Pop />} />
+                    <Route path="/popup" element={<PopupManage />} />
                 </Routes>
         </>
     );
