@@ -1,11 +1,20 @@
 import React, {useEffect, useState} from 'react';
 import {Breadcrumb, Button, Card, Form, Image, Input, message, Modal, Select, Space, Table, Upload, Tag, Pagination}
     from "antd";
-import {PlusOutlined, SearchOutlined, RedoOutlined, EditOutlined, DeleteOutlined, UploadOutlined, PushpinOutlined, PushpinFilled}
+import {
+    PlusOutlined,
+    SearchOutlined,
+    RedoOutlined,
+    EditOutlined,
+    DeleteOutlined,
+    UploadOutlined,
+    PushpinOutlined,
+    PushpinFilled
+}
     from "@ant-design/icons";
 import '../css/BoardManage.css';
 import styles from '../css/BoardManage.module.css';
-import {supabase} from "../js/supabaseClient.js";
+import {supabase} from "../js/supabase.js";
 import dayjs from "dayjs";
 import customParseFormat from 'dayjs/plugin/customParseFormat';
 
@@ -75,21 +84,26 @@ const BoardManage = () => {
     const handleUpload = async (file) => {
         const fileExt = file.name.split('.').pop(); // 파일 확장자 추출
         const fileName = `${Date.now()}.${fileExt}`; // 현재 시간으로 파일 이름 생성
-        const filePath = `board-images/${fileName}`; // supabase storage에 저장할 경로 지정
+        const filePath = `board_img/${fileName}`; // supabase storage에 저장할 경로 지정
 
         const {error: uploadError} = await supabase.storage
-            .from('board-images') // 저장할 버킷 이름은 board-images
-            .upload(filePath, file); // 파일 업로드
+            .from('icecarebucket') // 저장할 버킷 이름은 icecarebucket
+            .upload(filePath, file, {
+                cacheControl: '3600',
+                upsert: false,
+            }); // 공개 URL 가져오기
 
         if (uploadError) {
+            console.error('Upload error:', uploadError);
             message.error("이미지 업로드에 실피했습니다.");
             return null;
         }
 
         const {data: urlData} = supabase.storage // 업로드한 파일의 URL을 가져옴
-            .from('board-images')
+            .from('icecarebucket')
             .getPublicUrl(filePath); // 공개 URL 가져오기
 
+        console.log('upload image URL:', urlData.publicUrl);
         return urlData.publicUrl;
     }
 
@@ -100,7 +114,10 @@ const BoardManage = () => {
         if (fileList.length > 0) {
             if (fileList[0].originFileObj) {
                 imageUrl = await handleUpload(fileList[0].originFileObj); // 이미지 업로드
-                if (!imageUrl) return; // 업로드 실패 시 함수 종료
+                if (!imageUrl) {
+                    console.error('Image upload failed, imageUrl is null');
+                    return;
+                } // 업로드 실패 시 함수 종료
             } else {
                 imageUrl = isEditMode ? selectedPost.image_url : null; // 수정 모드일 때 기존 이미지 URL 사용
             }
@@ -119,6 +136,12 @@ const BoardManage = () => {
                 .eq('id', selectedPost.id) // 게시글 ID로 필터링
                 .eq('password', password); // 비밀번호 확인
 
+            console.log('Update parameters:', {
+                id: selectedPost.id,
+                password,
+                imageUrl,
+                selectedPostImageUrl: selectedPost.image_url,
+            });
             if (error) {
                 message.error("비밀번호가 틀렸거나 수정에 실패샜습니다.");
                 return;
@@ -169,19 +192,24 @@ const BoardManage = () => {
                 }
 
                 console.log('저장된 패스워드:', postData.password);
+
+                if (postData.password !== post.passwordInput) {
+                    message.error('비밀번호가 틀렸습니다.');
+                    return;
+                }
+
                 if (post.image_url) {
                     const fileName = post.image_url.split('/').pop();
-                    await supabase.storage.from('board-images').remove([`board-images/${fileName}`]); // 이미지 삭제
+                    await supabase.storage.from('icecarebucket').remove([`board_img/${fileName}`]); // 이미지 삭제
                 }
 
                 const {error} = await supabase
                     .from('board')
                     .delete()
                     .eq('id', post.id)
-                    .eq('password', post.password);
 
-                if (postData.password !== post.password) {
-                    message.error('비밀번호가 틀렸거나 삭제에 실패했습니다.');
+                if (error) {
+                    message.error('게시글 삭제에 실패했습니다.');
                     return;
                 }
                 message.success('게시글이 삭제되었습니다.');
@@ -215,6 +243,10 @@ const BoardManage = () => {
         fileList,
         accept: 'image/*',
         maxCount: 1,
+        onChange: ({fileList}) => {
+            setFileList(fileList);
+            console.log('FileList updated:', fileList); // 변경: fileList 변경 디버깅
+        },
     }
 
     const handleSearch = () => {
@@ -235,12 +267,18 @@ const BoardManage = () => {
             key: 'actions',
             width: 20,
             render: (_, record) => (
-                    <Button onClick={() => handlePin(record)}
-                            style={{color: '#595959'}}
-                            icon={record.is_notice ? <PushpinFilled /> : <PushpinOutlined />}
-                    >
-                    </Button>
+                <Button onClick={() => handlePin(record)}
+                        style={{color: '#595959'}}
+                        icon={record.is_notice ? <PushpinFilled/> : <PushpinOutlined/>}
+                >
+                </Button>
             ),
+        },
+        {
+            title: 'No.',
+            key: 'id',
+            dataIndex: 'id',
+            width: 50,
         },
         {
             title: '이미지',
@@ -275,7 +313,7 @@ const BoardManage = () => {
             title: '작성자',
             dataIndex: 'author',
             key: 'author',
-            width: 120,
+            width: 60,
             ellipsis: false,
             render: (text) => (
                 <span style={{whiteSpace: 'normal', wordBreak: 'break-word'}}>
@@ -287,7 +325,7 @@ const BoardManage = () => {
             title: '카테고리',
             dataIndex: ['categories', 'name'],
             key: 'cagegory',
-            width: 100,
+            width: 70,
             ellipsis: false,
             render: (text) => (
                 <span style={{whiteSpace: 'normal', wordBreak: 'break-word'}}>
@@ -299,7 +337,7 @@ const BoardManage = () => {
             title: '등록일',
             dataIndex: 'created_at',
             key: 'created_at',
-            width: 120,
+            width: 100,
             sorter: (a, b) => new Date(a.created_at) - new Date(b.created_at),
             ellipsis: false,
 
@@ -313,7 +351,7 @@ const BoardManage = () => {
             title: '조회수',
             dataIndex: 'views',
             key: 'views',
-            width: 75,
+            width: 60,
             ellipsis: false,
             render: (text) => (
                 <span style={{whiteSpace: 'normal', wordBreak: 'break-word'}}>
@@ -324,7 +362,7 @@ const BoardManage = () => {
         {
             title: '수정/삭제',
             key: 'actions',
-            width: 120,
+            width: 110,
             render: (_, record) => (
                 <Space size="middle">
                     <Button
@@ -364,6 +402,8 @@ const BoardManage = () => {
                         className={styles.post_card}
                         variant="outlined" // bordered 대신 variant 사용
                     >
+
+
                         <div className={styles.post_card_content}>
                             {post.image_url && (
                                 <div className={styles.post_image}>
@@ -373,46 +413,61 @@ const BoardManage = () => {
                             )}
                             <div className={styles.post_details}>
                                 <div className={styles.post_title}>
-                                    {post.is_notice && <Tag color="blue">공지</Tag>}
-                                    <span>{post.title}</span>
+                                    <div className={styles.title_content}>
+                                        {post.is_notice && <Tag color="blue">공지</Tag>}
+                                        <p><strong>글번호: {post.id}</strong></p>
+                                    </div>
+                                    <div className={styles.post_actions}>
+                                        <Button
+                                            icon={<EditOutlined/>}
+                                            onClick={() => {
+                                                setIsEditMode(true);
+                                                setSelectedPost(post);
+                                                form.setFieldsValue(post);
+                                                setFileList(post.image_url ? [{
+                                                    uid: '-1',
+                                                    name: 'image',
+                                                    status: 'done',
+                                                    url: post.image_url
+                                                }] : []);
+                                                setIsModalOpen(true);
+                                            }}
+                                            style={{
+                                                color: '#1890ff',
+                                                marginRight: '8px'
+                                            }}
+                                            size={"small"}
+                                        >
+                                        </Button>
+                                        <Button
+                                            icon={<DeleteOutlined/>}
+                                            onClick={() => handleDelete(post)}
+                                            style={{
+                                                color: '#ff4d4f',
+                                                marginRight: '8px'
+                                            }}
+                                            size={"small"}
+                                        >
+                                        </Button>
+                                        <Button onClick={() => handlePin(post)}
+                                                style={{color: '#595959', marginRight: '8px'}}
+                                                size={"small"}>
+                                            {post.is_notice ? <PushpinFilled/> : <PushpinOutlined/>}
+                                        </Button>
+                                    </div>
                                 </div>
+
+
                                 <div className={styles.post_meta}>
-                                    <span>작성자: {post.author}</span>
-                                    <span>카테고리: {post.categories.name}</span>
-                                    <span>등록일: {post.created_at ? dayjs(post.create_at).format('YYYY-MM-DD') : '-'}</span>
-                                    <span>조회수: {post.views}</span>
+                                    <p><strong>제목:</strong> {post.title}</p>
+                                    <p><strong>내용:</strong> {post.content}</p>
+                                    <p><strong>작성자:</strong> {post.author}</p>
+                                    <p><strong>카테고리:</strong> {post.categories.name}</p>
+                                    <p>
+                                        <strong>등록일:</strong> {post.created_at ? dayjs(post.create_at).format('YYYY-MM-DD') : '-'}
+                                    </p>
                                 </div>
                             </div>
-                        </div>
-                        <div className={styles.post_actions}>
-                            <Button
-                                icon={<EditOutlined/>}
-                                onClick={() => {
-                                    setIsEditMode(true);
-                                    setSelectedPost(post);
-                                    form.setFieldsValue(post);
-                                    setFileList(post.image_url ? [{
-                                        uid: '-1',
-                                        name: 'image',
-                                        status: 'done',
-                                        url: post.image_url
-                                    }] : []);
-                                    setIsModalOpen(true);
-                                }}
-                                style={{color: '#1890ff', marginRight: '8px'}}
-                            >
-                                수정
-                            </Button>
-                            <Button
-                                icon={<DeleteOutlined/>}
-                                onClick={() => handleDelete(post)}
-                                style={{color: '#ff4d4f', marginRight: '8px'}}
-                            >
-                                삭제
-                            </Button>
-                            <Button onClick={() => handlePin(post)} style={{color: '#595959'}}>
-                                {post.is_notice ? '공지 해제' : '공지 고정'}
-                            </Button>
                         </div>
                     </Card>
 
@@ -463,6 +518,7 @@ const BoardManage = () => {
                 <Button
                     icon={<SearchOutlined/>}
                     onClick={handleSearch}
+                    type="primary"
                 >
                     조회
                 </Button>
@@ -476,10 +532,10 @@ const BoardManage = () => {
                     type="primary"
                     icon={<PlusOutlined/>}
                     onClick={() => {
-                        // setIsEditMode(false);
+                        setIsEditMode(false);
                         setIsModalOpen(true);
                     }}
-                    style={{background: '#1890ff', borderColor: '#1890ff'}}
+                    style={{marginLeft: "auto"}}
                 >
                     게시글 등록
                 </Button>
@@ -502,11 +558,12 @@ const BoardManage = () => {
             )}
 
             <Modal
-                title="게시글 수정"
+                title={isEditMode ? '게시글 수정' : '게시글 등록'}
                 open={isModalOpen}
                 onCancel={() => {
-                    setIsEditMode(false);
+                    setIsModalOpen(false);
                     setFileList([]);
+                    // setIsEditMode(false);
                     form.resetFields();
                 }}
                 footer={null}
@@ -540,7 +597,7 @@ const BoardManage = () => {
                             <Button icon={<UploadOutlined/>}>이미지 업로드 (최대 1개)</Button>
                         </Upload>
                     </Form.Item>
-                    <Form.Item>
+                    <Form.Item style={{textAlign: 'right'}}>
                         <Button
                             type="primary"
                             htmlType="submit"
