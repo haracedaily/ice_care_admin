@@ -1,8 +1,8 @@
 import React from 'react';
 import { Form, Input, Button } from 'antd';
-import {RedoOutlined, SearchOutlined} from "@ant-design/icons";
+import {PlusOutlined, RedoOutlined, SearchOutlined} from "@ant-design/icons";
 
-const ResSearchFilters = ({ filters, setFilters, onSearch }) => {
+const ResSearchFilters = ({ filters, setFilters, onSearch, showModal }) => {
     const handleChange = (name, value) => {
         setFilters((prev) => ({ ...prev, [name]: value }));
     };
@@ -18,6 +18,21 @@ const ResSearchFilters = ({ filters, setFilters, onSearch }) => {
         onSearch(resetFilters);
     };
 
+    const handleTelChange = (value) => {
+        const numericValue = value.replace(/\D/g, '');
+
+        let formattedValue = numericValue;
+        if (numericValue.length <= 3) {
+            formattedValue = numericValue;
+        } else if (numericValue.length <= 7) {
+            formattedValue = `${numericValue.slice(0, 3)}-${numericValue.slice(3)}`;
+        } else {
+            formattedValue = `${numericValue.slice(0, 3)}-${numericValue.slice(3, 7)}-${numericValue.slice(7, 11)}`;
+        }
+
+        setFilters((prev) => ({ ...prev, tel: formattedValue }));
+    };
+
     return (
         <Form layout="inline" style={{ marginBottom: 16, flexWrap: 'wrap', gap: '0.5rem'}}>
             <Form.Item style={{marginInlineEnd:'0'}}>
@@ -31,7 +46,7 @@ const ResSearchFilters = ({ filters, setFilters, onSearch }) => {
                 <Input
                     placeholder="연락처"
                     value={filters.tel}
-                    onChange={(e) => handleChange('tel', e.target.value)}
+                    onChange={(e) => handleTelChange(e.target.value)}
                 />
             </Form.Item>
             <Form.Item style={{marginInlineEnd:'0'}}>
@@ -49,13 +64,23 @@ const ResSearchFilters = ({ filters, setFilters, onSearch }) => {
                 />
             </Form.Item>
             <Form.Item>
-                <Button onClick={handleReset} style={{ marginRight: 8 }} icon={<RedoOutlined/>}>
-                    초기화
-                </Button>
-                <Button type="primary" icon={<SearchOutlined/>} onClick={() => onSearch(filters)} >
+                <Button type="primary" style={{ marginRight: 8 }} icon={<SearchOutlined/>} onClick={() => onSearch(filters)} >
                     조회
                 </Button>
+                <Button onClick={handleReset}  icon={<RedoOutlined/>}>
+                    초기화
+                </Button>
+
+
             </Form.Item>
+                <Button
+                    type="primary"
+                    onClick={() => showModal()}
+                    icon={<PlusOutlined/>}
+                    style={{marginLeft:"auto"}}
+                >
+                    예약등록
+                </Button>
         </Form>
     );
 };
