@@ -246,32 +246,32 @@ function EmployeeTable(props) {
     </Col>
     <Col span={20}>
         <Row gutter={[8 , 12]}>
-            <Col span={5}>이름</Col>
-            <Col span={19}>{el.nm}</Col>
-            <Col span={5}>연락처</Col>
-            <Col span={19}>{el.tel}</Col>
+            <Col span={8}>이름</Col>
+            <Col span={16}>{el.nm}</Col>
+            <Col span={8}>연락처</Col>
+            <Col span={16}>{el.tel}</Col>
 
-            <Col span={5}>권한</Col>
-            <Col span={7}>{el.auth===1?"관리자":el.auth===9?"최고관리자":"기사"}</Col>
-            <Col span={5}>계약형태</Col>
-            <Col span={7}>{el.type===1?"정규직":"계약직"}</Col>
+            <Col span={8}>권한</Col>
+            <Col span={16}>{el.auth===1?"관리자":el.auth===9?"최고관리자":"기사"}</Col>
+            <Col span={8}>계약형태</Col>
+            <Col span={16}>{el.type===1?"정규직":"계약직"}</Col>
 
-            <Col span={5}>입사일자</Col>
-            <Col span={19}>{el.entr_date}</Col>
+            <Col span={8}>입사일자</Col>
+            <Col span={16}>{el.entr_date}</Col>
 
-            <Col span={5}>주소</Col>
-            <Col span={19}>{el.addr}</Col>
+            <Col span={8}>주소</Col>
+            <Col span={16}>{el.addr}</Col>
 
-            <Col span={5}>메일</Col>
-            <Col span={19}>{el.mail}</Col>
+            <Col span={8}>메일</Col>
+            <Col span={16}>{el.mail}</Col>
 
-            <Col span={5}>은행</Col>
-            <Col span={19}>{
+            <Col span={8}>은행</Col>
+            <Col span={16}>{
                 el.bank===1?"한국은행":el.bank===2?"산업은행":el.bank===3?"기업은행":el.bank===6?"국민은행":el.bank===11?"농협은행":el.bank===20?"우리은행":el.bank===23?"SC은행"
                     :el.bank===27?"한국씨티은행":el.bank===81?"KEB하나은행":el.bank===88?"신한은행":el.bank===90?"카카오뱅크":el.bank===31?"대구은행":el.bank===32?"부산은행"
             :el.bank===34?"광주은행":el.bank===35?"제주은행":el.bank===37?"전북은행":el.bank===39?"경남은행":"-"}</Col>
-            <Col span={5}>계좌번호</Col>
-            <Col span={19}>{el.account_num}</Col>
+            <Col span={8}>계좌번호</Col>
+            <Col span={16}>{el.account_num}</Col>
 
         </Row>
 
