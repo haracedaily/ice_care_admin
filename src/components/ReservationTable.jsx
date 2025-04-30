@@ -13,13 +13,27 @@ const ReservationTable = ({ reservations, onEdit, onDelete, onUpdate }) => {
     const [editingCell, setEditingCell] = useState({ res_no: null, field: null });
     const [pendingUpdate, setPendingUpdate] = useState({ res_no: null, field: null, value: null });
 
+    const depositMap = {
+        1: 2, // 20~50kg
+        2: 3, // 50~100kg
+        3: 4, // 100kg 이상
+    };
+
     const handleUpdate = async (res_no, field, value) => {
         try {
+            const updatePayload = { [field]: value };
+
+            if (field === 'capacity') {
+                updatePayload.deposit = depositMap[value] || 0; // Add deposit based on capacity
+            }
+
             const { error } = await supabase
                 .from('ice_res')
-                .update({ [field]: value })
+                .update(updatePayload)
                 .eq('res_no', res_no);
+
             if (error) throw error;
+
             onUpdate();
             message.success('수정 완료!', 2);
         } catch (error) {
@@ -33,6 +47,15 @@ const ReservationTable = ({ reservations, onEdit, onDelete, onUpdate }) => {
     const handleChange = (res_no, field, value) => {
         console.log('handleChange called with:', { res_no, field, value });
         setPendingUpdate({ res_no, field, value });
+
+        if (field === 'capacity') {
+            const newDeposit = depositMap[value] || 0; // Get corresponding deposit
+            setPendingUpdate({ res_no, field, value, deposit: newDeposit }); // Include deposit in pendingUpdate
+        } else {
+            setPendingUpdate({ res_no, field, value });
+        }
+
+
         console.log('Updated pendingUpdate:', { res_no, field, value });
         setEditingCell({ res_no: null, field: null });
     };
