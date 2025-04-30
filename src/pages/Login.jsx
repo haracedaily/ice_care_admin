@@ -16,6 +16,7 @@ function Login(props) {
         if(login){
             setLogin(login);
             if(logState)localStorage.setItem("log",JSON.stringify(login));
+            else sessionStorage.setItem("log",JSON.stringify(login));
             navigate("/");}
         setLoading(false);
     };

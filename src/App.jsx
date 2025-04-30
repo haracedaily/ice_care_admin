@@ -25,6 +25,8 @@ function App() {
 
         if (localStorage.getItem("log") && isValidJson(localStorage.getItem("log"))) {
             setLogin(JSON.parse(localStorage.getItem("log")));
+        }else if(sessionStorage.getItem("log") && isValidJson(sessionStorage.getItem("log"))) {
+            setLogin(JSON.parse(sessionStorage.getItem("log")));
         }
         else if (!login) navigator("/login");
 
@@ -32,6 +34,7 @@ function App() {
 
     const logout = () => {
         localStorage.clear();
+        sessionStorage.clear();
         setLogin("");
         navigator("/login");
     }
