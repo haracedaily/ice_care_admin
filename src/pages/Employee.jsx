@@ -68,7 +68,20 @@ function Employee(props) {
         }
         setLoading(false);
     }
-
+    const formatPhoneNumber = (value) => {
+        const numbers = value.replace(/[^\d]/g, '');
+        if (numbers.length <= 3) {
+            return numbers;
+        } else if (numbers.length <= 7) {
+            return `${numbers.slice(0, 3)}-${numbers.slice(3)}`;
+        } else {
+            return `${numbers.slice(0, 3)}-${numbers.slice(3, 7)}-${numbers.slice(7, 11)}`;
+        }
+    };
+    const changeFormTel = (e) => {
+        const tel = formatPhoneNumber(e.target.value);
+        form.setFieldsValue({tel});
+    }
     return (
         <>
             <div className={styles.content}>
@@ -173,7 +186,7 @@ function Employee(props) {
                             pattern: /^\d{3}-\d{3,4}-\d{4}$/,
                             message: '유효한 전화번호 형식이 아닙니다. 예: 010-1234-5678',
                         }]}>
-                            <Input/>
+                            <Input onChange={changeFormTel}/>
                         </Form.Item>
 
                             </Col>
