@@ -76,18 +76,30 @@ export const getActivePopups = async () => {
 // 팝업 추가
 export const addPopup = async (popupData) => {
     try {
-        // display_type이 null이면 기본값 'popup' 사용
+        // 데이터 검증
+        if (!popupData.title || !popupData.image_url) {
+            throw new Error('제목과 이미지는 필수 항목입니다.');
+        }
+
+        // 기본값 설정
         const dataToInsert = {
             ...popupData,
-            display_type: popupData.display_type || 'popup',
+            display_type: popupData.display_type || 'modal',
             display_status: popupData.display_status || 'show',
-            display_environment: popupData.display_environment || ['desktop', 'mobile'],
-            close_option: popupData.close_option || ['today'],
-            position_x: popupData.position_x || '50%',
-            position_y: popupData.position_y || '50%',
-            width: popupData.width || '400px',
-            height: popupData.height || 'auto'
+            display_environment: Array.isArray(popupData.display_environment) 
+                ? popupData.display_environment 
+                : [popupData.display_environment || 'all'],
+            close_option: Array.isArray(popupData.close_option) 
+                ? popupData.close_option 
+                : [popupData.close_option || 'today'],
+            position_x: popupData.position_x || 'center',
+            position_y: popupData.position_y || 'center',
+            width: typeof popupData.width === 'number' ? popupData.width : 500,
+            height: typeof popupData.height === 'number' ? popupData.height : 400,
+            created_at: new Date().toISOString()
         };
+
+        console.log('Supabase에 저장할 데이터:', dataToInsert); // 디버깅용
 
         const { data, error } = await supabase
             .from('popups')
@@ -96,8 +108,13 @@ export const addPopup = async (popupData) => {
         
         if (error) {
             console.error('팝업 추가 에러:', error);
-            throw error;
+            throw new Error(error.message || '팝업 추가 중 오류가 발생했습니다.');
         }
+
+        if (!data || data.length === 0) {
+            throw new Error('팝업이 추가되지 않았습니다.');
+        }
+
         return data[0];
     } catch (error) {
         console.error('팝업 추가 실패:', error);
@@ -108,24 +125,19 @@ export const addPopup = async (popupData) => {
 // 팝업 수정
 export const updatePopup = async (id, popupData) => {
     try {
+        const updateData = {
+            ...popupData,
+            display_environment: Array.isArray(popupData.display_environment) 
+                ? popupData.display_environment 
+                : [popupData.display_environment || 'all'],
+            close_option: Array.isArray(popupData.close_option) 
+                ? popupData.close_option 
+                : [popupData.close_option || 'today']
+        };
+
         const { data, error } = await supabase
             .from('popups')
-            .update({
-                title: popupData.title,
-                display_type: popupData.displayType,
-                display_status: popupData.displayStatus,
-                start_date: popupData.startDate,
-                end_date: popupData.endDate,
-                display_environment: popupData.displayEnvironment,
-                image_url: popupData.imageUrl,
-                mobile_image_url: popupData.mobileImageUrl,
-                link_url: popupData.linkUrl,
-                close_option: popupData.closeOption,
-                position_x: popupData.positionX,
-                position_y: popupData.positionY,
-                width: popupData.width,
-                height: popupData.height
-            })
+            .update(updateData)
             .eq('id', id)
             .select();
         

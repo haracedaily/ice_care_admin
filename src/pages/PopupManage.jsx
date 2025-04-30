@@ -99,41 +99,68 @@ const PopupManage = () => {
     const handleSubmit = async (values) => {
         try {
             setLoading(true);
+
+            // 필수 필드 검증
+            if (!values.title || !values.date_range || !values.image_url) {
+                message.error('필수 항목을 모두 입력해주세요.');
+                return;
+            }
+
+            // 날짜 검증
+            if (values.date_range[0].isAfter(values.date_range[1])) {
+                message.error('종료일은 시작일보다 이후여야 합니다.');
+                return;
+            }
+
             const newPopup = {
-                title: values.title,
+                title: values.title.trim(),
                 display_type: values.display_type,
                 display_status: values.display_status,
                 start_date: values.date_range[0].format('YYYY-MM-DD HH:mm'),
                 end_date: values.date_range[1].format('YYYY-MM-DD HH:mm'),
                 display_environment: values.display_environment,
                 image_url: values.image_url,
-                mobile_image_url: values.mobile_image_url,
-                link_url: values.link_url,
+                mobile_image_url: values.mobile_image_url || null,
+                link_url: values.link_url || null,
                 close_option: values.close_option,
                 position_x: values.position_x,
                 position_y: values.position_y,
-                width: values.width,
-                height: values.height,
-                created_at: new Date().toISOString()
+                width: parseInt(values.width) || 500,
+                height: parseInt(values.height) || 400
             };
 
-            if (editingPopup) {
-                await updatePopup(editingPopup.id, newPopup);
-                message.success('팝업이 수정되었습니다.');
-            } else {
-                await addPopup(newPopup);
-                message.success('새 팝업이 추가되었습니다.');
-            }
+            console.log('저장할 팝업 데이터:', newPopup); // 디버깅용
 
-            setIsModalOpen(false);
-            form.resetFields();
-            setEditingPopup(null);
-            setFileList([]);
-            setMobileFileList([]);
-            fetchPopups();
+            if (editingPopup) {
+                const result = await updatePopup(editingPopup.id, newPopup);
+                if (result) {
+                    message.success('팝업이 수정되었습니다.');
+                    setIsModalOpen(false);
+                    form.resetFields();
+                    setEditingPopup(null);
+                    setFileList([]);
+                    setMobileFileList([]);
+                    fetchPopups();
+                }
+            } else {
+                const result = await addPopup(newPopup);
+                if (result) {
+                    message.success('새 팝업이 추가되었습니다.');
+                    setIsModalOpen(false);
+                    form.resetFields();
+                    setEditingPopup(null);
+                    setFileList([]);
+                    setMobileFileList([]);
+                    fetchPopups();
+                }
+            }
         } catch (error) {
-            message.error('팝업 저장에 실패했습니다.');
-            console.error(error);
+            console.error('팝업 저장 실패:', error);
+            if (error.message) {
+                message.error(`팝업 저장에 실패했습니다: ${error.message}`);
+            } else {
+                message.error('팝업 저장에 실패했습니다. 다시 시도해주세요.');
+            }
         } finally {
             setLoading(false);
         }
@@ -249,33 +276,39 @@ const PopupManage = () => {
                     ]}
                 />
             </div>
-            
             <div className={styles.contentContainer}>
-                <Button 
-                    type="primary" 
-                    icon={<PlusOutlined />}
-                    onClick={() => {
-                        setEditingPopup(null);
-                        form.resetFields();
-                        setFileList([]);
-                        setMobileFileList([]);
-                        setIsModalOpen(true);
-                    }}
-                    style={{ marginBottom: 16 }}
-                >
-                    팝업/배너 등록
-                </Button>
-
+                <div style={{ marginBottom: 16, display: 'flex', justifyContent: 'space-between', flexWrap: 'wrap', gap: '8px' }}>
+                    <Button 
+                        type="primary" 
+                        icon={<PlusOutlined />} 
+                        onClick={() => {
+                            setEditingPopup(null);
+                            form.resetFields();
+                            setFileList([]);
+                            setMobileFileList([]);
+                            setIsModalOpen(true);
+                        }}
+                    >
+                        새 팝업 추가
+                    </Button>
+                </div>
                 <Table 
                     columns={columns} 
-                    dataSource={popups}
+                    dataSource={popups} 
                     rowKey="id"
                     loading={tableLoading}
+                    scroll={{ x: 'max-content' }}
+                    pagination={{
+                        pageSize: 10,
+                        showSizeChanger: true,
+                        showTotal: (total) => `총 ${total}개`,
+                        responsive: true
+                    }}
                 />
             </div>
 
             <Modal
-                title={editingPopup ? "팝업/배너 수정" : "팝업/배너 등록"}
+                title={editingPopup ? "팝업 수정" : "새 팝업 추가"}
                 open={isModalOpen}
                 onCancel={() => {
                     setIsModalOpen(false);
@@ -284,132 +317,106 @@ const PopupManage = () => {
                     setFileList([]);
                     setMobileFileList([]);
                 }}
-                width={1000}
                 footer={null}
-                confirmLoading={loading}
+                width="90%"
+                style={{ maxWidth: '800px' }}
             >
                 <Form
                     form={form}
                     layout="vertical"
                     onFinish={handleSubmit}
                     initialValues={{
-                        display_type: 'popup',
                         display_status: 'show',
-                        display_environment: ['desktop', 'mobile'],
+                        display_type: 'modal',
+                        display_environment: ['all'],
                         close_option: ['today'],
-                        position_x: '50%',
-                        position_y: '50%',
-                        width: '400px',
-                        height: 'auto'
+                        position_x: 'center',
+                        position_y: 'center',
+                        width: 500,
+                        height: 400
                     }}
                 >
-                    <Form.Item
-                        name="display_type"
-                        label="노출 형태"
-                    >
-                        <Radio.Group>
-                            <Radio value="popup">팝업</Radio>
-                            <Radio value="banner">배너</Radio>
-                        </Radio.Group>
-                    </Form.Item>
-
                     <Form.Item
                         name="title"
                         label="제목"
                         rules={[{ required: true, message: '제목을 입력해주세요' }]}
                     >
-                        <Input placeholder="관리를 위한 이름을 입력합니다." />
-                    </Form.Item>
-
-                    <Form.Item
-                        name="display_status"
-                        label="노출 상태"
-                    >
-                        <Radio.Group>
-                            <Radio value="show">노출함</Radio>
-                            <Radio value="hide">노출안함</Radio>
-                        </Radio.Group>
+                        <Input placeholder="팝업 제목을 입력하세요" />
                     </Form.Item>
 
                     <Form.Item
                         name="date_range"
-                        label="기간"
+                        label="노출 기간"
                         rules={[{ required: true, message: '노출 기간을 선택해주세요' }]}
                     >
-                        <RangePicker 
-                            locale={locale}
-                            showTime={{ format: 'HH:mm' }}
+                        <RangePicker
+                            showTime
                             format="YYYY-MM-DD HH:mm"
+                            locale={locale}
+                            style={{ width: '100%' }}
                         />
+                    </Form.Item>
+
+                    <Form.Item
+                        name="display_status"
+                        label="상태"
+                        rules={[{ required: true, message: '상태를 선택해주세요' }]}
+                    >
+                        <Select>
+                            <Option value="show">노출</Option>
+                            <Option value="hide">숨김</Option>
+                        </Select>
+                    </Form.Item>
+
+                    <Form.Item
+                        name="display_type"
+                        label="유형"
+                        rules={[{ required: true, message: '유형을 선택해주세요' }]}
+                    >
+                        <Select>
+                            <Option value="modal">모달</Option>
+                            <Option value="layer">레이어</Option>
+                        </Select>
                     </Form.Item>
 
                     <Form.Item
                         name="display_environment"
                         label="노출 환경"
+                        rules={[{ required: true, message: '노출 환경을 선택해주세요' }]}
                     >
                         <Radio.Group>
-                            <Radio value={['desktop', 'mobile']}>전체</Radio>
-                            <Radio value={['desktop']}>데스크탑</Radio>
-                            <Radio value={['mobile']}>모바일</Radio>
+                            <Radio value="all">전체</Radio>
+                            <Radio value="pc">PC</Radio>
+                            <Radio value="mobile">모바일</Radio>
                         </Radio.Group>
                     </Form.Item>
 
-                    <Divider>팝업 위치 및 크기</Divider>
-                    <Form.Item
-                        name="position_x"
-                        label="팝업 X좌표"
-                        extra="예: 50% 또는 100px"
-                    >
-                        <Input placeholder="50%" />
-                    </Form.Item>
-                    <Form.Item
-                        name="position_y"
-                        label="팝업 Y좌표"
-                        extra="예: 50% 또는 100px"
-                    >
-                        <Input placeholder="50%" />
-                    </Form.Item>
-                    <Form.Item
-                        name="width"
-                        label="팝업 너비"
-                        extra="예: 400px, 80% 등"
-                    >
-                        <Input placeholder="400px" />
-                    </Form.Item>
-                    <Form.Item
-                        name="height"
-                        label="팝업 높이"
-                        extra="예: auto, 300px 등"
-                    >
-                        <Input placeholder="auto" />
-                    </Form.Item>
-
-                    <Divider>이미지</Divider>
+                    <Divider>이미지 설정</Divider>
 
                     <Form.Item
                         name="image_url"
-                        label="데스크탑 이미지"
-                        extra="권장 해상도: 600 x 600px, 최소 해상도: 350 x 350px, 최대 해상도: 1000 x 650px"
+                        label="PC 이미지"
+                        rules={[{ required: true, message: 'PC 이미지를 업로드해주세요' }]}
                     >
                         <Upload
                             listType="picture-card"
-                            maxCount={1}
-                            beforeUpload={beforeUpload}
-                            onChange={(info) => handleUpload(info, false)}
                             fileList={fileList}
-                            onRemove={() => {
-                                form.setFieldsValue({ image_url: undefined });
-                                setFileList([]);
-                            }}
+                            beforeUpload={beforeUpload}
+                            onChange={(info) => handleUpload(info)}
+                            maxCount={1}
                             customRequest={({ file, onSuccess }) => {
                                 setTimeout(() => {
                                     onSuccess("ok");
                                 }, 0);
                             }}
+                            onRemove={() => {
+                                form.setFieldsValue({ image_url: undefined });
+                                setFileList([]);
+                            }}
                         >
                             {fileList.length === 0 && <div>
                                 <PlusOutlined />
-                                <div style={{ marginTop: 8 }}>이미지 업로드</div>
+                                <div style={{ marginTop: 8 }}>업로드</div>
                             </div>}
                         </Upload>
                     </Form.Item>
@@ -417,53 +424,92 @@ const PopupManage = () => {
                     <Form.Item
                         name="mobile_image_url"
                         label="모바일 이미지"
-                        extra="권장 해상도: 350 x 350px"
                     >
                         <Upload
                             listType="picture-card"
-                            maxCount={1}
+                            fileList={mobileFileList}
                             beforeUpload={beforeUpload}
                             onChange={(info) => handleUpload(info, true)}
-                            fileList={mobileFileList}
-                            onRemove={() => {
-                                form.setFieldsValue({ mobile_image_url: undefined });
-                                setMobileFileList([]);
-                            }}
+                            maxCount={1}
                             customRequest={({ file, onSuccess }) => {
                                 setTimeout(() => {
                                     onSuccess("ok");
                                 }, 0);
                             }}
+                            onRemove={() => {
+                                form.setFieldsValue({ mobile_image_url: undefined });
+                                setMobileFileList([]);
+                            }}
                         >
                             {mobileFileList.length === 0 && <div>
                                 <PlusOutlined />
-                                <div style={{ marginTop: 8 }}>이미지 업로드</div>
+                                <div style={{ marginTop: 8 }}>업로드</div>
                             </div>}
                         </Upload>
                     </Form.Item>
 
                     <Form.Item
                         name="link_url"
-                        label="URL"
+                        label="링크 URL"
                     >
-                        <Input placeholder="http://" />
+                        <Input placeholder="클릭 시 이동할 URL을 입력하세요" />
                     </Form.Item>
+
+                    <Divider>팝업 설정</Divider>
 
                     <Form.Item
                         name="close_option"
-                        label="팝업 하단 닫기 설정"
+                        label="닫기 옵션"
+                        rules={[{ required: true, message: '닫기 옵션을 선택해주세요' }]}
                     >
-                        <Radio.Group>
-                            <Radio value={['today']}>오늘 하루 다시 보지 않기</Radio>
-                            <Radio value={['close']}>닫기</Radio>
-                        </Radio.Group>
+                        <Select>
+                            <Option value="today">오늘 하루 보지 않기</Option>
+                            <Option value="always">항상 보기</Option>
+                        </Select>
+                    </Form.Item>
+
+                    <Form.Item
+                        name="position_x"
+                        label="가로 위치"
+                        rules={[{ required: true, message: '가로 위치를 선택해주세요' }]}
+                    >
+                        <Select>
+                            <Option value="left">왼쪽</Option>
+                            <Option value="center">중앙</Option>
+                            <Option value="right">오른쪽</Option>
+                        </Select>
+                    </Form.Item>
+
+                    <Form.Item
+                        name="position_y"
+                        label="세로 위치"
+                        rules={[{ required: true, message: '세로 위치를 선택해주세요' }]}
+                    >
+                        <Select>
+                            <Option value="top">상단</Option>
+                            <Option value="center">중앙</Option>
+                            <Option value="bottom">하단</Option>
+                        </Select>
+                    </Form.Item>
+
+                    <Form.Item
+                        name="width"
+                        label="너비"
+                        rules={[{ required: true, message: '너비를 입력해주세요' }]}
+                    >
+                        <Input type="number" placeholder="픽셀 단위로 입력" />
+                    </Form.Item>
+
+                    <Form.Item
+                        name="height"
+                        label="높이"
+                        rules={[{ required: true, message: '높이를 입력해주세요' }]}
+                    >
+                        <Input type="number" placeholder="픽셀 단위로 입력" />
                     </Form.Item>
 
                     <Form.Item>
-                        <Space>
-                            <Button type="primary" htmlType="submit">
-                                등록
-                            </Button>
+                        <Space style={{ width: '100%', justifyContent: 'flex-end' }}>
                             <Button onClick={() => {
                                 setIsModalOpen(false);
                                 form.resetFields();
@@ -472,6 +518,9 @@ const PopupManage = () => {
                                 setMobileFileList([]);
                             }}>
                                 취소
+                            </Button>
+                            <Button type="primary" htmlType="submit" loading={loading}>
+                                {editingPopup ? '수정' : '추가'}
                             </Button>
                         </Space>
                     </Form.Item>
