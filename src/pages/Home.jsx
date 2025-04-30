@@ -505,7 +505,7 @@ function Home(props) {
 
     return (
         <>
-            <PopupDisplay />
+            {/* <PopupDisplay /> */}
             <div className={styles.content}>
             <div>
                 <div>
