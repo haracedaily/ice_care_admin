@@ -169,7 +169,10 @@ function Employee(props) {
 
                             </Col>
                             <Col span={14}>
-                        <Form.Item label={"연락처"} name={"tel"} rules={[{required:true,message:"연락처를 입력해주세요."}]}>
+                        <Form.Item label={"연락처"} name={"tel"} rules={[{required:true,message:"연락처를 입력해주세요."},{
+                            pattern: /^\d{3}-\d{3,4}-\d{4}$/,
+                            message: '유효한 전화번호 형식이 아닙니다. 예: 010-1234-5678',
+                        }]}>
                             <Input/>
                         </Form.Item>
 
@@ -239,7 +242,7 @@ function Employee(props) {
                         </Form.Item>
                             </Col>
                             <Col span={16}>
-                        <Form.Item label={"계좌번호"} name={"account_num"}>
+                        <Form.Item label={"계좌번호"} name={"account_num"} rules={[{pattern:/[^a-zA-Z!@#$%^&*\-]$/,message:"숫자만 입력해주세요."}]}>
                             <Input/>
                         </Form.Item>
                             </Col>
