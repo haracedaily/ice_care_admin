@@ -22,6 +22,7 @@ import {CalendarOutlined, CheckCircleOutlined, CloseCircleOutlined, SearchOutlin
 import locale from "antd/es/date-picker/locale/ko_KR";
 import '../css/home.css';
 import {getStatesByPeriod} from "../js/supabaseDashboard.js";
+import PopupDisplay from '../components/PopupDisplay';
 dayjs.extend(customParseFormat);
 
 
@@ -496,6 +497,7 @@ function Home(props) {
 
     return (
         <>
+            <PopupDisplay />
             <div className={styles.content}>
             <div>
                 <div>
