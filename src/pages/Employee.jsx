@@ -65,7 +65,7 @@ function Employee(props) {
         if(fileList?.length>0){
             await profileUpload(fileList[0],isModify,values);
         }else{
-            isModify?await modifyProfile(values):await insertProfile(values).then(res=>search_empl());
+            isModify?await modifyProfile(values):await insertProfile(values).then(res=>{search_empl(); setIsInsert(false);});
         }
         setLoading(false);
     }
