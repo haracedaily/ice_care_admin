@@ -31,8 +31,10 @@ const ReservationTable = ({ reservations, onEdit, onDelete, onUpdate }) => {
     };
 
     const handleChange = (res_no, field, value) => {
+        console.log('handleChange called with:', { res_no, field, value });
         setPendingUpdate({ res_no, field, value });
-        setEditingCell({ res_no: null, field: null }); // 드롭다운 닫기
+        console.log('Updated pendingUpdate:', { res_no, field, value });
+        setEditingCell({ res_no: null, field: null });
     };
 
     const confirmUpdate = () => {
@@ -69,7 +71,10 @@ const ReservationTable = ({ reservations, onEdit, onDelete, onUpdate }) => {
                     />
                     <Popconfirm
                         title="정말 삭제하시겠습니까?"
-                        onConfirm={() => onDelete(record.res_no)}
+                        onConfirm={() => {
+                            onDelete(record.res_no);
+                            message.success('삭제되었습니다',2);
+                        }}
                     >
                         <Button icon={<DeleteOutlined />} danger size={isMobile ? 'small' : 'middle'} />
                     </Popconfirm>
@@ -84,6 +89,7 @@ const ReservationTable = ({ reservations, onEdit, onDelete, onUpdate }) => {
             width: 60,
             responsive: ['xs', 'sm', 'md', 'lg'],
             sorter: (a, b) => a.res_no - b.res_no,
+            defaultSortOrder: 'ascend',
         },
         {
             title: '예약 날짜',
@@ -110,29 +116,43 @@ const ReservationTable = ({ reservations, onEdit, onDelete, onUpdate }) => {
             ],
             onFilter: (value, record) => record.state === value,
             render: (state, record) => (
-                <Select
-                    value={
-                        ({
-                            1: '예약대기',
-                            2: '배정대기',
-                            3: '배정완료',
-                            4: '처리중',
-                            5: '처리완료',
-                            9: '취소',
-                        })[state] || '알 수 없음'
-                    }
-                    onChange={(value) => handleChange(record.res_no, 'state', value)}
-                    style={{ width: 100 }}
-                    dropdownStyle={{ width: 100 }}
-                    suffixIcon={<DownOutlined style={{ fontSize: '12px', color: '#1890ff' }} />}
-                >
-                    <Option value={1}>예약대기</Option>
-                    <Option value={2}>배정대기</Option>
-                    <Option value={3}>배정완료</Option>
-                    <Option value={4}>처리중</Option>
-                    <Option value={5}>처리완료</Option>
-                    <Option value={9}>취소</Option>
-                </Select>
+                <>
+                    <Select
+                        value={
+                            ({
+                                1: '예약대기',
+                                2: '배정대기',
+                                3: '배정완료',
+                                4: '처리중',
+                                5: '처리완료',
+                                9: '취소',
+                            })[state] || '알 수 없음'
+                        }
+                        onChange={(value) => handleChange(record.res_no, 'state', value)}
+                        style={{ width: 100 }}
+                        dropdownStyle={{ width: 100 }}
+                        suffixIcon={<DownOutlined style={{ fontSize: '12px', color: '#1890ff' }} />}
+                    >
+                        <Option value={1}>예약대기</Option>
+                        <Option value={2}>배정대기</Option>
+                        <Option value={3}>배정완료</Option>
+                        <Option value={4}>처리중</Option>
+                        <Option value={5}>처리완료</Option>
+                        <Option value={9}>취소</Option>
+                    </Select>
+                    {pendingUpdate.res_no === record.res_no &&
+                        pendingUpdate.field === 'state' &&
+                        pendingUpdate.value !== null && (
+                            <Popconfirm
+                                title="수정하시겠습니까?"
+                                onConfirm={confirmUpdate}
+                                onCancel={cancelUpdate}
+                                okText="예"
+                                cancelText="아니오"
+                                open={true}
+                            />
+                        )}
+                </>
             ),
         },
         {
