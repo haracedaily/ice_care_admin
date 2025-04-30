@@ -18,6 +18,21 @@ const ResSearchFilters = ({ filters, setFilters, onSearch, showModal }) => {
         onSearch(resetFilters);
     };
 
+    const handleTelChange = (value) => {
+        const numericValue = value.replace(/\D/g, '');
+
+        let formattedValue = numericValue;
+        if (numericValue.length <= 3) {
+            formattedValue = numericValue;
+        } else if (numericValue.length <= 7) {
+            formattedValue = `${numericValue.slice(0, 3)}-${numericValue.slice(3)}`;
+        } else {
+            formattedValue = `${numericValue.slice(0, 3)}-${numericValue.slice(3, 7)}-${numericValue.slice(7, 11)}`;
+        }
+
+        setFilters((prev) => ({ ...prev, tel: formattedValue }));
+    };
+
     return (
         <Form layout="inline" style={{ marginBottom: 16, flexWrap: 'wrap', gap: '0.5rem'}}>
             <Form.Item style={{marginInlineEnd:'0'}}>
@@ -31,7 +46,7 @@ const ResSearchFilters = ({ filters, setFilters, onSearch, showModal }) => {
                 <Input
                     placeholder="연락처"
                     value={filters.tel}
-                    onChange={(e) => handleChange('tel', e.target.value)}
+                    onChange={(e) => handleTelChange(e.target.value)}
                 />
             </Form.Item>
             <Form.Item style={{marginInlineEnd:'0'}}>
