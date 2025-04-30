@@ -51,6 +51,7 @@ const BoardManage = () => {
     }, []);
 
     const fetchPosts = async () => {
+        console.log('Fetching posts with:', { currentPage, searchText, filterCategory });
         let query = supabase
             .from('board')
             .select('*, categories(name)', {count: 'exact'})
@@ -64,7 +65,7 @@ const BoardManage = () => {
         if (filterCategory !== 'all') {
             query = query.eq('category_id', filterCategory);
         } else {
-            query = query.in('category_id', [1, 2]);
+            query = query.in('category_id', ["1", "2"]);
         }
 
         const {data, error, count} = await query;
@@ -78,7 +79,7 @@ const BoardManage = () => {
     }
 
     useEffect(() => {
-        fetchPosts();
+        fetchPosts()
     }, [currentPage]);
 
     const handleUpload = async (file) => {
@@ -95,7 +96,7 @@ const BoardManage = () => {
 
         if (uploadError) {
             console.error('Upload error:', uploadError);
-            message.error("이미지 업로드에 실피했습니다.");
+            message.error("이미지 업로드에 실패했습니다.");
             return null;
         }
 
@@ -143,7 +144,7 @@ const BoardManage = () => {
                 selectedPostImageUrl: selectedPost.image_url,
             });
             if (error) {
-                message.error("비밀번호가 틀렸거나 수정에 실패샜습니다.");
+                message.error("비밀번호가 틀렸거나 수정에 실패했습니다.");
                 return;
             }
             message.success("게시글이 수정되었습니다.");
@@ -311,7 +312,6 @@ const BoardManage = () => {
             title: '작성자',
             dataIndex: 'author',
             key: 'author',
-            width: 60,
             ellipsis: false,
             render: (text) => (
                 <span style={{whiteSpace: 'normal', wordBreak: 'break-word'}}>
@@ -358,6 +358,12 @@ const BoardManage = () => {
             ),
         },
         {
+            title: '비밀번호',
+            dataIndex: 'password',
+            key: 'password',
+            ellipsis: false,
+        },
+        {
             title: '수정/삭제',
             key: 'actions',
             width: 110,
@@ -370,7 +376,7 @@ const BoardManage = () => {
                             setSelectedPost(record);
                             form.setFieldsValue(record);
                             setFileList(record.image_url ? [{
-                                uid: '- 1,',
+                                uid: '-1,',
                                 name: 'image',
                                 status: 'done',
                                 url: record.image_url,
@@ -495,14 +501,14 @@ const BoardManage = () => {
             <div className={styles.filter_section}>
                 <Input
                     placeholder="제목 또는 작성자 검색"
-                    // value={searchText}
+                    value={searchText}
                     onChange={(e) => setSearchText(e.target.value)}
                     style={{width: '200px'}}
                 />
                 <Select
                     placeholder="카테고리 선택"
                     defaultValue="all"
-                    // value={filterCategory}
+                    value={filterCategory}
                     onChange={(value) => setFilterCategory(value)}
                     style={{width: '150px'}}
                     allowClear={false}
