@@ -315,6 +315,7 @@ const BoardManage = () => {
             title: '작성자',
             dataIndex: 'author',
             key: 'author',
+            width: 90,
             ellipsis: false,
             render: (text) => (
                 <span style={{whiteSpace: 'normal', wordBreak: 'break-word'}}>
@@ -364,6 +365,7 @@ const BoardManage = () => {
             title: '비밀번호',
             dataIndex: 'password',
             key: 'password',
+            width: 70,
             ellipsis: false,
         },
         {
