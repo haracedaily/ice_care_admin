@@ -282,16 +282,16 @@ const BoardManage = () => {
             dataIndex: 'id',
             width: 50,
         },
-        {
-            title: '이미지',
-            dataIndex: 'image_url',
-            key: 'image_url',
-            width: 80,
-            render: (imageUrl) => {console.log(imageUrl);
-                return imageUrl ? (
-                    <Image src={imageUrl} alt="게시글 이미지" width={50} height={50} style={{objectFit: 'cover'}}/>) : ('-');
-            }
-        },
+        // {
+        //     title: '이미지',
+        //     dataIndex: 'image_url',
+        //     key: 'image_url',
+        //     width: 80,
+        //     render: (imageUrl) => {console.log(imageUrl);
+        //         return imageUrl ? (
+        //             <Image src={imageUrl} alt="게시글 이미지" width={50} height={50} style={{objectFit: 'cover'}}/>) : ('-');
+        //     }
+        // },
         {
             title: '제목',
             dataIndex: 'title',
@@ -311,18 +311,18 @@ const BoardManage = () => {
             width: 500,
             ellipsis: false, // 텍스트 줄바꿈
         },
-        {
-            title: '작성자',
-            dataIndex: 'author',
-            key: 'author',
-            width: 90,
-            ellipsis: false,
-            render: (text) => (
-                <span style={{whiteSpace: 'normal', wordBreak: 'break-word'}}>
-                    {text}
-                </span>
-            ),
-        },
+        // {
+        //     title: '작성자',
+        //     dataIndex: 'author',
+        //     key: 'author',
+        //     width: 90,
+        //     ellipsis: false,
+        //     render: (text) => (
+        //         <span style={{whiteSpace: 'normal', wordBreak: 'break-word'}}>
+        //             {text}
+        //         </span>
+        //     ),
+        // },
         {
             title: '카테고리',
             dataIndex: ['categories', 'name'],
@@ -349,18 +349,18 @@ const BoardManage = () => {
                 </span>
             ),
         },
-        {
-            title: '조회수',
-            dataIndex: 'views',
-            key: 'views',
-            width: 60,
-            ellipsis: false,
-            render: (text) => (
-                <span style={{whiteSpace: 'normal', wordBreak: 'break-word'}}>
-                    {text}
-                </span>
-            ),
-        },
+        // {
+        //     title: '조회수',
+        //     dataIndex: 'views',
+        //     key: 'views',
+        //     width: 60,
+        //     ellipsis: false,
+        //     render: (text) => (
+        //         <span style={{whiteSpace: 'normal', wordBreak: 'break-word'}}>
+        //             {text}
+        //         </span>
+        //     ),
+        // },
         {
             title: '비밀번호',
             dataIndex: 'password',
